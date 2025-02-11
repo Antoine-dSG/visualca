@@ -1,0 +1,55 @@
+#mutation-matrix {
+position: relative;
+display: inline-block;
+padding: 5px;
+border: 1px solid grey;
+background-color: #f2f2f2;
+}
+
+
+
+#mutation-matrix .cell {
+width: 20px;
+height: 20px;
+border: 1px solid grey;
+background-color: white;
+}
+
+#mutation-matrix .cell-on {
+width: 20px;
+height: 20px;
+border: 1px solid grey;
+background-color: grey;
+}
+
+/* Popup container */
+.popup {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  width: fit-content; 
+}
+
+/* The actual popup (appears on top) */
+.popup .popuptext {
+	display: none;
+ /* visibility: hidden; */
+}
+
+/* Popup arrow */
+.popup .popuptext::after {
+  content: "";
+
+}
+
+.dashboard {
+	box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;  
+	padding: 10px;
+	background-color: #d3d3d3;
+}
+
+.dashboardOff {
+	display: none;
+}
+
+
