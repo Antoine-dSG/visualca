@@ -96,10 +96,58 @@ function doubleWord() {
 	let rank = Number(document.getElementById("userInputRank").value);
     let word = document.getElementById("userInputWord").value;
     // Convert the word into an object
-    const wordList = word.split(',').map(Number);
+    word = word.split(',').map(Number);
     // Length of the word
-    let wordLength = wordList.length
+    // let wordLength = wordList.length
     // Indices of the rows
+	for (let i =1; i <= rank; i++) {
+    	word.unshift(-i)
+    }
+	
+	let height = word.length;
+	// Define the successor word
+	let wordPlus = [];
+	for (let i = 0; i < height; i++) {
+		wordPlus[i] = nextOccur(word[i],(i+1),word,height);
+	}
+	
+	let wordMinus = [];
+	// define the predecessor word
+	for (let i = 0; i < height; i++) {
+		wordMinus[i] = prevOccur(word[i],i,word);
+	}
+	
+	// Sign of each entry of the word
+	let signWord = [];
+	for (let i = 0; i < height; i++) {
+		signWord[i] = sign(word[i]);
+	}
+	
+	mutMat = [];
+	for (a = 0; a < height; a++) {
+		for (b = 0; b < height; b++) {
+			if (a == wordMinus[b]) {
+				mutMat[a*height+b] = -signWord[b];
+			}
+			else if (a == wordPlus[b]) {
+				mutMat[a*height+b] = signWord[b];
+			}
+			else if ((a < b && b < wordPlus[a] && wordPlus[a]< wordPlus[b] && signWord[b] == signWord[wordPlus[a]]) || (a < b && b < wordPlus[b] && wordPlus[b] < wordPlus[a] && signWord[b] == -signWord[wordPlus[b]]) ) {
+				mutMat[a*height+b] = -signWord[b]*2;
+			}
+			else if ((b < a && a < wordPlus[b] && wordPlus[b] < wordPlus[a] && signWord[a] == signWord[wordPlus[b]]) || (b < a && a < wordPlus[a] && wordPlus[a] < wordPlus[b] && signWord[a] == -signWord[wordPlus[a]]) ) {
+				mutMat[a*height+b] = signWord[a]*2;
+			}
+			else if (a == wordPlus[b]) {
+				mutMat[a*height+b] = signWord[a];
+			}
+			else {
+				mutMat[a*height+b] = 0;
+			}
+		}
+	}
+	/*
+
     const indexList = []
     for (let i = 1; i <= wordLength; i++) {
     	indexList.push(i)
@@ -134,7 +182,7 @@ function doubleWord() {
 
     
     // remove all occurences of 0 in exchangeableList 
-    reducedExchangeableList = exchangeableList.filter((num) => num != 0);
+    exchangeableWord = exchangeableList.filter((num) => num != height);
  
     
     // Number of rows and columns in the mutation matrix
@@ -146,7 +194,7 @@ function doubleWord() {
 
 
     // Compute the initial mutation matrix
-    mutMat = [];
+   
     // M = (m_{a,b})
     for (a = 0; a < indexLength; a++) {
     	k = indexList[a];
@@ -178,12 +226,16 @@ function doubleWord() {
     		
     	}
     }
+
+	*/ 
+
+
     // Display mutation matrix
-    arrayToMatrix(mutMat,indexLength,"initialMatrix","clear");
+    arrayToMatrix(mutMat,height,"initialMatrix","clear");
     MathJax.typeset();
     
     // Display the word in 4. Outcome
-    document.getElementById("WordContainer").innerHTML = wordList;
+    document.getElementById("WordContainer").innerHTML = word;
 
     // Reveal the 4. Outcome dashboard
     document.getElementById("InitialDashboard").setAttribute("class","dashboard");
@@ -242,4 +294,11 @@ function nextOccur(i,pos,list,max) {
 	}
 	
 	return minOrMax(IndexNeg,IndexPos,"min");
+}
+
+function prevOccur(i,pos,list) {
+	subList = list.slice(0,pos);
+	IndexPos = subList.lastIndexOf(i);	
+	IndexNeg = subList.lastIndexOf(-i);
+	return minOrMax(IndexNeg,IndexPos,"max");
 }
