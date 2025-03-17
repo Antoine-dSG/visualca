@@ -103,6 +103,10 @@ function doubleWord() {
 	for (let i =1; i <= rank; i++) {
     	word.unshift(-i)
     }
+
+	let absWord = word.map(Math.abs);
+
+	
 	
 	let height = word.length;
 	// Define the successor word
@@ -124,28 +128,29 @@ function doubleWord() {
 	}
 	
 	mutMat = [];
-	for (a = 0; a < height; a++) {
-		for (b = 0; b < height; b++) {
-			if (a == wordMinus[b]) {
-				mutMat[a*height+b] = -signWord[b];
+	let Cartan = createCartan("A",rank);
+	
+	for (p = 0; p < height; p++) {
+		for (k = 0; k < height; k++) {
+			if (p == wordMinus[k]) {
+				mutMat[p*height+k] = -signWord[k];
 			}
-			else if (a == wordPlus[b]) {
-				mutMat[a*height+b] = signWord[b];
+			else if (p == wordPlus[k]) {
+				mutMat[p*height+k] = signWord[p];
 			}
-			else if ((a < b && b < wordPlus[a] && wordPlus[a]< wordPlus[b] && signWord[b] == signWord[wordPlus[a]]) || (a < b && b < wordPlus[b] && wordPlus[b] < wordPlus[a] && signWord[b] == -signWord[wordPlus[b]]) ) {
-				mutMat[a*height+b] = -signWord[b]*2;
+			else if ((p < k && k < wordPlus[p] && wordPlus[p]< wordPlus[k] && signWord[k] == signWord[wordPlus[p]]) || (p < k && k < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[k] == -signWord[wordPlus[k]]) ) {
+				mutMat[p*height+k] = -signWord[k]*Cartan[(absWord[p]-1)*rank+absWord[k]];
 			}
-			else if ((b < a && a < wordPlus[b] && wordPlus[b] < wordPlus[a] && signWord[a] == signWord[wordPlus[b]]) || (b < a && a < wordPlus[a] && wordPlus[a] < wordPlus[b] && signWord[a] == -signWord[wordPlus[a]]) ) {
-				mutMat[a*height+b] = signWord[a]*2;
-			}
-			else if (a == wordPlus[b]) {
-				mutMat[a*height+b] = signWord[a];
+			else if ((k < p && p < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[p] == signWord[wordPlus[k]]) || (k < p && p < wordPlus[p] && wordPlus[p] < wordPlus[k] && signWord[p] == -signWord[wordPlus[p]]) ) {
+				mutMat[p*height+k] = signWord[p]*Cartan[(absWord[p]-1)*rank+absWord[k]];
 			}
 			else {
-				mutMat[a*height+b] = 0;
+				mutMat[p*height+k] = 0;
 			}
 		}
 	}
+
+	
 	/*
 
     const indexList = []
