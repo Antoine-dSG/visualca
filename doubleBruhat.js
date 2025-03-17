@@ -100,9 +100,9 @@ function doubleWord() {
     // Length of the word
     // let wordLength = wordList.length
     // Indices of the rows
-	for (let i =1; i <= rank; i++) {
-    	word.unshift(-i)
-    }
+	//for (let i =1; i <= rank; i++) {
+    //	word.unshift(-i)
+    //}
 
 	let absWord = word.map(Math.abs);
 
@@ -128,7 +128,7 @@ function doubleWord() {
 	}
 	
 	mutMat = [];
-	let Cartan = createCartan("A",rank);
+	//let Cartan = createCartan("A",rank);
 	
 	for (p = 0; p < height; p++) {
 		for (k = 0; k < height; k++) {
@@ -138,21 +138,33 @@ function doubleWord() {
 			else if (p == wordPlus[k]) {
 				mutMat[p*height+k] = signWord[p];
 			}
-			else if ((p < k && k < wordPlus[p] && wordPlus[p]< wordPlus[k] && signWord[k] == signWord[wordPlus[p]]) || (p < k && k < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[k] == -signWord[wordPlus[k]]) ) {
-				mutMat[p*height+k] = -signWord[k]*Cartan[(absWord[p]-1)*rank+absWord[k]];
+			else if (p < k && k < wordPlus[p] && wordPlus[p]< wordPlus[k] && signWord[k] == signWord[wordPlus[p]]) {
+				mutMat[p*height+k] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+				//console.log(p, k, "3");
 			}
-			else if ((k < p && p < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[p] == signWord[wordPlus[k]]) || (k < p && p < wordPlus[p] && wordPlus[p] < wordPlus[k] && signWord[p] == -signWord[wordPlus[p]]) ) {
-				mutMat[p*height+k] = signWord[p]*Cartan[(absWord[p]-1)*rank+absWord[k]];
+			else if (p < k && k < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[k] == -signWord[wordPlus[k]] ) {
+				mutMat[p*height+k] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+				console.log(p, k, "4");
+				console.log(absWord[p]);
+				console.log(absWord[k]);
+				console.log(Cartan[(absWord[p]-1)*rank+absWord[k]]);
+			}
+			else if (k < p && p < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[p] == signWord[wordPlus[k]]) {
+				mutMat[p*height+k] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+				//console.log(p, k, "5");
+			}
+			else if (k < p && p < wordPlus[p] && wordPlus[p] < wordPlus[k] && signWord[p] == -signWord[wordPlus[p]]) {
+				mutMat[p*height+k] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+				//console.log(p, k, "6");
 			}
 			else {
 				mutMat[p*height+k] = 0;
+				//console.log(p, k, "7");
 			}
 		}
 	}
-
-alert(signWord);
-alert(signWord[1]);
-alert(signWord[wordPlus[0]]);	
+	console.log(absWord);
+	
 	/*
 
     const indexList = []

@@ -344,7 +344,7 @@ function createCartan(type, rank) {
 			}
 		}
 	}
-	else if (type == "B") {
+	else if (type == "C") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
@@ -362,7 +362,7 @@ function createCartan(type, rank) {
 			}
 		}
 	}
-	else if (type == "C") {
+	else if (type == "B") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
@@ -415,8 +415,8 @@ function createCartan(type, rank) {
 	}
 	else if (type == "G") {
 		Cartan[0] = 2;
-		Cartan[1] = -1;
-		Cartan[2] = -3;
+		Cartan[1] = -3;
+		Cartan[2] = -1;
 		Cartan[3] = 2;
 	}
 	else if (type == "F") {
