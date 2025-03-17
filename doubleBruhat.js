@@ -150,7 +150,9 @@ function doubleWord() {
 		}
 	}
 
-	
+alert(signWord);
+alert(signWord[1]);
+alert(signWord[wordPlus[0]]);	
 	/*
 
     const indexList = []
