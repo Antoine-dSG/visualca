@@ -33,7 +33,8 @@ function rankToType() {
 	let buttonId = "A";
 	button.setAttribute("id", buttonId);
 	button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
-	button.innerHTML = "\\( \\text{A}_{" + rank + "}\\)";
+	//button.innerHTML = "\\( \\text{A}_{" + rank + "}\\)";
+	button.innerHTML = "A<sub>" + rank +" </sub>";
 	TypeButtons.appendChild(button);
 
 
@@ -43,7 +44,8 @@ function rankToType() {
 		let buttonId = "B";
 		button.setAttribute("id", buttonId);
 		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
-		button.innerHTML = "\\( \\text{B}_{" + rank + "}\\)";
+		//button.innerHTML = "\\( \\text{B}_{" + rank + "}\\)";
+		button.innerHTML = "B<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
 	}
 	// Create a Cn button if rank >= 3
@@ -52,7 +54,8 @@ function rankToType() {
 		let buttonId = "C";
 		button.setAttribute("id", buttonId);
 		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
-		button.innerHTML = "\\( \\text{C}_{" + rank + "}\\)";
+		//button.innerHTML = "\\( \\text{C}_{" + rank + "}\\)";
+		button.innerHTML = "C<sub>" + rank +"</sub>";
 		TypeButtons.appendChild(button);
 	}
 
@@ -62,7 +65,8 @@ function rankToType() {
 		let buttonId = "D";
 		button.setAttribute("id", buttonId);
 		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
-		button.innerHTML = "\\( \\text{D}_{" + rank + "}\\)";
+		//button.innerHTML = "\\( \\text{D}_{" + rank + "}\\)";
+		button.innerHTML = "D<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
 	}
 
@@ -72,7 +76,8 @@ function rankToType() {
 		let buttonId = "E";
 		button.setAttribute("id", buttonId);
 		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
-		button.innerHTML = "\\( \\text{E}_{" + rank + "}\\)";
+		//button.innerHTML = "\\( \\text{E}_{" + rank + "}\\)";
+		button.innerHTML = "E<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
 	}
 
@@ -81,7 +86,8 @@ function rankToType() {
 		let buttonId = "F";
 		button.setAttribute("id", buttonId);
 		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
-		button.innerHTML = "\\( \\text{F}_{" + rank + "}\\)";
+		//button.innerHTML = "\\( \\text{F}_{" + rank + "}\\)";
+		button.innerHTML = "F<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
 	}
 
@@ -90,12 +96,12 @@ function rankToType() {
 		let buttonId = "G";
 		button.setAttribute("id", buttonId);
 		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
-		button.innerHTML = "\\( \\text{G}_{" + rank + "}\\)";
+		//button.innerHTML = "\\( \\text{G}_{" + rank + "}\\)";
+		button.innerHTML = "G<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
 	}
 	//MathJax.typeset([TypeButtons]);  
 	//MathJax.typeset();
-	MathJax.typeset([TypeButtons]);
 }
 
 function doubleWord() {
