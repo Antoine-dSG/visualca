@@ -1,3 +1,9 @@
+// Load a colour package when the user arrives onto the main page
+window.MathJax = {
+	loader: {load: ['[tex]/color']},
+	tex: {packages: {'[+]': ['color']}}
+  };
+
 function rankToType() {
     let rank = document.getElementById("userInputRank").value;
    	// Reveal the dashboards 2. and 3.
@@ -86,10 +92,10 @@ function rankToType() {
 		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
 		button.innerHTML = "\\( \\text{G}_{" + rank + "}\\)";
 		TypeButtons.appendChild(button);
-
 	}
-	MathJax.typeset([TypeButtons]); 
-
+	//MathJax.typeset([TypeButtons]);  
+	//MathJax.typeset();
+	MathJax.typeset([TypeButtons]);
 }
 
 function doubleWord() {
@@ -135,12 +141,13 @@ function doubleWord() {
 	}
 	
 	mutMat = [];
+
 	
 	for (p = 0; p < height; p++) {
 		b = 0;
 		//for (k = 0; k < height; k++) {
 		for (k = 0; k < height; k++) {
-			if (exchangePosition.includes(b)) {
+			if (exchangePosition.includes(k)) {
 				if (p == wordMinus[k]) {
 					mutMat[p*width+b] = -signWord[k];
 				}
@@ -167,95 +174,21 @@ function doubleWord() {
 		}
 	}
 	
-	
-	/*
-
-    const indexList = []
-    for (let i = 1; i <= wordLength; i++) {
-    	indexList.push(i)
-    	if (wordList[i-1] > rank || wordList[i-1] == 0 || wordList[i-1] < (-rank) ) {
-    		alert(i+'th entry of the word is out of bounds');
-    	}
-    }
-
-    // Copy indexList
-    let exchangeableList = [...indexList];
-
-    // Replace the last occurence of each index with '0'
-    for (let i = 1; i <= rank; i++) {
-    	j = wordList.lastIndexOf(i)
-    	k = wordList.lastIndexOf(-i)
-    	if (j >= 0 && j > k) {
-    		exchangeableList[j] = 0;
-    	}
-    	if (k >= 0 && k > j) {
-    		exchangeableList[k] = 0;
-    	}
-    	
-    }
-
-
-
-    // Add a copy of -[1,rank] at the beginning of the word and the index list
-    for (let i =1; i <= rank; i++) {
-    	wordList.unshift(-i)
-    	indexList.unshift(-i)
-    }
-
-    
-    // remove all occurences of 0 in exchangeableList 
-    exchangeableWord = exchangeableList.filter((num) => num != height);
- 
-    
-    // Number of rows and columns in the mutation matrix
-    let indexLength = wordList.length;
-    let exchIndexLength = reducedExchangeableList.length;
-    // Display size of the mutation matrix
-    document.getElementById("initialMatrixHead").innerHTML = "Initial mutation matrix (size: \\(" + indexLength + '\\times' + exchIndexLength +"\\))";
-    MathJax.typeset([initialMatrixHead]);
-
-
-    // Compute the initial mutation matrix
-   
-    // M = (m_{a,b})
-    for (a = 0; a < indexLength; a++) {
-    	k = indexList[a];
-    	// Index "at position k"
-    	i = wordList[a];
-    	kPlus = nextOccur(i,(a+1),wordList,indexLength);
-    	//alert('The next occurence of '+ i + ' is at ' + kPlus);
-    	
-    	for (b = 0; b < exchIndexLength; b++) {
-    		l = reducedExchangeableList[b];
-    		// Index "at position l"
-    		shift_rank = l + rank -1;
-    		j = wordList[shift_rank];
-    		p = minOrMax(k,l,"max");
-    		// Next occurence of 
-    		lPlus = nextOccur(j,(l+rank),wordList,indexLength);
-    		//
-    		q = minOrMax(kPlus,lPlus,"min");
-    		if (p == q) {
-    			mutMat[a*exchIndexLength+b] = -1*sign(k-l)*sign(wordList[p+rank-1]);
-    		}
-    		// Need to give meaning to 
-    		else if (p < q && sign(wordList[p+rank-1])*(k-l)*(kPlus - lPlus) >0 ) {
-    			mutMat[a*exchIndexLength+b] = -1*sign(k-l)*sign(wordList[p+rank-1])*2;
-    		}
-    		else {
-    			mutMat[a*exchIndexLength+b] = 0;
-    		}
-    		
-    	}
-    }
-
-	*/ 
-
+	prinPartMutMat = [];
+	for (a = 0; a < width; a++) {
+		for (b = 0; b < width; b++) {
+			console.log(exchangePosition[a],exchangePosition[b]);
+			prinPartMutMat[a*width+b] = mutMat[exchangePosition[a]*width+b];
+		}
+	}
 
     // Display mutation matrix
     arrayToMatrix(mutMat,height,"initialMatrix","clear");
     MathJax.typeset();
-    
+
+	arrayToMatrix(prinPartMutMat,width,"initialPrincipalPart","clear");
+    MathJax.typeset();
+
     // Display the word in 4. Outcome
     document.getElementById("WordContainer").innerHTML = word;
 
