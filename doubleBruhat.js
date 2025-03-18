@@ -114,7 +114,14 @@ function doubleWord() {
 	for (let i = 0; i < height; i++) {
 		wordPlus[i] = nextOccur(word[i],(i+1),word,height);
 	}
-	
+	exchangePosition = [];
+	for (let i = 0; i < height; i++) {
+		if (wordPlus[i] != height) {
+			exchangePosition.push(i);
+		}
+	}
+	let width = exchangePosition.length;
+
 	let wordMinus = [];
 	// define the predecessor word
 	for (let i = 0; i < height; i++) {
@@ -128,42 +135,38 @@ function doubleWord() {
 	}
 	
 	mutMat = [];
-	//let Cartan = createCartan("A",rank);
 	
 	for (p = 0; p < height; p++) {
+		b = 0;
+		//for (k = 0; k < height; k++) {
 		for (k = 0; k < height; k++) {
-			if (p == wordMinus[k]) {
-				mutMat[p*height+k] = -signWord[k];
-			}
-			else if (p == wordPlus[k]) {
-				mutMat[p*height+k] = signWord[p];
-			}
-			else if (p < k && k < wordPlus[p] && wordPlus[p]< wordPlus[k] && signWord[k] == signWord[wordPlus[p]]) {
-				mutMat[p*height+k] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
-				//console.log(p, k, "3");
-			}
-			else if (p < k && k < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[k] == -signWord[wordPlus[k]] ) {
-				mutMat[p*height+k] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
-				console.log(p, k, "4");
-				console.log(absWord[p]);
-				console.log(absWord[k]);
-				console.log(Cartan[(absWord[p]-1)*rank+absWord[k]]);
-			}
-			else if (k < p && p < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[p] == signWord[wordPlus[k]]) {
-				mutMat[p*height+k] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
-				//console.log(p, k, "5");
-			}
-			else if (k < p && p < wordPlus[p] && wordPlus[p] < wordPlus[k] && signWord[p] == -signWord[wordPlus[p]]) {
-				mutMat[p*height+k] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
-				//console.log(p, k, "6");
-			}
-			else {
-				mutMat[p*height+k] = 0;
-				//console.log(p, k, "7");
-			}
+			if (exchangePosition.includes(b)) {
+				if (p == wordMinus[k]) {
+					mutMat[p*width+b] = -signWord[k];
+				}
+				else if (p == wordPlus[k]) {
+					mutMat[p*width+b] = signWord[p];
+				}
+				else if (p < k && k < wordPlus[p] && wordPlus[p]< wordPlus[k] && signWord[k] == signWord[wordPlus[p]]) {
+					mutMat[p*width+b] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+				}
+				else if (p < k && k < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[k] == -signWord[wordPlus[k]] ) {
+					mutMat[p*width+b] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+				}
+				else if (k < p && p < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[p] == signWord[wordPlus[k]]) {
+					mutMat[p*width+b] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+				}
+				else if (k < p && p < wordPlus[p] && wordPlus[p] < wordPlus[k] && signWord[p] == -signWord[wordPlus[p]]) {
+					mutMat[p*width+b] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+				}
+				else {
+					mutMat[p*width+b] = 0;
+				}
+				b = b+1;
+			} 
 		}
 	}
-	console.log(absWord);
+	
 	
 	/*
 
