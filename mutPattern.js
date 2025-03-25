@@ -8,6 +8,15 @@ var aTropMaxInitial;
 var yTropMaxInitial;
 
 
+
+
+/**
+ * Build the graph data (nodes & links) from the skew-symmetric matrix.
+ * Each node is simply labeled by its index (i).
+ * Each link has {source, target, weight}.
+ */
+
+
 function closePopup() {
 	var popup = document.getElementById("mutation-matrix");
 		popup.style.display = "none";
@@ -186,7 +195,7 @@ function createMutationMatrix() {
 	let cells = document.querySelectorAll('#tableContainer input');
 	let cellsArray = callme(cells);
 	cellsInitialMat = cellsArray;
-
+	
 	// Retrieve all the rows in tableContainer.
 	let rows = document.querySelectorAll('#tableContainer tr');
 	rownumInitialMat = rows.length;
@@ -281,7 +290,7 @@ function createMutationMatrix() {
 	}
 	MathJax.typeset([mutationButtons]);
 
-
+	quiver();
 }
 
 function mutateData(id) {
@@ -333,6 +342,7 @@ function mutateData(id) {
 	arrayToMatrix(cellsInitialMat,rownumInitialMat,'mutationHistory', "concat");
 	// Ask MathJax to render the newly created code in LaTeX
 	// MathJax.typeset([mutationHistory]);
+	quiver();
 }
 
 
@@ -505,5 +515,199 @@ function ssTest (matrix) {
 	return 'Yes';
 }
 
+function quiver() {
+/**
+   * Example skew-symmetric matrix M (3x3):
+   *  0   2  -1
+   * -2   0   3
+   *  1  -3   0
+   *
+   * Feel free to change this to any skew-symmetric integer matrix.
+   */
+   //const matrixData = [
+	//['0','2'],['-2','0']
+  //];
 
+	function array2Matrix (array) {
+		let n = array.length;
+		let m = Math.sqrt(n);
+
+		let matrix = [];
+		for (let i = 0; i < m; i++) {
+			row = [];
+			for (let j = 0; j < m; j++) {
+				row.push(array[i*m + j]);
+			}
+			matrix.push(row);
+		}
+		return matrix;
+	}
+	let matrixData = array2Matrix(cellsInitialMat);
+  
+  /**
+   * Build the graph data (nodes & links) from the skew-symmetric matrix.
+   * Each node is simply labeled by its index (i).
+   * Each link has {source, target, weight}.
+   */
+  function buildGraphFromMatrix(M) {
+	const n = M.length;
+	// Create node objects
+	const nodes = Array.from({ length: n }, (_, i) => ({ id: i }));
+	
+	// Create link objects
+	const links = [];
+	for (let i = 0; i < n; i++) {
+	  for (let j = 0; j < n; j++) {
+		if (i < j) {
+		  // We only need to check i<j to avoid duplication
+		  if (M[i][j] > 0) {
+			// Edge i -> j
+			links.push({
+			  source: i,
+			  target: j,
+			  weight: M[i][j]
+			});
+		  } else if (M[i][j] < 0) {
+			// Edge j -> i
+			links.push({
+			  source: j,
+			  target: i,
+			  weight: -M[i][j]
+			});
+		  }
+		}
+	  }
+	}
+  
+	return { nodes, links };
+  }
+  
+  /**
+   * Draws an oriented graph (directed) with D3's force simulation.
+   * Users can drag the nodes to rearrange them.
+   */
+  function drawOrientedGraph({ nodes, links }, svgSelector) {
+	const svg = d3.select(svgSelector);
+	const width = +svg.attr("width");
+	const height = +svg.attr("height");
+  
+	// Define a force simulation
+	const simulation = d3.forceSimulation(nodes)
+	  .force("link", d3.forceLink(links).distance(100).strength(1).id(d => d.id))
+	  .force("charge", d3.forceManyBody().strength(-300))
+	  .force("center", d3.forceCenter(width / 2, height / 2))
+	  .on("tick", ticked);
+  
+	// Define arrow markers for directed edges
+	svg.append("defs").selectAll("marker")
+	  .data(["arrow"])
+	  .enter()
+	  .append("marker")
+	  	.attr("id", d => d)
+		.attr("refX", 16)    // so the arrow is placed at the end of the link
+		.attr("refY", 0)
+		.attr("markerWidth", 6)
+		.attr("markerHeight", 6)
+		.attr("orient", "auto")
+		.attr("class", "arrowhead")
+		.attr("viewBox", "0 -5 10 10")
+	  .append("path")
+		.attr("d", "M0,-5 L10,0 L0,5");
+  
+	// Create links (lines)
+	const link = svg.append("g")
+	  .attr("class", "links")
+	  .selectAll("path")
+	  .data(links)
+	  .enter().append("path")
+		.attr("class", "link")
+		.attr("marker-end", "url(#arrow)")
+		.style("stroke", "#666");
+  
+	// Create link labels for weights
+	const linkLabels = svg.append("g")
+	  .selectAll(".weight-label")
+	  .data(links)
+	  .enter().append("text")
+		.attr("class", "weight-label")
+		.attr("dy", -5)
+		.text(d => d.weight);
+  
+	// Create nodes (circles)
+	const node = svg.append("g")
+	  .attr("class", "nodes")
+	  .selectAll("circle")
+	  .data(nodes)
+	  .enter().append("circle")
+		.attr("class", "node")
+		.attr("r", 12)
+		.attr("fill", "#69b3a2")
+		.call(d3.drag()
+		  .on("start", dragStarted)
+		  .on("drag", dragged)
+		  .on("end", dragEnded));
+  
+	// Create node labels
+	const nodeLabels = svg.append("g")
+	  .selectAll(".node-label")
+	  .data(nodes)
+	  .enter().append("text")
+		.attr("class", "node-label")
+		.attr("text-anchor", "middle")
+		.attr("dy", 4)
+		.text(d => d.id);
+  
+	// Update positions each tick
+	function ticked() {
+	  // Update link positions
+	  link.attr("d", d => {
+		const sx = d.source.x;
+		const sy = d.source.y;
+		const tx = d.target.x;
+		const ty = d.target.y;
+		return `M${sx},${sy} L${tx},${ty}`;
+	  });
+  
+	  // Update link labels (weight) positions
+	  linkLabels
+		.attr("x", d => (d.source.x + d.target.x) / 2)
+		.attr("y", d => (d.source.y + d.target.y) / 2);
+  
+	  // Update node positions
+	  node.attr("cx", d => d.x)
+		  .attr("cy", d => d.y);
+  
+	  // Update node labels positions
+	  nodeLabels
+		.attr("x", d => d.x)
+		.attr("y", d => d.y);
+	}
+  
+	// Drag behavior
+	function dragStarted(event, d) {
+	  if (!event.active) simulation.alphaTarget(0.3).restart();
+	  d.fx = d.x;
+	  d.fy = d.y;
+	}
+  
+	function dragged(event, d) {
+	  d.fx = event.x;
+	  d.fy = event.y;
+	}
+  
+	function dragEnded(event, d) {
+	  if (!event.active) simulation.alphaTarget(0);
+	  d.fx = null;
+	  d.fy = null;
+	}
+  }
+  
+  // Build the graph data from the matrix
+  const graphData = buildGraphFromMatrix(matrixData);
+  
+  document.getElementById("graph").innerHTML = "";
+  // Draw the oriented graph in the SVG with id="graph"
+  drawOrientedGraph(graphData, "#graph");
+}
+  
 
