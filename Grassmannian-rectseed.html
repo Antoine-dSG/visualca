@@ -38,10 +38,10 @@
   <main>
   	<div class="dashboard">
   	<div style="font-weight: bold;">1. Choose Grassmannian parameters</div>
-  	<p style="display: inline-block;">n = </p>
-  	<input type="number" id="userInputRank" min="1" step="1" value="3">
   	<p style="display: inline-block;">k = </p>
-  	<input type="number" id="userInputRank" min="1" step="1" value="3">
+  	<input type="number" id="userInputk" min="1" step="1" value="3">
+  	<p style="display: inline-block;">n = </p>
+  	<input type="number" id="userInputn" min="1" step="1" value="6">
   	<button onclick="Grassrectseed()">Submit</button>
   	</div>
 
@@ -51,7 +51,7 @@
   		<div style="font-weight: bold;">2. Outcome</div>
   		<table>
 			<thead>
-				<td id="initialMatrixHead">Initial mutation matrix</td>
+				<td id="initialMatrixHead">Rectangles seed initial mutation matrix</td>
 				<td id="initialPrincipalPartHead">Principal part</td>
 			</thead>
 			<tr>
