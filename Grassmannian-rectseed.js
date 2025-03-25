@@ -46,10 +46,10 @@ function Grassrectseed() {
 	//Sets zeroth matrix row corresponding to empty rectangle cluster variable
 	{const i=0;
 	for (j=0; j<width+1; j++) {
-		if (j==1 || j==n-k) {
+		if (j==1) {
 			mutMat[i*width+j] = 1;
 		}
-		else if (j==(k-1)*(n-k)+1) {
+		else if (j==(k-1)*(n-k)+1  || j==n-k) {
 			mutMat[i*width+j] = -1;
 		}
 		else {
@@ -87,10 +87,10 @@ function Grassrectseed() {
 
 	{const i=n-k;
 	for (j=0; j<width; j++) {
-		if (j==0 || j==n-k-1) {
+		if (j==n-k-1) {
 			mutMat[i*width+j] = -1;
 		}
-		else if (j==2*(n-k)) {
+		else if (j==0 || j==2*(n-k)) {
 			mutMat[i*width+j] = 1;
 		}
 		else {
