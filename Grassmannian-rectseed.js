@@ -187,7 +187,8 @@ function Grassrectseed() {
 	prinPartMutMat = [];
 	for (a = 0; a < mutwidth; a++) {
 		for (b = 0; b < mutwidth; b++) {
-			prinPartMutMat[a*mutwidth+b] = mutMat[(a+1 + Math.floor(a / (n-k)))*width+(b+1 + Math.floor(b / (n-k)))];
+			console.log(a, a+1 + Math.floor((a) / (n-k-1)));
+			prinPartMutMat[a*mutwidth+b] = mutMat[(a+1 + Math.floor((a) / (n-k-1)))*width+(b+1 + Math.floor((b) / (n-k-1)))];
 		}
 	}
 
