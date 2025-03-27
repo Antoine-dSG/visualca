@@ -1,3 +1,7 @@
+var InitialMat;
+var PrinInitialMat;
+var rownumInitialMat;
+var colnumInitialMat;
 // Load a colour package when the user arrives onto the main page
 window.MathJax = {
 	loader: {load: ['[tex]/color']},
@@ -7,12 +11,14 @@ window.MathJax = {
 function rankToType() {
     let rank = document.getElementById("userInputRank").value;
    	// Reveal the dashboards 2. and 3.
-	document.getElementById("TypeDashboard").setAttribute("class","dashboard");
+	document.getElementById("inDashboardBruhat2").setAttribute("class","dashboard");
 
 	// Clear the computations on dashboard 2.
 	document.getElementById("UserCartanDisplay").innerHTML = "";
 
 	// Clear the computations on dashboards 4. and 5.
+	document.getElementById("mutationHistory").innerHTML = "";
+	document.getElementById("initialMatrix").innerHTML = "";
 	//document.getElementById("initialCartanContainer").innerHTML = "";
 	//document.getElementById("initialContainer").innerHTML = "";
 
@@ -20,7 +26,7 @@ function rankToType() {
 	//document.getElementById("globalMonomial").innerHTML = "";
 
 	// Hide dashboards 4. and 5. (in case the user has made a calculation previously)
-	document.getElementById("InitialDashboard").setAttribute("class","dashboardOff");
+	document.getElementById("outDashboard1").setAttribute("class","dashboardOff");
 	//document.getElementById("outcomeDashboard").setAttribute("class","dashboardOff");
 
 	// Create "shortcut" buttons for Cartan matrices in div with id="CartanButtons"
@@ -146,7 +152,7 @@ function doubleWord() {
 		signWord[i] = sign(word[i]);
 	}
 	
-	mutMat = [];
+	InitialMat = [];
 
 	
 	for (p = 0; p < height; p++) {
@@ -155,51 +161,56 @@ function doubleWord() {
 		for (k = 0; k < height; k++) {
 			if (exchangePosition.includes(k)) {
 				if (p == wordMinus[k]) {
-					mutMat[p*width+b] = -signWord[k];
+					InitialMat[p*width+b] = -signWord[k];
 				}
 				else if (p == wordPlus[k]) {
-					mutMat[p*width+b] = signWord[p];
+					InitialMat[p*width+b] = signWord[p];
 				}
 				else if (p < k && k < wordPlus[p] && wordPlus[p]< wordPlus[k] && signWord[k] == signWord[wordPlus[p]]) {
-					mutMat[p*width+b] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+					InitialMat[p*width+b] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
 				}
 				else if (p < k && k < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[k] == -signWord[wordPlus[k]] ) {
-					mutMat[p*width+b] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+					InitialMat[p*width+b] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
 				}
 				else if (k < p && p < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[p] == signWord[wordPlus[k]]) {
-					mutMat[p*width+b] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+					InitialMat[p*width+b] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
 				}
 				else if (k < p && p < wordPlus[p] && wordPlus[p] < wordPlus[k] && signWord[p] == -signWord[wordPlus[p]]) {
-					mutMat[p*width+b] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+					InitialMat[p*width+b] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
 				}
 				else {
-					mutMat[p*width+b] = 0;
+					InitialMat[p*width+b] = 0;
 				}
 				b = b+1;
 			} 
 		}
 	}
 	
-	prinPartMutMat = [];
+	PrinInitialMat = [];
 	for (a = 0; a < width; a++) {
 		for (b = 0; b < width; b++) {
-			console.log(exchangePosition[a],exchangePosition[b]);
-			prinPartMutMat[a*width+b] = mutMat[exchangePosition[a]*width+b];
+			PrinInitialMat[a*width+b] = InitialMat[exchangePosition[a]*width+b];
 		}
 	}
 
     // Display mutation matrix
-    arrayToMatrix(mutMat,height,"initialMatrix","clear");
+    arrayToMatrix(InitialMat,height,"initialMatrix","clear");
     MathJax.typeset();
 
-	arrayToMatrix(prinPartMutMat,width,"initialPrincipalPart","clear");
+	arrayToMatrix(PrinInitialMat,width,"initialPrincipalPart","clear");
     MathJax.typeset();
+
+	quiver(array2Matrix(PrinInitialMat));
+	rownumInitialMat = height;
+	colnumInitialMat = width;
+	mutButtons(width);
 
     // Display the word in 4. Outcome
-    document.getElementById("WordContainer").innerHTML = word;
+    //document.getElementById("WordContainer").innerHTML = word;
 
     // Reveal the 4. Outcome dashboard
-    document.getElementById("InitialDashboard").setAttribute("class","dashboard");
+    document.getElementById("outDashboard1").setAttribute("class","dashboard");
+	document.getElementById("outDashboard2").setAttribute("class","dashboard");
 }
 
 

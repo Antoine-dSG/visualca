@@ -1,3 +1,8 @@
+var InitialMat;
+var PrinInitialMat;
+var rownumInitialMat;
+var colnumInitialMat;
+
 // Load a colour package when the user arrives onto the main page
 window.MathJax = {
 	loader: {load: ['[tex]/color']},
@@ -32,28 +37,34 @@ window.MathJax = {
 	}
 
 function Grassrectseed() {
+	document.getElementById("mutationHistory").innerHTML = "";
+	document.getElementById("initialMatrix").innerHTML = "";
 	//This function constructs the mutation matrix associated to the rectangles seed for the Grassmannian.
 	//This will include arrows in between frozen variables as indicated by plabic graphs.
+	
+
 	let k = Number(document.getElementById("userInputk").value);
     let n = Number(document.getElementById("userInputn").value);
     
 	let height = k*(n-k)+1;
 	let width = k*(n-k)+1;
 	//let width = (k-1)*(n-k-1);
+	rownumInitialMat = height;
+	
 
 	
-	mutMat = [];
+	InitialMat = [];
 	//Sets zeroth matrix row corresponding to empty rectangle cluster variable
 	{const i=0;
 	for (j=0; j<width+1; j++) {
 		if (j==1) {
-			mutMat[i*width+j] = 1;
+			InitialMat[i*width+j] = 1;
 		}
 		else if (j==(k-1)*(n-k)+1  || j==n-k) {
-			mutMat[i*width+j] = -1;
+			InitialMat[i*width+j] = -1;
 		}
 		else {
-			mutMat[i*width+j] = 0;
+			InitialMat[i*width+j] = 0;
 		}
 	}}
 
@@ -61,26 +72,26 @@ function Grassrectseed() {
 	{const i=1;
 	for (j=0; j<width+1; j++) {
 		if (j==0 || j==n-k+2) {
-			mutMat[i*width+j] = -1;
+			InitialMat[i*width+j] = -1;
 		}
 		else if (j==2 || j==n-k+1) {
-			mutMat[i*width+j] = 1;
+			InitialMat[i*width+j] = 1;
 		}
 		else {
-			mutMat[i*width+j] = 0;
+			InitialMat[i*width+j] = 0;
 		}
 	}}
 
 	for (i=2;i<n-k; i++) {
 		for (j=0; j<width; j++) {
 			if (j==i-1 || j==i+n-k+1) {
-				mutMat[i*width+j] = -1;
+				InitialMat[i*width+j] = -1;
 			}
 			else if (j==i+1 || j==i+n-k) {
-				mutMat[i*width+j] = 1;
+				InitialMat[i*width+j] = 1;
 			}
 			else {
-				mutMat[i*width+j] = 0;
+				InitialMat[i*width+j] = 0;
 			}
 		}
 	}
@@ -88,13 +99,13 @@ function Grassrectseed() {
 	{const i=n-k;
 	for (j=0; j<width; j++) {
 		if (j==n-k-1) {
-			mutMat[i*width+j] = -1;
+			InitialMat[i*width+j] = -1;
 		}
 		else if (j==0 || j==2*(n-k)) {
-			mutMat[i*width+j] = 1;
+			InitialMat[i*width+j] = 1;
 		}
 		else {
-			mutMat[i*width+j] = 0;
+			InitialMat[i*width+j] = 0;
 		}
 	}}
 
@@ -103,26 +114,26 @@ function Grassrectseed() {
 		{const i=p*(n-k)+1;
 		for (j=0; j<width; j++) {
 			if (j==i-(n-k) || j==i + n-k +1) {
-				mutMat[i*width+j] = -1;
+				InitialMat[i*width+j] = -1;
 			}
 			else if (j==i+n-k || j==i+1) {
-				mutMat[i*width+j] = 1;
+				InitialMat[i*width+j] = 1;
 			}
 			else {
-				mutMat[i*width+j] = 0;
+				InitialMat[i*width+j] = 0;
 			}
 		}}
 
 		for (i=p*(n-k)+2;i<p*(n-k)+(n-k); i++) {
 			for (j=0; j<width; j++) {
 				if (j== i-(n-k) || j==i-1 || j==i+n-k+1) {
-					mutMat[i*width+j] = -1;
+					InitialMat[i*width+j] = -1;
 				}
 				else if (j==i-(n-k)-1 || j==i+1 || j==i+n-k) {
-					mutMat[i*width+j] = 1;
+					InitialMat[i*width+j] = 1;
 				}
 				else {
-					mutMat[i*width+j] = 0;
+					InitialMat[i*width+j] = 0;
 				}
 			}
 		}
@@ -130,13 +141,13 @@ function Grassrectseed() {
 		{const i=p*(n-k)+(n-k);
 		for (j=0; j<width; j++) {
 			if (j==i-1 || j==i - (n-k)) {
-				mutMat[i*width+j] = -1;
+				InitialMat[i*width+j] = -1;
 			}
 			else if (j==i-(n-k)-1 || j==i+n-k) {
-				mutMat[i*width+j] = 1;
+				InitialMat[i*width+j] = 1;
 			}
 			else {
-				mutMat[i*width+j] = 0;
+				InitialMat[i*width+j] = 0;
 			}
 		}}
 	}
@@ -145,26 +156,26 @@ function Grassrectseed() {
 	{const i=(k-1)*(n-k)+1;
 	for (j=0; j<width; j++) {
 		if (j==(k-2)*(n-k)+1) {
-			mutMat[i*width+j] = -1;
+			InitialMat[i*width+j] = -1;
 		}
 		else if (j==0 || j==i+1) {
-			mutMat[i*width+j] = 1;
+			InitialMat[i*width+j] = 1;
 		}
 		else {
-			mutMat[i*width+j] = 0;
+			InitialMat[i*width+j] = 0;
 		}
 	}}
 
 	for (i=(k-1)*(n-k)+2;i<k*(n-k); i++) {
 		for (j=0; j<width; j++) {
 			if (j==i-1 || j==i-(n-k)) {
-				mutMat[i*width+j] = -1;
+				InitialMat[i*width+j] = -1;
 			}
 			else if (j==i+1 || j==i-(n-k)-1) {
-				mutMat[i*width+j] = 1;
+				InitialMat[i*width+j] = 1;
 			}
 			else {
-				mutMat[i*width+j] = 0;
+				InitialMat[i*width+j] = 0;
 			}
 		}
 	}
@@ -172,41 +183,45 @@ function Grassrectseed() {
 	{const i=k*(n-k);
 	for (j=0; j<width; j++) {
 		if (j==i-1 || j==(k-1)*(n-k)) {
-			mutMat[i*width+j] = -1;
+			InitialMat[i*width+j] = -1;
 		}
 		else if (j==(k-1)*(n-k)-1) {
-			mutMat[i*width+j] = 1;
+			InitialMat[i*width+j] = 1;
 		}
 		else {
-			mutMat[i*width+j] = 0;
+			InitialMat[i*width+j] = 0;
 		}
 	}}
 	
 
 	let mutwidth = (k-1)*(n-k-1); 
-	prinPartMutMat = [];
+	
+	PrinInitialMat = [];
 	for (a = 0; a < mutwidth; a++) {
 		for (b = 0; b < mutwidth; b++) {
-			console.log(a, a+1 + Math.floor((a) / (n-k-1)));
-			prinPartMutMat[a*mutwidth+b] = mutMat[(a+1 + Math.floor((a) / (n-k-1)))*width+(b+1 + Math.floor((b) / (n-k-1)))];
+			PrinInitialMat[a*mutwidth+b] = InitialMat[(a+1 + Math.floor((a) / (n-k-1)))*width+(b+1 + Math.floor((b) / (n-k-1)))];
 		}
 	}
 	mutindices = [];
 	for (a = 0; a < mutwidth; a++) {
 		mutindices[a] = (a+1 + Math.floor((a) / (n-k-1)))
 	}
-	console.log(mutindices);
+	colnumInitialMat = mutindices.length;
 
     // Display mutation matrix
-    arrayToMatrix(mutMat,height,"initialMatrix","clear");
+    arrayToMatrix(InitialMat,height,"initialMatrix","clear");
     MathJax.typeset();
 
-	arrayToMatrix(prinPartMutMat,mutwidth,"initialPrincipalPart","clear");
+	arrayToMatrix(PrinInitialMat,mutwidth,"initialPrincipalPart","clear");
     MathJax.typeset();
 	
-	arrayToMatrix(mutindices,1,"mutableIndices","clear");
-    MathJax.typeset();
+	//arrayToMatrix(mutindices,1,"mutableIndices","clear");
+    //MathJax.typeset();
+	console.log(PrinInitialMat);
+	mutButtons(mutwidth);
+	quiver(array2Matrix(PrinInitialMat));
 
     // Reveal the 4. Outcome dashboard
-    document.getElementById("InitialDashboard").setAttribute("class","dashboard");
+    document.getElementById("outDashboard1").setAttribute("class","dashboard");
+	document.getElementById("outDashboard2").setAttribute("class","dashboard");
 }

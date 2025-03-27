@@ -1,5 +1,6 @@
 // Global functions recording the values of the latest mutation matrix
-var cellsInitialMat;
+var InitialMat;
+var PrinInitialMat;
 var rownumInitialMat;
 var colnumInitialMat;
 var aTropMinInitial;
@@ -7,14 +8,33 @@ var yTropMinInitial;
 var aTropMaxInitial;
 var yTropMaxInitial;
 
+window.MathJax = {
+	loader: {load: ['[tex]/color']},
+	tex: {packages: {'[+]': ['color']}}
+  };
 
-
-
-/**
- * Build the graph data (nodes & links) from the skew-symmetric matrix.
- * Each node is simply labeled by its index (i).
- * Each link has {source, target, weight}.
- */
+// Dashboard0 to Dashboard1
+function dashZeroToOne() {
+	var choice = document.querySelector('input[name="inputMethod"]:checked').value;
+	// Close all dashboards
+	document.getElementById("inDashboardManual1").className = "dashboardOff";
+	document.getElementById("inDashboardManual2").className = "dashboardOff";
+	document.getElementById("inDashboardBruhat1").className = "dashboardOff";
+	document.getElementById("inDashboardBruhat2").className = "dashboardOff";
+	document.getElementById("inDashboardGrassmannian1").className = "dashboardOff";
+	document.getElementById("outDashboard1").className = "dashboardOff";
+	document.getElementById("outDashboard2").className = "dashboardOff";
+	// Reveal the next dashboard
+	if (choice == "manual") {
+		document.getElementById("inDashboardManual1").className = "dashboard";
+	}
+	else if (choice == "Bruhat") {
+		document.getElementById("inDashboardBruhat1").className = "dashboard";
+	}
+	else if (choice == "Grassmannian") {
+		document.getElementById("inDashboardGrassmannian1").className = "dashboard";
+	}
+}
 
 
 function closePopup() {
@@ -91,8 +111,7 @@ function createEmptyMat(n) {
 	let colnum = n%8+1;
 	generateTable(rownum, colnum, "tableContainer").setAttribute("id", "mutMatrix");
 
-	document.getElementById("inputField").setAttribute("class", "dashboard");
-	document.getElementById("mutMatHeader").style.visibility = "visible";
+	document.getElementById("inDashboardManual2").setAttribute("class", "dashboard");
 
 	rownumInitialMat = rownum;
 	colnumInitialMat = colnum;
@@ -165,7 +184,23 @@ for (var i = 0;i < rownum; i++) {
 document.getElementById(tagById).innerHTML += "\\end{pmatrix}\\)";
 }
 
-
+function mutButtons (r) {
+	document.getElementById("mutationButtons").innerHTML = "";
+	mutationButtons = document.getElementById("mutationButtons");
+	
+	// Create a mutation button for each column (if number of
+	// columns <= number of rows) or each row (if number of rows <= number of columns)
+	let n = min(r, (InitialMat.length)/(r));
+	for (let i = 1; i <= n; i++) {
+		let button = document.createElement("button");
+		let mutationButtonNum = i + "mutButton";
+		button.setAttribute("id", mutationButtonNum);
+		button.setAttribute("onclick", "mutateData(this.id)");
+		button.innerHTML = "\\( \\mu_" + i + "\\)";
+		mutationButtons.appendChild(button);
+	}
+	MathJax.typeset([mutationButtons]);
+}
 
 
 function createMutationMatrix() {
@@ -175,10 +210,11 @@ function createMutationMatrix() {
 	document.getElementById("initialYTropMin").innerHTML = "";
 	document.getElementById("initialATropMax").innerHTML = "";
 	document.getElementById("initialYTropMax").innerHTML = "";
-	document.getElementById("mutationButtons").innerHTML = "";
 
-	document.getElementById("initialDataLatex").setAttribute("class", "dashboard");
-	document.getElementById("mutationDashboard").setAttribute("class", "dashboard");
+	document.getElementById("outDashboard1").setAttribute("class", "dashboard");
+	document.getElementById("outDashboard2").setAttribute("class", "dashboard");
+
+	document.getElementById("mutationHistory").innerHTML = "";
 
 	document.getElementById('iniMutMatHeader').style.visibility = "visible";
 
@@ -194,23 +230,34 @@ function createMutationMatrix() {
 	// content of each cell of the mutation matrix
 	let cells = document.querySelectorAll('#tableContainer input');
 	let cellsArray = callme(cells);
-	cellsInitialMat = cellsArray;
+	InitialMat = cellsArray;
+	
 	
 	// Retrieve all the rows in tableContainer.
 	let rows = document.querySelectorAll('#tableContainer tr');
 	rownumInitialMat = rows.length;
-	colnumInitialMat = cellsInitialMat.length / rownumInitialMat;
+	colnumInitialMat = InitialMat.length / rownumInitialMat;
+
+	PrinInitialMat = [];
+	for (i=0; i<colnumInitialMat; i++) {
+		for (j=0; j<colnumInitialMat; j++) {
+			PrinInitialMat[i*colnumInitialMat + j] = InitialMat[i*colnumInitialMat + j];
+		}
+	}
 
 	// Test whether the mutation matrix is sign-skew-symmetric
-	document.getElementById('sssStateCurrent').innerHTML = sssTest(cellsInitialMat);
+	document.getElementById('sssStateCurrent').innerHTML = sssTest(PrinInitialMat);
 
 	// Test whether the mutation matrix is skew-symmetrisable
-	document.getElementById('ssStateCurrent').innerHTML = ssTest(cellsInitialMat);
+	document.getElementById('ssStateCurrent').innerHTML = ssTest(PrinInitialMat);
 
 	// Create MathJax rendition of initial mutation matrix in the <div id="initialMatrix">
 	arrayToMatrix(cellsArray,rows.length,'initialMatrix', "clear");
 	// Ask MathJax to render the newly created code in LaTeX
 	MathJax.typeset([initialMatrix]);
+
+	arrayToMatrix(PrinInitialMat,colnumInitialMat,'initialPrincipalPart', "clear");
+	MathJax.typeset([initialPrincipalPart]);
 
 	// Reveal the "Show mutation history" button
 	document.getElementById("mutationHistoryButton").style.display = "block";
@@ -275,23 +322,10 @@ function createMutationMatrix() {
 		document.getElementById("iniYtropMaxHeader").style.visibility = "hidden";
 	}
 
-
-	mutationButtons = document.getElementById("mutationButtons");
-	// Create a mutation button for each column (if number of
-	// columns <= number of rows) or each row (if number of rows <= number of columns)
-	let n = min(rows.length, (cellsArray.length)/(rows.length));
-	for (let i = 1; i <= n; i++) {
-		let button = document.createElement("button");
-		let mutationButtonNum = i + "mutButton";
-		button.setAttribute("id", mutationButtonNum);
-		button.setAttribute("onclick", "mutateData(this.id)");
-		button.innerHTML = "\\( \\mu_" + i + "\\)";
-		mutationButtons.appendChild(button);
-	}
-	MathJax.typeset([mutationButtons]);
-
-	quiver();
+	mutButtons(rows.length);
+	quiver(array2Matrix(PrinInitialMat));
 }
+
 
 function mutateData(id) {
 	// Hide the mutation history div
@@ -304,45 +338,49 @@ function mutateData(id) {
 
 	// Mutate tropical points if any exists
 	if (document.getElementById("AtropMinCheckBox").checked == true) {
-		aTropMinInitial = mutateATrop(aTropMinInitial,cellsInitialMat,rownumInitialMat,colnumInitialMat,direction,'min');
+		aTropMinInitial = mutateATrop(aTropMinInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'min');
 		arrayToMatrix(aTropMinInitial,1,'initialATropMin',"clear");
 		MathJax.typeset([initialATropMin]);
 	}
 	if (document.getElementById("YtropMinCheckBox").checked == true) {
-		yTropMinInitial = mutateYTrop(yTropMinInitial,cellsInitialMat,rownumInitialMat,colnumInitialMat,direction,'min');
+		yTropMinInitial = mutateYTrop(yTropMinInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'min');
 		arrayToMatrix(yTropMinInitial,1,'initialYTropMin',"clear");
 		MathJax.typeset([initialYTropMin]);
 	}
 	if (document.getElementById("AtropMaxCheckBox").checked == true) {
-		aTropMaxInitial = mutateATrop(aTropMaxInitial,cellsInitialMat,rownumInitialMat,colnumInitialMat,direction,'max');
+		aTropMaxInitial = mutateATrop(aTropMaxInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'max');
 		arrayToMatrix(aTropMaxInitial,1,'initialATropMax',"clear");
 		MathJax.typeset([initialATropMax]);
 	}
 	if (document.getElementById("YtropMaxCheckBox").checked == true) {
-		yTropMaxInitial = mutateYTrop(yTropMaxInitial,cellsInitialMat,rownumInitialMat,colnumInitialMat,direction,'max');
+		yTropMaxInitial = mutateYTrop(yTropMaxInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'max');
 		arrayToMatrix(yTropMaxInitial,1,'initialYTropMax',"clear");
 		MathJax.typeset([initialYTropMax]);
 	}
 	// Create new matrix by mutating the latest
-	cellsInitialMat = mutation(cellsInitialMat,rownumInitialMat,colnumInitialMat,direction);
+	InitialMat = mutation(InitialMat,rownumInitialMat,colnumInitialMat,direction);
+	PrinInitialMat = mutation(PrinInitialMat,colnumInitialMat,colnumInitialMat,direction);
 	// Test whether the mutation matrix is sign-skew-symmetric
-	document.getElementById('sssStateCurrent').innerHTML = sssTest(cellsInitialMat);
+	document.getElementById('sssStateCurrent').innerHTML = sssTest(InitialMat);
 
 	// Test whether the mutation matrix is skew-symmetrisable
-	document.getElementById('ssStateCurrent').innerHTML = ssTest(cellsInitialMat);
+	document.getElementById('ssStateCurrent').innerHTML = ssTest(InitialMat);
 
 	// Convert the latest mutation matrix to MathJax
-	arrayToMatrix(cellsInitialMat,rownumInitialMat,'initialMatrix', "clear");
+	arrayToMatrix(InitialMat,rownumInitialMat,'initialMatrix', "clear");
 	// Render the MathJax
 	MathJax.typeset([initialMatrix]);
+
+	arrayToMatrix(PrinInitialMat,colnumInitialMat,'initialPrincipalPart', "clear");
+	MathJax.typeset([initialPrincipalPart]);
 
 	// Add the mutation direction to mutation history div
 	document.getElementById("mutationHistory").innerHTML += "\\( \\xrightarrow{ \\mu_" + direction + "} \\) ";
 	// Add latest mutation matrix to <div id="mutationHistory">
-	arrayToMatrix(cellsInitialMat,rownumInitialMat,'mutationHistory', "concat");
+	arrayToMatrix(InitialMat,rownumInitialMat,'mutationHistory', "concat");
 	// Ask MathJax to render the newly created code in LaTeX
 	// MathJax.typeset([mutationHistory]);
-	quiver();
+	quiver(array2Matrix(PrinInitialMat));
 }
 
 
@@ -515,34 +553,24 @@ function ssTest (matrix) {
 	return 'Yes';
 }
 
-function quiver() {
-/**
-   * Example skew-symmetric matrix M (3x3):
-   *  0   2  -1
-   * -2   0   3
-   *  1  -3   0
-   *
-   * Feel free to change this to any skew-symmetric integer matrix.
-   */
-   //const matrixData = [
-	//['0','2'],['-2','0']
-  //];
+function array2Matrix (array) {
+	let n = array.length;
+	let m = Math.sqrt(n);
 
-	function array2Matrix (array) {
-		let n = array.length;
-		let m = Math.sqrt(n);
-
-		let matrix = [];
-		for (let i = 0; i < m; i++) {
-			row = [];
-			for (let j = 0; j < m; j++) {
-				row.push(array[i*m + j]);
-			}
-			matrix.push(row);
+	let matrix = [];
+	for (let i = 0; i < m; i++) {
+		row = [];
+		for (let j = 0; j < m; j++) {
+			row.push(array[i*m + j]);
 		}
-		return matrix;
+		matrix.push(row);
 	}
-	let matrixData = array2Matrix(cellsInitialMat);
+	return matrix;
+}
+
+
+function quiver(matrixData) {
+
   
   /**
    * Build the graph data (nodes & links) from the skew-symmetric matrix.
@@ -655,7 +683,7 @@ function quiver() {
 		.attr("class", "node-label")
 		.attr("text-anchor", "middle")
 		.attr("dy", 4)
-		.text(d => d.id);
+		.text(d => d.id+1);
   
 	// Update positions each tick
 	function ticked() {

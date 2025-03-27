@@ -14,54 +14,83 @@
 </head>
 
 <body>
+<!-- HEADER -->
+<header>
+	<a href="home.html"><img style="width: 80px" src="logo.png"></a>
+	<h3 >Visual Cluster Algebras</h3>
+	<nav>
+		<ul>
+		<li ><a href="mutPattern.html">Matrix mutation</a></li>
+		<li ><a href="greedy.html">Rank 2</a></li>
+		<li><a href="acyclic.html">Frieze patterns</a></li>
+		<li><a href="triangulated.html">Triangulations and friezes</a></li>
+		<li><a href="about.html">Contact Us</a></li>
+	</ul>
+	</nav>
+</header>
+
+<!-- MAIN BODY -->
+<main>
+
+<!-- DASHBOARD 1: Selecting input method -->
+<div class="dashboard">
+	<div style="font-weight: bold;">1. Select input method</div>
+	<table>
+		<tr>
+		<td style="padding-right: 30px">
+			<label class="checkedBox">
+			<input type="radio" name="inputMethod" checked ="checked" value = "manual">
+			Custom mutation matrix
+			<span class="checkedBoxSpan"></span>
+			</label>
+		</td>
+		<td style="padding-right: 30px">
+			<label class="checkedBox" >
+			<input type="radio" name="inputMethod" value="Bruhat">
+			From double Bruhat cell
+			<span class="checkedBoxSpan"></span>
+			</label>
+		</td>
+		<td style="padding-right: 30px">
+			<label class="checkedBox" >
+			<input type="radio" name="inputMethod" value="Grassmannian">
+			From Grassmannian
+			<span class="checkedBoxSpan"></span>
+			</label>
+		</td>		
+		</tr>
+		<!-- Options -->
+		<tr>
+			<td>Options</td>
+		</tr>
+		<tr>
+		<td style="padding-right: 30px">
+			<input type="checkbox" id="AtropMinCheckBox">
+			<label for="AtropMinCheckBox">\(\mathcal{A}(\mathbb{Z}^{\rm min})\)-tropical point</label><br>
+			<input type="checkbox" id="YtropMinCheckBox">
+			<label for="YtropMinCheckBox">\(\mathcal{X}(\mathbb{Z}^{\rm min})\)-tropical point</label><br> 
+		</td>
+		<td style="padding-right: 30px">
+			<input type="checkbox" id="AtropMaxCheckBox">
+			<label for="AtropMaxCheckBox">\(\mathcal{A}(\mathbb{Z}^{\rm max})\)-tropical point</label><br>
+			<input type="checkbox" id="YtropMaxCheckBox">
+			<label for="YtropMaxCheckBox">\(\mathcal{X}(\mathbb{Z}^{\rm max})\)-tropical point</label><br>
+		</td>
+		</tr>
+	</table><br>
+	<button onclick="dashZeroToOne()">Next</button>
 	
-	<header>
-		<a href="home.html"><img style="width: 80px" src="logo.png"></a>
-		<h3 >Visual Cluster Algebras</h3>
-		<nav>
-		  <ul>
-		  <li ><a href="mutPattern.html">Matrix mutation</a></li>
-		  <li ><a href="greedy.html">Rank 2</a></li>
-		  <li><a href="acyclic.html">Frieze patterns</a></li>
-		  <li><a href="triangulated.html">Triangulations and friezes</a></li>
-		  <li><a href="about.html">Contact Us</a></li>
-		</ul>
-		</nav>
-	  </header>
-  <main>
+</div>
+<br>
+<!-- Manual input dashboards -->
+<!-- Manual dashboard 1 -->
+<div class="dashboardOff" id="inDashboardManual1">
+	<div style="font-weight: bold;">2. Choose mutation matrix size</div> 
+	<button onclick="createGrid()">Choose size</button>
+</div>
 
-  	<div class="dashboard">
-  		<div style="font-weight: bold;">1. Select objects to compute</div>
-  		<table>
-  			<tr>
-  				<td style="padding-right: 30px">
-  					<label class="checkedBox" >
-  					<input type="checkbox" onclick="return false;" checked = "checked">
-  					Mutation matrix
-  					<span class="checkedBoxSpan"></span>
-  					</label>
-  				</td>
-  				<td style="padding-right: 30px">
-  					<input type="checkbox" id="AtropMinCheckBox">
-					<label for="AtropMinCheckBox">\(\mathcal{A}(\mathbb{Z}^{\rm min})\)-tropical point</label><br>
-					<input type="checkbox" id="YtropMinCheckBox">
-					<label for="YtropMinCheckBox">\(\mathcal{X}(\mathbb{Z}^{\rm min})\)-tropical point</label><br> 
-  				</td>
-  				<td >
-  					<input type="checkbox" id="AtropMaxCheckBox">
-					<label for="AtropMaxCheckBox">\(\mathcal{A}(\mathbb{Z}^{\rm max})\)-tropical point</label><br>
-					<input type="checkbox" id="YtropMaxCheckBox">
-					<label for="YtropMaxCheckBox">\(\mathcal{X}(\mathbb{Z}^{\rm max})\)-tropical point</label><br>
-  				</td>
-  			</tr>
-  		</table><br>
-  		
-		<div style="font-weight: bold;">2. Choose mutation matrix size</div> 
-  		<button onclick="createGrid()">Choose size</button>
-  	</div>
-
-
-	<div class="popup">
+<!-- Pop-up for matrix size -->
+<div class="popup">
 		<div class="popuptext" id="mutation-matrix" style="display: none">
 			
 			<table>
@@ -212,42 +241,85 @@
 				</tr>
 			</table>
 		</div>
-	</div>
+		<br>
+</div>
+
+
+
+<!-- Manual dashboard 2 -->
+<form id="inDashboardManual2" class="dashboardOff">
+<div style="font-weight: bold;">3. Input mutation matrix</div>
+<table>
+	<thead>
+		<td id="mutMatHeader" style="visibility: hidden;">Mutation matrix</td>
+		<td id="AtropMinHeader" style="visibility: hidden;">\(\mathcal{A}(\mathbb{Z}^{\rm min})\)-tropical point</td>
+		<td id="YtropMinHeader" style="visibility: hidden;">\(\mathcal{X}(\mathbb{Z}^{\rm min})\)-tropical point</td>
+		<td id="AtropMaxHeader" style="visibility: hidden;">\(\mathcal{A}(\mathbb{Z}^{\rm max})\)-tropical point</td>
+		<td id="YtropMaxHeader" style="visibility: hidden;">\(\mathcal{X}(\mathbb{Z}^{\rm max})\)-tropical point</td>
+	</thead>
+	<tr>
+		<td><div style="display: flex; justify-content: center;" id="tableContainer"></div></td>
+		<td><div style="display: flex; justify-content: center;" id="AtropMinContainer"></div></td>
+		<td><div style="display: flex; justify-content: center;" id="YtropMinContainer"></div></td>
+		<td><div style="display: flex; justify-content: center;" id="AtropMaxContainer"></div></td>
+		<td><div style="display: flex; justify-content: center;" id="YtropMaxContainer"></div></td>
+	</tr>
+</table><br>
+<input type="button" style="display: none;" id="createMutMatButton" onclick="createMutationMatrix()" value="Submit initial data">
+</form>
+<!-- END OF MANUAL DASHBOARDS -->
+
+
+<!-- BRUHAT DASHBOARDS -->
+<!-- Bruhat dashboard 1 -->
+<div id="inDashboardBruhat1" class="dashboardOff">
+	<div style="font-weight: bold;">2. Choose rank of Lie group</div>
+	<p style="display: inline-block;">n = </p>
+	<input type="number" id="userInputRank" min="1" step="1" value="3">
+	<button onclick="rankToType()">Submit</button>
+</div>
+
+<!-- Bruhat dashboard 2 -->
+<div id="inDashboardBruhat2" class="dashboardOff">
+	<div style="font-weight: bold;">3. Choose Cartan-Killing type</div>
+	<div style="display: inline-block;" id="TypeButtons">  </div>
+	<div id="UserCartanDisplay"></div>  
 
 	<br>
 
-	<div  id="initialDataDashboard">
-		<form id="inputField" class="dashboardOff">
-		<div style="font-weight: bold;">3. Input initial data</div>
-		<table>
-			<thead>
-				<td id="mutMatHeader" style="visibility: hidden;">Mutation matrix</td>
-				<td id="AtropMinHeader" style="visibility: hidden;">\(\mathcal{A}(\mathbb{Z}^{\rm min})\)-tropical point</td>
-				<td id="YtropMinHeader" style="visibility: hidden;">\(\mathcal{X}(\mathbb{Z}^{\rm min})\)-tropical point</td>
-				<td id="AtropMaxHeader" style="visibility: hidden;">\(\mathcal{A}(\mathbb{Z}^{\rm max})\)-tropical point</td>
-				<td id="YtropMaxHeader" style="visibility: hidden;">\(\mathcal{X}(\mathbb{Z}^{\rm max})\)-tropical point</td>
-			</thead>
-			<tr>
-				<td><div style="display: flex; justify-content: center;" id="tableContainer"></div></td>
-				<td><div style="display: flex; justify-content: center;" id="AtropMinContainer"></div></td>
-				<td><div style="display: flex; justify-content: center;" id="YtropMinContainer"></div></td>
-				<td><div style="display: flex; justify-content: center;" id="AtropMaxContainer"></div></td>
-				<td><div style="display: flex; justify-content: center;" id="YtropMaxContainer"></div></td>
-			</tr>
-		</table><br>
-		<input type="button" style="display: none;" id="createMutMatButton" onclick="createMutationMatrix()" value="Submit initial data">
-		</form>
-	</div>
-	
+	<div style="font-weight: bold;">4. Choose double reduced word (separated by commas)</div>
+	<p style="display: inline-block;"><b>i</b> = </p>
+	<input type="text" id="userInputWord"><button onclick="doubleWord()"> Submit</button>
+</div>
 
-	<br>
-<!-- Table containing the initial data with user input -->
-<div id="initialDataLatex" class="dashboardOff">
-	<div style="font-weight: bold;">4. Current data</div>
+
+
+<!-- END OF BRUHAT DASHBOARDS -->
+
+
+<!-- GRASSMANNIAN DASHBOARDS -->
+<!-- Grassmannian dashboard 1 -->
+<div class="dashboardOff" id="inDashboardGrassmannian1" >
+	<div style="font-weight: bold;">2. Choose Grassmannian parameters</div>
+	<p style="display: inline-block;">k = </p>
+	<input type="number" id="userInputk" min="1" step="1" value="3">
+	<p style="display: inline-block;">n = </p>
+	<input type="number" id="userInputn" min="1" step="1" value="6">
+	<button onclick="Grassrectseed()">Submit</button>
+</div>
+<!-- END OF GRASSMANNIAN DASHBOARDS -->
+
+<br>
+
+<!-- OUTPUT DASHBOARDS -->
+<!-- Output Dashboard 1 -->
+<div id="outDashboard1" class="dashboardOff">
+	<div style="font-weight: bold;">Current data</div>
 	<table>
 	<thead>
-		<td id="iniMutMatHeader" style="visibility: hidden; justify-content: center;">Mutation matrix</td>
-		<td style="justify-content: center; text-align:center ;">Quiver</td>
+		<td id="iniMutMatHeader" style="justify-content: center;">Mutation matrix</td>
+		<td id="initialPrincipalPartHead" style="justify-content: center;">Principal part</td>
+		<td id="graphHeader" style="justify-content: center;">Quiver</td>
 		<td id="iniAtropMinHeader" style="visibility: hidden;">\(\mathbb{A}(\mathbb{Z}^{\rm min})\)-tropical point</td>
 		<td id="iniYtropMinHeader" style="visibility: hidden;">\(\mathbb{Y}(\mathbb{Z}^{\rm min})\)-tropical point</td>
 		<td id="iniAtropMaxHeader" style="visibility: hidden;">\(\mathbb{A}(\mathbb{Z}^{\rm max})\)-tropical point</td>
@@ -255,23 +327,19 @@
 	</thead>
 	<tr>
 		<td><div style="display: flex; justify-content: center;" id="initialMatrix"></div></td>
+		<td><div style="display: flex; justify-content: center;" id="initialPrincipalPart"></div></td>
 		<td><svg xmlns="http://www.w3.org/2000/svg" id="graph" width="400" height = "300"></svg></td>
 		<td><div style="display: flex; justify-content: center;" id="initialATropMin"></div></td>
 		<td><div style="display: flex; justify-content: center;" id="initialYTropMin"></div></td>
 		<td><div style="display: flex; justify-content: center;" id="initialATropMax"></div></td>
 		<td><div style="display: flex; justify-content: center;" id="initialYTropMax"></div></td>
 	</tr>
-</table>
+	</table>
 
-<div>
-<button id="matrixPropertiesButton" onclick="toggleDiv(this.id,matrixProperties, 'matrix properties')">Show matrix properties</button><br>
-
+	<div>
+	<button id="matrixPropertiesButton" onclick="toggleDiv(this.id,matrixProperties, 'matrix properties')">Show matrix properties</button><br>
 	<div id="matrixProperties" style="display: none;">
 		<table>
-			<thead>
-				<td></td>
-				<td></td>
-			</thead>
 			<tr>
 				<td><div style="display: flex; justify-content: right;">Sign-skew-symmetric: </div></td>
 				<td id="sssStateCurrent"></td>
@@ -283,24 +351,23 @@
 		</table>
 	</div>
 </div>
-
-
-	
-
-
 <br>
 
-<div id ="mutationDashboard" class="dashboardOff">
+	
+<!-- Output Dashboard 2 -->
+<div id ="outDashboard2" class="dashboardOff">
 	<div style="font-weight: bold">5. Mutations</div>
 	<div id="mutationButtons"></div>
-</div>
 
-		
-
+	<br>
 	<div>
-	<button id="mutationHistoryButton" onclick="toggleDiv(this.id, mutationHistory, 'mutation history')" style="display: none">Show mutation history</button>
+		<button id="mutationHistoryButton" onclick="toggleDiv(this.id, mutationHistory, 'mutation history')" style="display: none">Show mutation history</button>
 		<div id="mutationHistory" style="display: none"></div>
 	</div>
+</div>
+
+
+
 	
 
 <!-- existing content -->
@@ -309,6 +376,9 @@
 </main>
 </body>
 <script type="text/javascript" src="mutPattern.js"></script>
+<script type="text/javascript" src="doubleBruhat.js"></script>
+<script type="text/javascript" src="acyclic.js"></script>	
+<script type="text/javascript" src="Grassmannian-rectseed.js" ></script>
 </html>
 
 
