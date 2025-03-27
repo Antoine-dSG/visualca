@@ -210,7 +210,6 @@ function Grassrectseed() {
 
     // Display mutation matrix
     arrayToMatrix(InitialMat,height,"initialMatrix","clear");
-    MathJax.typeset();
 
 	arrayToMatrix(PrinInitialMat,mutwidth,"initialPrincipalPart","clear");
     MathJax.typeset();

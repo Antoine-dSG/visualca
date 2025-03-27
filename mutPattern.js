@@ -199,7 +199,8 @@ function mutButtons (r) {
 		button.innerHTML = "\\( \\mu_" + i + "\\)";
 		mutationButtons.appendChild(button);
 	}
-	MathJax.typeset([mutationButtons]);
+	//MathJax.typeset([mutationButtons]);
+	MathJax.typeset();
 }
 
 
@@ -254,10 +255,10 @@ function createMutationMatrix() {
 	// Create MathJax rendition of initial mutation matrix in the <div id="initialMatrix">
 	arrayToMatrix(cellsArray,rows.length,'initialMatrix', "clear");
 	// Ask MathJax to render the newly created code in LaTeX
-	MathJax.typeset([initialMatrix]);
+	//MathJax.typeset([initialMatrix]);
 
 	arrayToMatrix(PrinInitialMat,colnumInitialMat,'initialPrincipalPart', "clear");
-	MathJax.typeset([initialPrincipalPart]);
+	//MathJax.typeset([initialPrincipalPart]);
 
 	// Reveal the "Show mutation history" button
 	document.getElementById("mutationHistoryButton").style.display = "block";
@@ -273,7 +274,7 @@ function createMutationMatrix() {
 		let aCellsArray = callme(aCells);
 		aTropMinInitial = aCellsArray;
 		arrayToMatrix(aTropMinInitial,1,'initialATropMin',"clear");
-		MathJax.typeset([initialATropMin]);
+		//MathJax.typeset([initialATropMin]);
 	}
 
 	else {
@@ -287,7 +288,7 @@ function createMutationMatrix() {
 		let yCellsArray = callme(yCells);
 		yTropMinInitial = yCellsArray;
 		arrayToMatrix(yTropMinInitial,1,'initialYTropMin',"clear");
-		MathJax.typeset([initialYTropMin]);
+		//MathJax.typeset([initialYTropMin]);
 	}
 	else {
 	//	document.getElementById("YtropMinContainer").innerHTML = "";
@@ -301,7 +302,7 @@ function createMutationMatrix() {
 		let aCellsArray = callme(aCells);
 		aTropMaxInitial = aCellsArray;
 		arrayToMatrix(aTropMaxInitial,1,'initialATropMax',"clear");
-		MathJax.typeset([initialATropMax]);
+		//MathJax.typeset([initialATropMax]);
 	}
 
 	else {
@@ -315,7 +316,7 @@ function createMutationMatrix() {
 		let yCellsArray = callme(yCells);
 		yTropMaxInitial = yCellsArray;
 		arrayToMatrix(yTropMaxInitial,1,'initialYTropMax',"clear");
-		MathJax.typeset([initialYTropMax]);
+		//MathJax.typeset([initialYTropMax]);
 	}
 	else {
 	//	document.getElementById("YtropMinContainer").innerHTML = "";
@@ -324,6 +325,7 @@ function createMutationMatrix() {
 
 	mutButtons(rows.length);
 	quiver(array2Matrix(PrinInitialMat));
+	MathJax.typeset();
 }
 
 
@@ -340,22 +342,22 @@ function mutateData(id) {
 	if (document.getElementById("AtropMinCheckBox").checked == true) {
 		aTropMinInitial = mutateATrop(aTropMinInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'min');
 		arrayToMatrix(aTropMinInitial,1,'initialATropMin',"clear");
-		MathJax.typeset([initialATropMin]);
+		//MathJax.typeset([initialATropMin]);
 	}
 	if (document.getElementById("YtropMinCheckBox").checked == true) {
 		yTropMinInitial = mutateYTrop(yTropMinInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'min');
 		arrayToMatrix(yTropMinInitial,1,'initialYTropMin',"clear");
-		MathJax.typeset([initialYTropMin]);
+		//MathJax.typeset([initialYTropMin]);
 	}
 	if (document.getElementById("AtropMaxCheckBox").checked == true) {
 		aTropMaxInitial = mutateATrop(aTropMaxInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'max');
 		arrayToMatrix(aTropMaxInitial,1,'initialATropMax',"clear");
-		MathJax.typeset([initialATropMax]);
+		//MathJax.typeset([initialATropMax]);
 	}
 	if (document.getElementById("YtropMaxCheckBox").checked == true) {
 		yTropMaxInitial = mutateYTrop(yTropMaxInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'max');
 		arrayToMatrix(yTropMaxInitial,1,'initialYTropMax',"clear");
-		MathJax.typeset([initialYTropMax]);
+		//MathJax.typeset([initialYTropMax]);
 	}
 	// Create new matrix by mutating the latest
 	InitialMat = mutation(InitialMat,rownumInitialMat,colnumInitialMat,direction);
@@ -369,10 +371,10 @@ function mutateData(id) {
 	// Convert the latest mutation matrix to MathJax
 	arrayToMatrix(InitialMat,rownumInitialMat,'initialMatrix', "clear");
 	// Render the MathJax
-	MathJax.typeset([initialMatrix]);
+	//MathJax.typeset([initialMatrix]);
 
 	arrayToMatrix(PrinInitialMat,colnumInitialMat,'initialPrincipalPart', "clear");
-	MathJax.typeset([initialPrincipalPart]);
+	//MathJax.typeset([initialPrincipalPart]);
 
 	// Add the mutation direction to mutation history div
 	document.getElementById("mutationHistory").innerHTML += "\\( \\xrightarrow{ \\mu_" + direction + "} \\) ";
@@ -381,6 +383,7 @@ function mutateData(id) {
 	// Ask MathJax to render the newly created code in LaTeX
 	// MathJax.typeset([mutationHistory]);
 	quiver(array2Matrix(PrinInitialMat));
+	MathJax.typeset();
 }
 
 
@@ -434,7 +437,8 @@ function toggleDiv(button, element, name) {
 	if (element.style.display == "none") {
 		element.style.display = "block";
 		document.getElementById(button).innerHTML = "Hide "+ name;
-		MathJax.typeset([mutationHistory]);
+		//MathJax.typeset([mutationHistory]);
+		MathJax.typeset();
 	}
 	else {
 		element.style.display = "none";
