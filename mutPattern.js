@@ -8,10 +8,10 @@ var yTropMinInitial;
 var aTropMaxInitial;
 var yTropMaxInitial;
 
-window.MathJax = {
-	loader: {load: ['[tex]/color']},
-	tex: {packages: {'[+]': ['color']}}
-  };
+//window.MathJax = {
+//	loader: {load: ['[tex]/color']},
+//	tex: {packages: {'[+]': ['color']}}
+//  };
 
 // Dashboard0 to Dashboard1
 function dashZeroToOne() {
@@ -325,7 +325,7 @@ function createMutationMatrix() {
 
 	mutButtons(rows.length);
 	quiver(array2Matrix(PrinInitialMat));
-	MathJax.typeset();
+	MathJax.typeset()
 }
 
 
@@ -381,9 +381,9 @@ function mutateData(id) {
 	// Add latest mutation matrix to <div id="mutationHistory">
 	arrayToMatrix(InitialMat,rownumInitialMat,'mutationHistory', "concat");
 	// Ask MathJax to render the newly created code in LaTeX
-	// MathJax.typeset([mutationHistory]);
+	 MathJax.typeset();
 	quiver(array2Matrix(PrinInitialMat));
-	MathJax.typeset();
+
 }
 
 

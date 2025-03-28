@@ -107,7 +107,7 @@ function rankToType() {
 		TypeButtons.appendChild(button);
 	}
 	//MathJax.typeset([TypeButtons]);  
-	//MathJax.typeset();
+	MathJax.typeset();
 }
 
 function doubleWord() {
@@ -195,16 +195,15 @@ function doubleWord() {
 
     // Display mutation matrix
     arrayToMatrix(InitialMat,height,"initialMatrix","clear");
-    MathJax.typeset();
 
 	arrayToMatrix(PrinInitialMat,width,"initialPrincipalPart","clear");
-    MathJax.typeset();
+    //MathJax.typeset();
 
 	quiver(array2Matrix(PrinInitialMat));
 	rownumInitialMat = height;
 	colnumInitialMat = width;
 	mutButtons(width);
-
+	MathJax.typeset();
     // Display the word in 4. Outcome
     //document.getElementById("WordContainer").innerHTML = word;
 

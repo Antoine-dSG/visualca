@@ -212,15 +212,15 @@ function Grassrectseed() {
     arrayToMatrix(InitialMat,height,"initialMatrix","clear");
 
 	arrayToMatrix(PrinInitialMat,mutwidth,"initialPrincipalPart","clear");
-    MathJax.typeset();
+    //MathJax.typeset();
 	
 	//arrayToMatrix(mutindices,1,"mutableIndices","clear");
     //MathJax.typeset();
-	console.log(PrinInitialMat);
 	mutButtons(mutwidth);
 	quiver(array2Matrix(PrinInitialMat));
 
     // Reveal the 4. Outcome dashboard
     document.getElementById("outDashboard1").setAttribute("class","dashboard");
 	document.getElementById("outDashboard2").setAttribute("class","dashboard");
+	MathJax.typeset();
 }
