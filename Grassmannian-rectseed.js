@@ -3,11 +3,6 @@ var PrinInitialMat;
 var rownumInitialMat;
 var colnumInitialMat;
 
-// Load a colour package when the user arrives onto the main page
-window.MathJax = {
-	loader: {load: ['[tex]/color']},
-	tex: {packages: {'[+]': ['color']}}
-  };
 
   function arrayToMatrix(array,rownum,tagById,renderType) {
 	// renderType determines whether the tagById div needs to be clear before constructing 

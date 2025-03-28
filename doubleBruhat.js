@@ -2,11 +2,6 @@ var InitialMat;
 var PrinInitialMat;
 var rownumInitialMat;
 var colnumInitialMat;
-// Load a colour package when the user arrives onto the main page
-window.MathJax = {
-	loader: {load: ['[tex]/color']},
-	tex: {packages: {'[+]': ['color']}}
-  };
 
 function rankToType() {
     let rank = document.getElementById("userInputRank").value;

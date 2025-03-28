@@ -1,11 +1,16 @@
 // Global variables
 var Cartan;
 
+
+// Replace the existing window.MathJax assignment with:
+
 // Load a colour package when the user arrives onto the main page
+// THIS MIGHT PROVOKE SOME "MathJax.typeset" ERRORS
 window.MathJax = {
   loader: {load: ['[tex]/color']},
   tex: {packages: {'[+]': ['color']}}
 };
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// Functions in the flow of the website //////////////////////////////

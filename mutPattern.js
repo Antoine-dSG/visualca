@@ -743,3 +743,123 @@ function quiver(matrixData) {
 }
   
 
+function displayCartanShortcut(type, rank,tagById) {
+	Cartan = createCartan(type, rank);
+	arrayToMatrix(Cartan, rank, tagById, "clear");
+	MathJax.typeset();
+}
+
+// Function to create a Cartan matrix of type X and rank n
+function createCartan(type, rank) {
+	let Cartan = [];
+	let n = rank;
+	if (type == "A") {
+		for (let i = 0; i < n; i++) {
+			for (let j =0; j < n; j++) {
+				if (i==j) {
+					Cartan[i*n+j] = 2;
+				}
+				else if (i == j+1 || i == j-1) {
+					Cartan[i*n+j] = -1;
+				}
+				else {
+					Cartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "C") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					Cartan[i*n+j] = 2;
+				}
+				else if ((i == j+1) || (i == j-1 && j != n-1)) {
+					Cartan[i*n+j] = -1;
+				}
+				else if (i == n-2 && j == n-1) {
+					Cartan[i*n+j] = -2;
+				}
+				else {
+					Cartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "B") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					Cartan[i*n+j] = 2;
+				}
+				else if ((i == j+1 && i != n-1) || (i == j-1)) {
+					Cartan[i*n+j] = -1;
+				}
+				else if (i == n-1 && j == n-2) {
+					Cartan[i*n+j] = -2;
+				}
+				else {
+					Cartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "D") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					Cartan[i*n+j] = 2;
+				}
+				else if ((i == j+1 && i != n-1) || (i == j-1 && j != n-1)
+				|| (i == n-3 && j == n-1) || (i == n-1 && j == n-3)){
+					Cartan[i*n+j] = -1;
+				}
+				else {
+					Cartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "E") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					Cartan[i*n+j] = 2;
+				}
+				else if ((i == j+1 && i != 1 && i != 2) || (i == j-1 && j != 1 && j != 2)
+				|| (i == 2 && j == 0) || (i == 3 && j == 1)
+				|| (i == 0 && j == 2) || (i == 1 && j == 3)){
+					Cartan[i*n+j] = -1;
+				}
+				else {
+					Cartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "G") {
+		Cartan[0] = 2;
+		Cartan[1] = -3;
+		Cartan[2] = -1;
+		Cartan[3] = 2;
+	}
+	else if (type == "F") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					Cartan[i*n+j] = 2;
+				}
+				else if ((i == j+1) || (i == j-1 && j != n-2)) {
+					Cartan[i*n+j] = -1;
+				}
+				else if (i == n-3 && j == n-2) {
+					Cartan[i*n+j] = -2;
+				}
+				else {
+					Cartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	return Cartan;
+}
