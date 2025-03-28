@@ -196,7 +196,7 @@ function mutButtons (r) {
 		let mutationButtonNum = i + "mutButton";
 		button.setAttribute("id", mutationButtonNum);
 		button.setAttribute("onclick", "mutateData(this.id)");
-		button.innerHTML = "\\( \\mu_" + i + "\\)";
+		button.innerHTML = "\\( \\mu_{" + i + "}\\)";
 		mutationButtons.appendChild(button);
 	}
 	//MathJax.typeset([mutationButtons]);
