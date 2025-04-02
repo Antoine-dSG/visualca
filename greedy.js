@@ -67,7 +67,7 @@ function case1(d1,d2) {
 function case2(d1,d2) {
   var b = document.getElementById("bValue").value;
   var c = document.getElementById("cValue").value;
-  var greedyElementArray =["1+"];
+  var greedyElementArray = [[1, 0, 0]]; // array of triples: coefficient and exponents of x_1, x_2
   // max_n is the largest value of n = p+q such that c(p,q) is non-zero
   var max_n = math.max(d1,d2);
   // support is an array of arrays S[0], S[1], ... , S[max_n] where
@@ -89,157 +89,24 @@ function case2(d1,d2) {
       if (i == 0) {
         // We replace the current value c(n,0) = 0 by the correct value of c(n,0)
         support[n][i] = function_c(support,p,q);
-        if (support[n][i] == 0){
-          // Do nothing
-        }
-        else if (support[n][i] == 1) {
-          if (b*p == 0) {
-            if (c*q == 1) {
-              greedyElementArray.push(`x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(`x_2^{${c*q}}` + "+");
-            }
-            
-          }
-          else if (b*p ==1) {
-            if (c*q == 0) {
-             greedyElementArray.push(`x_1` + "+");
-            }
-            else if (c*q ==1) {
-              greedyElementArray.push(`x_1 x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(`x_1 x_2^{${c*q}}` + "+");
-            }
-          }
-          
-          else {
-            if (c*q == 0) {
-              greedyElementArray.push(`x_1^{${b*p}}` + "+");
-            }
-            else if (c*q == 1) {
-              greedyElementArray.push(`x_1^{${b*p}} x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(`x_1^{${b*p}} x_2^{${c*q}}` + "+");
-            }
-          } 
-        }
-
-        else {
-          if (b*p == 0) {
-            if (c*q == 1) {
-              greedyElementArray.push(support[n][i] + `x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(support[n][i] + `x_2^{${c*q}}` + "+");
-            }  
-          }
-          else if (b*p == 1) {
-            if (c*q == 0) {
-              greedyElementArray.push(support[n][i] + `x_1` + "+");
-            }
-            else if (c*q ==1) {
-              greedyElementArray.push(support[n][i] + `x_1 x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(support[n][i] + `x_1 x_2^{${c*q}}` + "+");
-            }
-          }
-          else {
-            if (c*q == 0) {
-              greedyElementArray.push(support[n][i] + `x_1^{${b*p}}` + "+");
-            }
-            else if (c*q ==1) {
-              greedyElementArray.push(support[n][i] + `x_1^{${b*p}} x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(support[n][i] + `x_1^{${b*p}} x_2^{${c*q}}` + "+");
-            }
-          }
-        }
-      }
-      // For all cases 0 < i <= n, we append the value of c(n-k,k) to the array S[n]
-      else {
+	  } else { // For all cases 0 < i <= n, we append the value of c(n-k,k) to the array S[n]
         support[n].push(function_c(support,p,q));
-        if (support[n][i] == 0){
-          // Do nothing
-        }
-        else if (support[n][i] == 1) {
-          if (b*p == 0) {
-            if (c*q == 1) {
-              greedyElementArray.push(`x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(`x_2^{${c*q}}` + "+");
-            } 
-          }
-
-          else if (b*p == 1) {
-            if (c*q == 0) {
-              greedyElementArray.push(`x_1` + "+");
-            }
-            else if (c*q ==1) {
-              greedyElementArray.push(`x_1 x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(`x_1 x_2^{${c*q}}` + "+");
-            }
-          }
-          else {
-            if (c*q ==0) {
-              greedyElementArray.push(`x_1^{${b*p}}` + "+");
-            }
-            else if (c*q == 1) {
-              greedyElementArray.push(`x_1^{${b*p}} x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(`x_1^{${b*p}} x_2^{${c*q}}` + "+");
-            }
-          }
-        }
-        else {
-          if (b*p == 0) {
-            if (c*q == 1) {
-              greedyElementArray.push(support[n][i] + ` x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(support[n][i] + `x_2^{${c*q}}` + "+");
-            }
-          }
-          else if (b*p == 1) {
-            if (c*q == 0) {
-              greedyElementArray.push(support[n][i] + `x_1` + "+");
-            }
-            else if (c*q == 1) {
-              greedyElementArray.push(support[n][i] + `x_1 x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(support[n][i] + `x_1 x_2^{${c*q}}` + "+");
-            }
-          }
-          else {
-            if (c*q == 0) {
-              greedyElementArray.push(support[n][i] + `x_1^{${b*p}}` + "+");
-            }
-            else if (c*q == 1) {
-              greedyElementArray.push(support[n][i] + `x_1^{${b*p}} x_2` + "+");
-            }
-            else {
-              greedyElementArray.push(support[n][i] + `x_1^{${b*p}} x_2^{${c*q}}` + "+");
-            }
-          }
-        }
-        
+      }
+      if (support[n][i] != 0){
+        greedyElementArray.push([support[n][i], b*p, c*q]);
       }
       i += 1;
     }
     n += 1;
   }
   //alert(greedyElementArray)
-  var greedyElementString = ''.concat(...greedyElementArray);
-  var greedyElement = greedyElementString.slice(0,greedyElementString.length-1);
+  var greedyElement = [...greedyElementArray].map(args => {
+    const [coeff, ex1, ex2] = args;
+    if (coeff == 1 && ex1 == 0 && ex2 == 0) {
+      return '1';
+    }
+    return (coeff == 1 ? '' : coeff) + (ex1 == 0 ? '' : 'x_1' + (ex1 == 1 ? '' : '^{'+ex1+'}')) + (ex2 == 0 ? '' : 'x_2' + (ex2 == 1 ? '' : '^{'+ex2+'}'));
+  }).join('+');
   // Add HTML to display the greedy element 
   if (d1 != 0 && d2 != 0) {
     document.getElementById("greedyElementOutput").innerHTML = "The greedy element at (\\(d_1,d_2\\)) = (" +d1 +"," + d2 +  ") is \\[" + `x_1^{${-d1}} x_2^{${-d2}}`+ "(" + greedyElement + "). \\]";
