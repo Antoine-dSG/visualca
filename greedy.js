@@ -8,7 +8,7 @@ function initialToParameter() {
 
 function displayMutMat() {
   var b = document.getElementById("bValue").value;
-  var c = document.getElementById("cValue").value;
+  var c = (-1)*document.getElementById("cValue").value;
 
   let mutMat = document.getElementById("userMutMat");
   mutMat.innerHTML = "\\( B = \\begin{pmatrix} 0 &" + b + " \\\\ " + c + "& 0 \\end{pmatrix} \\)";
