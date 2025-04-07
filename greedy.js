@@ -18,7 +18,7 @@ function displayMutMat() {
 //////////////////
 function greedyElement(){ 
   var b = document.getElementById("bValue").value;
-  var c = document.getElementById("cValue").value;
+  var c = -document.getElementById("cValue").value;
   var d1 = document.getElementById("d1Value").value;
   var d2 = document.getElementById("d2Value").value;
 
@@ -66,7 +66,7 @@ function case1(d1,d2) {
 
 function case2(d1,d2) {
   var b = document.getElementById("bValue").value;
-  var c = document.getElementById("cValue").value;
+  var c = -document.getElementById("cValue").value;
   var greedyElementArray = [[1, 0, 0]]; // array of triples: coefficient and exponents of x_1, x_2
   // max_n is the largest value of n = p+q such that c(p,q) is non-zero
   var max_n = math.max(d1,d2);
@@ -124,7 +124,7 @@ function case2(d1,d2) {
 
 function function_c(support,p,q) {
   var b = document.getElementById("bValue").value;
-  var c = document.getElementById("cValue").value;
+  var c = -document.getElementById("cValue").value;
   var d1 = document.getElementById("d1Value").value;
   var d2 = document.getElementById("d2Value").value;
   const n = p+q;
