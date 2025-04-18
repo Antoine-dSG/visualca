@@ -32,6 +32,7 @@ table.itinerary > tr > td {
 	font-size: 30px;
 }
 table.frieze > tr > td {
+	box-sizing: content-box;
 	height: 2.2ch;
 	width: 2.2ch;
 	text-align: right;
@@ -46,6 +47,9 @@ table.frieze > tr > td.frieze-entry-one {
 	background-color: #D0D0D0;
 }
 table.frieze > tr > td.frieze-entry-shmaurent {
+	background-color: PaleGreen;
+}
+table.frieze > tr > td.frieze-entry-frozen {
 	border-color: black;
 }
 span.frac { /* inspired by stackoverflow.com/a/41679399 */
