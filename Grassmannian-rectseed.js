@@ -213,6 +213,11 @@ function Grassrectseed() {
     //MathJax.typeset();
 	mutButtons(mutwidth);
 	quiver(array2Matrix(PrinInitialMat));
+	document.getElementById("mutationHistoryButton").style.display = "block";
+	// Create MathJax rendition of initial mutation matrix in the <div id="mutationHistory">
+	// Note the code in <div id="mutationHistory"> is not typeset until 
+	// the user presses the button "show mutation history"
+	arrayToMatrix(InitialMat,height,'mutationHistory', "clear");
 
     // Reveal the 4. Outcome dashboard
     document.getElementById("outDashboard1").setAttribute("class","dashboard");

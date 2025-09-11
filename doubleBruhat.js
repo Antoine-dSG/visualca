@@ -199,6 +199,9 @@ function doubleWord() {
 	colnumInitialMat = width;
 	mutButtons(width);
 	MathJax.typeset();
+	
+document.getElementById("mutationHistoryButton").style.display = "block";
+	arrayToMatrix(InitialMat,height,'mutationHistory', "clear");
     // Display the word in 4. Outcome
     //document.getElementById("WordContainer").innerHTML = word;
 

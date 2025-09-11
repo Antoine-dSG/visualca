@@ -54,7 +54,14 @@
 			From Grassmannian
 			<span class="checkedBoxSpan"></span>
 			</label>
-		</td>		
+		</td>	
+		<td style="padding-right: 30px">
+			<label class="checkedBox" >
+			<input type="radio" name="inputMethod" value="Acyclic">
+			Matrix of Dynkin type
+			<span class="checkedBoxSpan"></span>
+			</label>
+		</td>	
 		</tr>
 		<!-- Options -->
 		<tr>
@@ -306,6 +313,28 @@
 </div>
 <!-- END OF GRASSMANNIAN DASHBOARDS -->
 
+
+<!-- ACYCLIC DASHBOARDS -->
+<!-- Acyclic dashboard 1 -->
+<div class="dashboardOff" id="inDashboardAcyclic1" >
+	<div style="font-weight: bold;">1. Choose rank of mutation matrix</div>
+	<p style="display: inline-block;">n = </p>
+  	<input type="number" id="userInputRankAcyclic" min="1" step="1" value="3">
+  	<button onclick="rankToCartan()">Submit</button>
+</div>
+<br>
+<!-- Acyclic dashboard 2 -->
+<div id="inDashboardAcyclic2" class="dashboardOff">
+	<div style="font-weight: bold;">2. Choose Cartan-Killing type</div>
+	<div style="display: inline-block;" id="CartanButtons">  </div>
+	<br>
+	<div id="UserCartanDisplayAcyclic"></div>
+	<br>
+	<button onclick="CartanToInitial()">Submit</button>
+	<br>
+	
+</div>
+<!-- END OF ACYCLIC DASHBOARDS -->
 <br>
 
 <!-- OUTPUT DASHBOARDS -->

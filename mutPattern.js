@@ -22,6 +22,8 @@ function dashZeroToOne() {
 	document.getElementById("inDashboardBruhat1").className = "dashboardOff";
 	document.getElementById("inDashboardBruhat2").className = "dashboardOff";
 	document.getElementById("inDashboardGrassmannian1").className = "dashboardOff";
+	document.getElementById("inDashboardAcyclic1").className = "dashboardOff";
+	document.getElementById("inDashboardAcyclic2").className = "dashboardOff";
 	document.getElementById("outDashboard1").className = "dashboardOff";
 	document.getElementById("outDashboard2").className = "dashboardOff";
 	// Reveal the next dashboard
@@ -33,6 +35,9 @@ function dashZeroToOne() {
 	}
 	else if (choice == "Grassmannian") {
 		document.getElementById("inDashboardGrassmannian1").className = "dashboard";
+	}
+	else if (choice == "Acyclic") {
+		document.getElementById("inDashboardAcyclic1").className = "dashboard";
 	}
 }
 
@@ -186,6 +191,7 @@ document.getElementById(tagById).innerHTML += "\\end{pmatrix}\\)";
 
 function mutButtons (r) {
 	document.getElementById("mutationButtons").innerHTML = "";
+	document.getElementById("mutationHistory").innerHTML = "";
 	mutationButtons = document.getElementById("mutationButtons");
 	
 	// Create a mutation button for each column (if number of
@@ -749,6 +755,246 @@ function displayCartanShortcut(type, rank,tagById) {
 	MathJax.typeset();
 }
 
+function displayCartanShortcutAcyclic(type, rank,tagById) {
+	QuasiCartan = createQuasiCartan(type, rank);
+	arrayToMatrix(QuasiCartan, rank, tagById, "clear");
+	MathJax.typeset();
+}
+
+
+function rankToCartan() {
+	var rank = 0;
+	// Recover the rank inputted by the user
+	rank = document.getElementById("userInputRankAcyclic").value;
+
+	// Reveal the dashboard 2.
+	document.getElementById("inDashboardAcyclic2").setAttribute("class","dashboard");
+
+	// Clear the computations on dashboards 2. 
+	document.getElementById("CartanButtons").innerHTML = "";
+	document.getElementById("UserCartanDisplayAcyclic").innerHTML = "";
+
+	// Create "shortcut" buttons for Cartan matrices in div with id="CartanButtons"
+
+
+	CartanButtons = document.getElementById("CartanButtons");
+	// Create an An button
+	let button = document.createElement("button");
+	let buttonId = "A";
+	button.setAttribute("id", buttonId);
+	button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
+	button.innerHTML = "\\( \\text{A}_{" + rank + "}\\)";
+	CartanButtons.appendChild(button);
+
+
+	// Create a Bn button if rank >= 2
+	if (rank >= 2) {
+		let button = document.createElement("button");
+		let buttonId = "B";
+		button.setAttribute("id", buttonId);
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( \\text{B}_{" + rank + "}\\)";
+		CartanButtons.appendChild(button);
+	}
+	// Create a Cn button if rank >= 3
+	if (rank >= 3) {
+		let button = document.createElement("button");
+		let buttonId = "C";
+		button.setAttribute("id", buttonId);
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( \\text{C}_{" + rank + "}\\)";
+		CartanButtons.appendChild(button);
+	}
+
+	// Create a Dn button if rank >= 4
+	if (rank >= 4) {
+		let button = document.createElement("button");
+		let buttonId = "D";
+		button.setAttribute("id", buttonId);
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( \\text{D}_{" + rank + "}\\)";
+		CartanButtons.appendChild(button);
+	}
+
+	// Add exceptional types in suitable ranks
+	if (rank == 6 || rank == 7 || rank == 8) {
+		let button = document.createElement("button");
+		let buttonId = "E";
+		button.setAttribute("id", buttonId);
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( \\text{E}_{" + rank + "}\\)";
+		CartanButtons.appendChild(button);
+	}
+
+	if (rank == 4 ) {
+		let button = document.createElement("button");
+		let buttonId = "F";
+		button.setAttribute("id", buttonId);
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( \\text{F}_{" + rank + "}\\)";
+		CartanButtons.appendChild(button);
+	}
+
+	if (rank == 2 ) {
+		let button = document.createElement("button");
+		let buttonId = "G";
+		button.setAttribute("id", buttonId);
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( \\text{G}_{" + rank + "}\\)";
+		CartanButtons.appendChild(button);
+
+	}
+	MathJax.typeset([CartanButtons]);
+}
+
+// Function to create a mutation matrix of type X and rank n
+function createQuasiCartan(type, rank) {
+	let QuasiCartan = [];
+	let n = rank;
+	if (type == "A") {
+		for (let i = 0; i < n; i++) {
+			for (let j =0; j < n; j++) {
+				if (i==j) {
+					QuasiCartan[i*n+j] = 0;
+				}
+				else if (i == j+1){
+					QuasiCartan[i*n+j] = 1;
+				} 
+				else if (i == j-1) {
+					QuasiCartan[i*n+j] = -1;
+				}
+				else {
+					QuasiCartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "C") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					QuasiCartan[i*n+j] = 0;
+				}
+				else if (i == j+1){
+					QuasiCartan[i*n+j] = 1;
+				}
+				else if (i == j-1 && j != n-1) {
+					QuasiCartan[i*n+j] = -1;
+				}
+				else if (i == n-2 && j == n-1) {
+					QuasiCartan[i*n+j] = -2;
+				}
+				else {
+					QuasiCartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "B") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					QuasiCartan[i*n+j] = 0;
+				}
+				else if (i == j+1 && i != n-1){
+					QuasiCartan[i*n+j] = 1;
+				} 
+				else if (i == j-1) {
+					QuasiCartan[i*n+j] = -1;
+				}
+				else if (i == n-1 && j == n-2) {
+					QuasiCartan[i*n+j] = 2;
+				}
+				else {
+					QuasiCartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "D") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					QuasiCartan[i*n+j] = 0;
+				}
+				else if (i == j+1 && i != n-1) {
+					QuasiCartan[i*n+j] = 1;
+				} 
+				else if  (i == j-1 && j != n-1) {
+					QuasiCartan[i*n+j] = -1;
+				}
+				else if (i == n-3 && j == n-1) {
+					QuasiCartan[i*n+j] = -1;
+				}
+				else if (i == n-1 && j == n-3) {
+					QuasiCartan[i*n+j] = 1;
+				}
+				else {
+					QuasiCartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "E") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					QuasiCartan[i*n+j] = 0;
+				}
+				else if (i == j+1 && i != 1 && i != 2) {
+					QuasiCartan[i*n+j] = 1;
+				} 
+				else if (i == j-1 && j != 1 && j != 2) {
+					QuasiCartan[i*n+j] = -1;
+				}
+				else if (i == 2 && j == 0) {
+					QuasiCartan[i*n+j] = 1;
+				}
+				else if (i == 3 && j == 1) {
+					QuasiCartan[i*n+j] = 1;
+				}
+				else if (i == 0 && j == 2) {
+					QuasiCartan[i*n+j] = -1;
+				}
+				else if (i == 1 && j == 3) {
+					QuasiCartan[i*n+j] = -1;
+				}
+				else {
+					QuasiCartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "G") {
+		QuasiCartan[0] = 0;
+		QuasiCartan[1] = -3;
+		QuasiCartan[2] = 1;
+		QuasiCartan[3] = 0;
+	}
+	else if (type == "F") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					QuasiCartan[i*n+j] = 0;
+				}
+				else if (i == j+1) {
+					QuasiCartan[i*n+j] = 1;
+				} 
+				else if (i == j-1 && j != n-2) {
+					QuasiCartan[i*n+j] = -1;
+				}
+				else if (i == n-3 && j == n-2) {
+					QuasiCartan[i*n+j] = -2;
+				}
+				else {
+					QuasiCartan[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	return QuasiCartan;
+}
+
 // Function to create a Cartan matrix of type X and rank n
 function createCartan(type, rank) {
 	let Cartan = [];
@@ -862,4 +1108,35 @@ function createCartan(type, rank) {
 		}
 	}
 	return Cartan;
+}
+
+function CartanToInitial() {
+
+	// Recover the rank inputted by the user
+	let rank = document.getElementById("userInputRankAcyclic").value;
+
+	// Reveal the dashboard 4.
+	document.getElementById("outDashboard1").setAttribute("class","dashboard");
+	document.getElementById("outDashboard2").setAttribute("class","dashboard");
+
+	InitialMat = QuasiCartan;
+	PrinInitialMat = QuasiCartan;
+	rownumInitialMat = rank;
+	colnumInitialMat = rank;
+
+	// Display Cartan matrix chosen by user
+	arrayToMatrix(InitialMat, rank, "initialMatrix", "clear");
+	arrayToMatrix(InitialMat, rank, "initialPrincipalPart", "clear");
+	quiver(array2Matrix(InitialMat));
+	mutButtons(rank);
+	document.getElementById("mutationHistoryButton").style.display = "block";
+	// Create MathJax rendition of initial mutation matrix in the <div id="mutationHistory">
+	// Note the code in <div id="mutationHistory"> is not typeset until 
+	// the user presses the button "show mutation history"
+	arrayToMatrix(InitialMat,rank,'mutationHistory', "clear");
+
+	MathJax.typeset();
+
+
+
 }
