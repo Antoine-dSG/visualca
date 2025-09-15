@@ -64,8 +64,7 @@ function hoverSelect(n) {
 		for (let j=0; j <= colnum; j++) {
 			var m = i*8+j;
 			cell = document.getElementById(m);
-			cell.className = "cell-on";
-			
+			if (j <= i) cell.className = "cell-on";
 		}
 	}
 }
@@ -74,13 +73,10 @@ function hoverOff(n) {
 	var rownum = Math.floor(n/8);
 	var colnum = n%8;
 	for (let i=0; i<8; i++) {
-		for (let j=0; j <8; j++) {
+		for (let j=0; j <= i; j++) {
 			var m = i*8+j;
 			cell = document.getElementById(m);
-			if (i< rownum && j>= colnum) {
-				cell.className = "cell";
-			}
-			else if (i >= rownum){
+			if (i < rownum && j >= colnum || i >= rownum){
 				cell.className = "cell";
 			}	
 		}

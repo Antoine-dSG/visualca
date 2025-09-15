@@ -15,6 +15,13 @@ border: 1px solid grey;
 background-color: white;
 }
 
+#mutation-matrix .cell-inactive {
+width: 20px;
+height: 20px;
+border: 1px solid grey;
+background-color: LightGrey;
+}
+
 #mutation-matrix .cell-on {
 width: 20px;
 height: 20px;
