@@ -1,6 +1,6 @@
 // Global variables
 var Cartan;
-
+let Cartan_type = null;
 
 // Replace the existing window.MathJax assignment with:
 
@@ -37,9 +37,9 @@ function rankToCartan() {
 
 	// Create "shortcut" buttons for Cartan matrices in div with id="CartanButtons"
 	// First clear the space from any previous buttons
-	document.getElementById("CartanButtons").innerHTML = "";
-
 	CartanButtons = document.getElementById("CartanButtons");
+	CartanButtons.innerHTML = "";
+
 	// Create an An button
 	let button = document.createElement("button");
 	let buttonId = "A";
@@ -116,6 +116,7 @@ function customCartan() {
 }
 
 function customCartanSubmit() {
+	Cartan_type = null;
 	let rank = document.getElementById("userInputRank").value;
 	let matrix = document.querySelectorAll('#customCartanContainer input');
 	Cartan = callme(matrix);
@@ -449,69 +450,72 @@ function createCartan(type, rank) {
 function arrayToMatrix(array,rownum,tagById,renderType) {
 	// renderType determines whether the tagById div needs to be clear before constructing
 	// the new matrix
+	let div = document.getElementById(tagById);
 	if (renderType == "clear") {
 		// Clear the current div
-	document.getElementById(tagById).innerHTML = "";
+		div.innerHTML = "";
 	}
 	else if (renderType == "concat") {
 
 	}
 
 	let colnum = (array.length) / (rownum);
-	document.getElementById(tagById).innerHTML += "\\( \\begin{pmatrix}";
+	div.innerHTML += "\\( \\begin{pmatrix}";
 	for (var i = 0;i < rownum; i++) {
 		for (var j = 0; j < colnum; j++) {
-			document.getElementById(tagById).innerHTML += array[i*colnum + j];
+			div.innerHTML += array[i*colnum + j];
 			if (j != colnum-1) {
-				document.getElementById(tagById).innerHTML += "&";
+				div.innerHTML += "&";
 			}
 		}
 		if (i != rownum-1) {
-			document.getElementById(tagById).innerHTML += '\\\\';
+			div.innerHTML += '\\\\';
 		}
 	}
-	document.getElementById(tagById).innerHTML += "\\end{pmatrix}\\)";
+	div.innerHTML += "\\end{pmatrix}\\)";
 }
 
 function mathMatToTableLatex(array,rownum, h,tagById,renderType) {
 	// Determine the number of columns from the array h of hiA's
 	let colnum = math.add(1,math.max(h));
+	let div = document.getElementById(tagById);
 	// renderType determines whether the tagById div needs to be cleared before constructing
 	// the new matrix
 	if (renderType == "clear") {
 		// Clear the current div
-	document.getElementById(tagById).innerHTML = "";
+		div.innerHTML = "";
 	}
 	else if (renderType == "concat") {
 
 	}
-	document.getElementById(tagById).innerHTML += "\\( \\begin{matrix}";
+	div.innerHTML += "\\( \\begin{matrix}";
 	for (var i = 0;i < rownum; i++) {
 		for (var m = 0; m <= colnum+1; m++) {
 			// We add colour to the contours of the fundamental domain
 			if (m == h[i]+1 || m == 0) {
-				document.getElementById(tagById).innerHTML += "{\\color{red}" + array.subset(math.index(i,m)) + "}";
+				div.innerHTML += "{\\color{red}" + array.subset(math.index(i,m)) + "}";
 			}
 			else {
-				document.getElementById(tagById).innerHTML += array.subset(math.index(i,m));
+				div.innerHTML += array.subset(math.index(i,m));
 			}
 			
 			if (m != colnum+1) {
-				document.getElementById(tagById).innerHTML += "&";
+				div.innerHTML += "&";
 			}
 		}
 		if (i != rownum-1) {
-			document.getElementById(tagById).innerHTML += '\\\\';
+			div.innerHTML += '\\\\';
 		}
 	}
-	document.getElementById(tagById).innerHTML += "\\end{matrix}\\)";
+	div.innerHTML += "\\end{matrix}\\)";
 }
 
 // Function to compute the cluster monomial from a cluster-additive function
 function functionToClusterMono(K, n, tagById, renderType) {
+	let div = document.getElementById(tagById);
 	if (renderType == "clear") {
 		// Clear the current div
-	document.getElementById(tagById).innerHTML = "\\(x_{\\rho}^{\\vee} = ";
+		div.innerHTML = "\\(x_{\\rho}^{\\vee} = ";
 	}
 	// l is the number of points of the cluster-additive function that are displayed
 	let l = math.size(K);
@@ -521,16 +525,16 @@ function functionToClusterMono(K, n, tagById, renderType) {
 		for (let i = 0; i < n; i++) {
 			if (K.subset(math.index(i,m)) < -1) {
 				let I = i+1;
-				document.getElementById(tagById).innerHTML += " x^{\\vee}(" + I + "," + m + ")^{" + math.multiply(-1,K.subset(math.index(i,m))) + "}";
+				div.innerHTML += " x^{\\vee}(" + I + "," + m + ")^{" + math.multiply(-1,K.subset(math.index(i,m))) + "}";
 			}
 			else if (K.subset(math.index(i,m)) == -1) {
 				let I = i+1;
-				document.getElementById(tagById).innerHTML += " x^{\\vee}(" + I + "," + m + ")";
+				div.innerHTML += " x^{\\vee}(" + I + "," + m + ")";
 			}
 		}
 	}
 
-	document.getElementById(tagById).innerHTML += "\\) ";
+	div.innerHTML += "\\) ";
 
 }
 
@@ -547,7 +551,24 @@ function generateTable(n, m, tagId) {
     	var row = table.insertRow();
 	    for (var j = 0; j < m; j++) {
 	      var cell = row.insertCell();
-	      cell.innerHTML = '<input type="text" maxlength="4" size="3"/>';
+		  let input = document.createElement("input");
+		  input.setAttribute("type", "text");
+		  input.setAttribute("maxlength", "4");
+		  input.setAttribute("size", "3");
+		  cell.appendChild(input);
+		  if (document.getElementById("friezePatCheckBox").checked) {
+			  input.value = 1;
+		  } else if (document.getElementById("YfriezePatCheckBox").checked) {
+			  if (Cartan_type === "A" || Cartan_type === "B" || Cartan_type === "G") {
+				  input.value = i+1;
+			  } else if (Cartan_type === "C" || Cartan_type === "F") {
+				  input.value = n-i;
+			  } else if (Cartan_type === "D") {
+				  input.value = Math.max(n-1-i, 1);
+			  } else if (Cartan_type === "E") {
+				  input.value = Math.max(i-1, 1);
+			  }
+		  }
 	    }
   	}
 
@@ -585,6 +606,7 @@ function generateCartanTable(n, m, tagId) {
 }
 
 function displayCartanShortcut(type, rank,tagById) {
+	Cartan_type = type;
 	Cartan = createCartan(type, rank);
 	arrayToMatrix(Cartan, rank, tagById, "clear");
 	MathJax.typeset();
