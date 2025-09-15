@@ -24,6 +24,9 @@ body {
 .farey-fraction {
 	text-align: center;
 }
+.highlighted {
+	background-color: #F0F000 !important;
+}
 table.itinerary > tr > td {
 	padding-right: 5px;
 	padding-left:  5px;
@@ -46,7 +49,7 @@ table.frieze > tr > td.frieze-entry-clustervar {
 table.frieze > tr > td.frieze-entry-one {
 	background-color: #D0D0D0;
 }
-table.frieze > tr > td.frieze-entry-shmaurent {
+table.frieze > tr > td.frieze-entry-poly {
 	background-color: PaleGreen;
 }
 table.frieze > tr > td.frieze-entry-frozen {
@@ -68,6 +71,7 @@ span.hidden {
 }
 table.clustervars > tr > td {
 	text-align: center;
+	font-size: 150%;
 }
 .negative {
 	display: none;
