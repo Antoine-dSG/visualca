@@ -1,1 +1,1 @@
-Repository for Visual Cluster Algebra's source code
+Repository for [Visual Cluster Algebra](https://visualca.net/)'s source code

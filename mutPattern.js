@@ -8,6 +8,9 @@ var yTropMinInitial;
 var aTropMaxInitial;
 var yTropMaxInitial;
 
+let QuasiCartan;
+let affine_Dynkin = false;
+
 //window.MathJax = {
 //	loader: {load: ['[tex]/color']},
 //	tex: {packages: {'[+]': ['color']}}
@@ -37,6 +40,11 @@ function dashZeroToOne() {
 		document.getElementById("inDashboardGrassmannian1").className = "dashboard";
 	}
 	else if (choice == "Acyclic") {
+		affine_Dynkin = false;
+		document.getElementById("inDashboardAcyclic1").className = "dashboard";
+	}
+	else if (choice == "AffineDynkin") {
+		affine_Dynkin = true;
 		document.getElementById("inDashboardAcyclic1").className = "dashboard";
 	}
 }
@@ -159,30 +167,30 @@ function createEmptyMat(n) {
 
 
 function arrayToMatrix(array,rownum,tagById,renderType) {
-// renderType determines whether the tagById div needs to be clear before constructing 
-// the new matrix
-if (renderType == "clear") {
-	// Clear the current div
-document.getElementById(tagById).innerHTML = "";
-}
-else if (renderType == "concat") {
+	// renderType determines whether the tagById div needs to be clear before constructing 
+	// the new matrix
+	if (renderType == "clear") {
+		// Clear the current div
+	document.getElementById(tagById).innerHTML = "";
+	}
+	else if (renderType == "concat") {
 
-}
+	}
 
-let colnum = (array.length) / (rownum);
-document.getElementById(tagById).innerHTML += "\\( \\begin{pmatrix}";
-for (var i = 0;i < rownum; i++) {
-	for (var j = 0; j < colnum; j++) {
-		document.getElementById(tagById).innerHTML += array[i*colnum + j];
-		if (j != colnum-1) {
-			document.getElementById(tagById).innerHTML += "&";
+	let colnum = (array.length) / (rownum);
+	document.getElementById(tagById).innerHTML += "\\( \\begin{pmatrix}";
+	for (var i = 0;i < rownum; i++) {
+		for (var j = 0; j < colnum; j++) {
+			document.getElementById(tagById).innerHTML += array[i*colnum + j];
+			if (j != colnum-1) {
+				document.getElementById(tagById).innerHTML += "&";
+			}
+		}
+		if (i != rownum-1) {
+			document.getElementById(tagById).innerHTML += '\\\\';
 		}
 	}
-	if (i != rownum-1) {
-		document.getElementById(tagById).innerHTML += '\\\\';
-	}
-}
-document.getElementById(tagById).innerHTML += "\\end{pmatrix}\\)";
+	document.getElementById(tagById).innerHTML += "\\end{pmatrix}\\)";
 }
 
 function mutButtons (r) {
@@ -761,7 +769,8 @@ function displayCartanShortcutAcyclic(type, rank,tagById) {
 function rankToCartan() {
 	var rank = 0;
 	// Recover the rank inputted by the user
-	rank = document.getElementById("userInputRankAcyclic").value;
+	rank = parseInt(document.getElementById("userInputRankAcyclic").value);
+	if (affine_Dynkin) rank -= 1;
 
 	// Reveal the dashboard 2.
 	document.getElementById("inDashboardAcyclic2").setAttribute("class","dashboard");
@@ -774,22 +783,25 @@ function rankToCartan() {
 
 
 	CartanButtons = document.getElementById("CartanButtons");
-	// Create an An button
-	let button = document.createElement("button");
-	let buttonId = "A";
-	button.setAttribute("id", buttonId);
-	button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
-	button.innerHTML = "\\( \\text{A}_{" + rank + "}\\)";
-	CartanButtons.appendChild(button);
-
+	const ti = (affine_Dynkin ? "\\tilde " : "");
+	
+	if (!affine_Dynkin || rank >= 2) {
+		// Create an An button
+		let button = document.createElement("button");
+		let buttonId = "A";
+		button.setAttribute("id", buttonId);
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( "+ti+"{\\text{A}}_{" + rank + "}\\)";
+		CartanButtons.appendChild(button);
+	}
 
 	// Create a Bn button if rank >= 2
 	if (rank >= 2) {
 		let button = document.createElement("button");
 		let buttonId = "B";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
-		button.innerHTML = "\\( \\text{B}_{" + rank + "}\\)";
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( "+ti+"{\\text{B}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
 	}
 	// Create a Cn button if rank >= 3
@@ -797,8 +809,8 @@ function rankToCartan() {
 		let button = document.createElement("button");
 		let buttonId = "C";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
-		button.innerHTML = "\\( \\text{C}_{" + rank + "}\\)";
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( "+ti+"{\\text{C}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
 	}
 
@@ -807,8 +819,8 @@ function rankToCartan() {
 		let button = document.createElement("button");
 		let buttonId = "D";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
-		button.innerHTML = "\\( \\text{D}_{" + rank + "}\\)";
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( "+ti+"{\\text{D}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
 	}
 
@@ -817,8 +829,8 @@ function rankToCartan() {
 		let button = document.createElement("button");
 		let buttonId = "E";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
-		button.innerHTML = "\\( \\text{E}_{" + rank + "}\\)";
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( "+ti+"{\\text{E}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
 	}
 
@@ -826,8 +838,8 @@ function rankToCartan() {
 		let button = document.createElement("button");
 		let buttonId = "F";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
-		button.innerHTML = "\\( \\text{F}_{" + rank + "}\\)";
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( "+ti+"{\\text{F}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
 	}
 
@@ -835,15 +847,15 @@ function rankToCartan() {
 		let button = document.createElement("button");
 		let buttonId = "G";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, document.getElementById('userInputRankAcyclic').value, 'UserCartanDisplayAcyclic')");
-		button.innerHTML = "\\( \\text{G}_{" + rank + "}\\)";
+		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+		button.innerHTML = "\\( "+ti+"{\\text{G}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
 
 	}
 	MathJax.typeset([CartanButtons]);
 }
 
-// Function to create a mutation matrix of type X and rank n
+// Function to create a mutation matrix of type X (possibly affine) and rank n
 function createQuasiCartan(type, rank) {
 	let QuasiCartan = [];
 	let n = rank;
@@ -863,6 +875,10 @@ function createQuasiCartan(type, rank) {
 					QuasiCartan[i*n+j] = 0;
 				}
 			}
+		}
+		if (affine_Dynkin) {
+			QuasiCartan[(n-1)*n] = 1;
+			QuasiCartan[n-1] = -1;
 		}
 	}
 	else if (type == "C") {
@@ -885,6 +901,9 @@ function createQuasiCartan(type, rank) {
 				}
 			}
 		}
+		if (affine_Dynkin) {
+			QuasiCartan[1] = -2;
+		}
 	}
 	else if (type == "B") {
 		for (let i = 0; i < n; i++) {
@@ -905,6 +924,11 @@ function createQuasiCartan(type, rank) {
 					QuasiCartan[i*n+j] = 0;
 				}
 			}
+		}
+		if (affine_Dynkin) {
+			QuasiCartan[1] = QuasiCartan[n] = 0;
+			QuasiCartan[2] = -1;
+			QuasiCartan[2*n] = 1;
 		}
 	}
 	else if (type == "D") {
@@ -929,6 +953,11 @@ function createQuasiCartan(type, rank) {
 					QuasiCartan[i*n+j] = 0;
 				}
 			}
+		}
+		if (affine_Dynkin) {
+			QuasiCartan[1] = QuasiCartan[n] = 0;
+			QuasiCartan[2] = -1;
+			QuasiCartan[2*n] = 1;
 		}
 	}
 	else if (type == "E") {
@@ -960,12 +989,32 @@ function createQuasiCartan(type, rank) {
 				}
 			}
 		}
+		if (affine_Dynkin) {
+			if (n == 7 || n == 8) {
+				QuasiCartan[(n-1)*n + n-2] = QuasiCartan[(n-2)*n + n-1] = 0;
+			}
+			if (n == 7) {
+				QuasiCartan[(n-1)*n + 1] = -1;
+				QuasiCartan[n + n-1] = 1;
+			}
+			if (n == 8) {
+				QuasiCartan[(n-1)*n] = -1;
+				QuasiCartan[n-1] = 1;
+			}
+		}
 	}
 	else if (type == "G") {
-		QuasiCartan[0] = 0;
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				QuasiCartan[i*n+j] = 0;
+			}
+		}
 		QuasiCartan[1] = -3;
-		QuasiCartan[2] = 1;
-		QuasiCartan[3] = 0;
+		QuasiCartan[n] = 1;
+		if (affine_Dynkin) {
+			QuasiCartan[n+2] = -1;
+			QuasiCartan[2*n+1] = 1;
+		}
 	}
 	else if (type == "F") {
 		for (let i = 0; i < n; i++) {
@@ -993,6 +1042,7 @@ function createQuasiCartan(type, rank) {
 
 // Function to create a Cartan matrix of type X and rank n
 function createCartan(type, rank) {
+	// affine case not implemented
 	let Cartan = [];
 	let n = rank;
 	if (type == "A") {
@@ -1109,7 +1159,7 @@ function createCartan(type, rank) {
 function CartanToInitial() {
 
 	// Recover the rank inputted by the user
-	let rank = document.getElementById("userInputRankAcyclic").value;
+	let rank = parseInt(document.getElementById("userInputRankAcyclic").value);
 
 	// Reveal the dashboard 4.
 	document.getElementById("outDashboard1").setAttribute("class","dashboard");

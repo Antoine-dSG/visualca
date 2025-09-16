@@ -36,7 +36,7 @@
 		<tr>
 		<td style="padding-right: 30px">
 			<label class="checkedBox">
-			<input type="radio" name="inputMethod" checked ="checked" value = "manual">
+			<input type="radio" name="inputMethod" value = "manual">
 			Custom mutation matrix
 			<span class="checkedBoxSpan"></span>
 			</label>
@@ -55,12 +55,23 @@
 			<span class="checkedBoxSpan"></span>
 			</label>
 		</td>	
+		</tr>
+		<tr>
 		<td style="padding-right: 30px">
+			<p>
 			<label class="checkedBox" >
-			<input type="radio" name="inputMethod" value="Acyclic">
+			<input type="radio" name="inputMethod" value="Acyclic" checked>
 			Matrix of Dynkin type
 			<span class="checkedBoxSpan"></span>
 			</label>
+			</p>
+			<p>
+			<label class="checkedBox" >
+			<input type="radio" name="inputMethod" value="AffineDynkin">
+			Matrix of affine Dynkin type
+			<span class="checkedBoxSpan"></span>
+			</label>
+			</p>
 		</td>	
 		</tr>
 		<!-- Options -->
