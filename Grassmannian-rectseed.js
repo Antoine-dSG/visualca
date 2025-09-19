@@ -4,33 +4,6 @@ var rownumInitialMat;
 var colnumInitialMat;
 
 
-  function arrayToMatrix(array,rownum,tagById,renderType) {
-	// renderType determines whether the tagById div needs to be clear before constructing 
-	// the new matrix
-	if (renderType == "clear") {
-		// Clear the current div
-	document.getElementById(tagById).innerHTML = "";
-	}
-	else if (renderType == "concat") {
-	
-	}
-	
-	let colnum = (array.length) / (rownum);
-	document.getElementById(tagById).innerHTML += "\\( \\begin{pmatrix}";
-	for (var i = 0;i < rownum; i++) {
-		for (var j = 0; j < colnum; j++) {
-			document.getElementById(tagById).innerHTML += array[i*colnum + j];
-			if (j != colnum-1) {
-				document.getElementById(tagById).innerHTML += "&";
-			}
-		}
-		if (i != rownum-1) {
-			document.getElementById(tagById).innerHTML += '\\\\';
-		}
-	}
-	document.getElementById(tagById).innerHTML += "\\end{pmatrix}\\)";
-	}
-
 function Grassrectseed() {
 	document.getElementById("mutationHistory").innerHTML = "";
 	document.getElementById("initialMatrix").innerHTML = "";

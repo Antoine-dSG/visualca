@@ -167,30 +167,33 @@ function createEmptyMat(n) {
 
 
 function arrayToMatrix(array,rownum,tagById,renderType) {
+	let colnum = (array.length) / (rownum);
+	let s = "\\( \\begin{pmatrix}";
+	for (let i = 0; i < rownum; i++) {
+		for (let j = 0; j < colnum; j++) {
+			s += array[i*colnum + j];
+			if (j != colnum-1) {
+				s += "&";
+			}
+		}
+		if (i != rownum-1) {
+			s += '\\\\';
+		}
+	}
+	s += "\\end{pmatrix}\\)";
+	const node = document.createTextNode(s);
+
 	// renderType determines whether the tagById div needs to be clear before constructing 
 	// the new matrix
+	const el = document.getElementById(tagById);
 	if (renderType == "clear") {
 		// Clear the current div
-	document.getElementById(tagById).innerHTML = "";
+		el.replaceChildren();
 	}
 	else if (renderType == "concat") {
 
 	}
-
-	let colnum = (array.length) / (rownum);
-	document.getElementById(tagById).innerHTML += "\\( \\begin{pmatrix}";
-	for (var i = 0;i < rownum; i++) {
-		for (var j = 0; j < colnum; j++) {
-			document.getElementById(tagById).innerHTML += array[i*colnum + j];
-			if (j != colnum-1) {
-				document.getElementById(tagById).innerHTML += "&";
-			}
-		}
-		if (i != rownum-1) {
-			document.getElementById(tagById).innerHTML += '\\\\';
-		}
-	}
-	document.getElementById(tagById).innerHTML += "\\end{pmatrix}\\)";
+	el.appendChild(node);
 }
 
 function mutButtons (r) {
@@ -391,8 +394,8 @@ function mutateData(id) {
 	// Add latest mutation matrix to <div id="mutationHistory">
 	arrayToMatrix(InitialMat,rownumInitialMat,'mutationHistory', "concat");
 	// Ask MathJax to render the newly created code in LaTeX
-	 MathJax.typeset();
 	quiver(array2Matrix(PrinInitialMat));
+	MathJax.typeset(['#initialMatrix', '#initialPrincipalPart']);
 
 }
 
