@@ -785,7 +785,7 @@ function rankToCartan() {
 	CartanButtons = document.getElementById("CartanButtons");
 	const ti = (affine_Dynkin ? "\\tilde " : "");
 	
-	if (!affine_Dynkin || rank >= 2) {
+	if (rank >= 1) {
 		// Create an An button
 		let button = document.createElement("button");
 		let buttonId = "A";
@@ -855,7 +855,7 @@ function rankToCartan() {
 	MathJax.typeset([CartanButtons]);
 }
 
-// Function to create a mutation matrix of type X (possibly affine) and rank n
+// Function to create a mutation matrix of type X (possibly affine) and size n
 function createQuasiCartan(type, rank) {
 	let QuasiCartan = [];
 	let n = rank;
@@ -877,8 +877,8 @@ function createQuasiCartan(type, rank) {
 			}
 		}
 		if (affine_Dynkin) {
-			QuasiCartan[(n-1)*n] = 1;
-			QuasiCartan[n-1] = -1;
+			QuasiCartan[(n-1)*n] += 1;
+			QuasiCartan[n-1] += -1;
 		}
 	}
 	else if (type == "C") {
@@ -1040,7 +1040,7 @@ function createQuasiCartan(type, rank) {
 	return QuasiCartan;
 }
 
-// Function to create a Cartan matrix of type X and rank n
+// Function to create a Cartan matrix of type X and size n
 function createCartan(type, rank) {
 	// affine case not implemented
 	let Cartan = [];
