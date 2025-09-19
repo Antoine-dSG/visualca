@@ -8,7 +8,7 @@ var yTropMinInitial;
 var aTropMaxInitial;
 var yTropMaxInitial;
 
-let QuasiCartan;
+let DynkinExchangeMatrix;
 let affine_Dynkin = false;
 
 //window.MathJax = {
@@ -607,14 +607,14 @@ function quiver(matrixData) {
 			links.push({
 			  source: i,
 			  target: j,
-			  weight: M[i][j]
+			  weight: (M[i][j] == 1 && M[j][i] == -1 ? '' : '('+M[i][j]+','+(-M[j][i])+')')
 			});
 		  } else if (M[i][j] < 0) {
 			// Edge j -> i
 			links.push({
 			  source: j,
 			  target: i,
-			  weight: -M[i][j]
+			  weight: (M[i][j] == -1 && M[j][i] == 1 ? '' : '('+M[j][i]+','+(-M[i][j])+')')
 			});
 		  }
 		}
@@ -760,8 +760,8 @@ function displayCartanShortcut(type, rank,tagById) {
 }
 
 function displayCartanShortcutAcyclic(type, rank,tagById) {
-	QuasiCartan = createQuasiCartan(type, rank);
-	arrayToMatrix(QuasiCartan, rank, tagById, "clear");
+	DynkinExchangeMatrix = createDynkinExchangeMatrix(type, rank);
+	arrayToMatrix(DynkinExchangeMatrix, rank, tagById, "clear");
 	MathJax.typeset();
 }
 
@@ -856,188 +856,188 @@ function rankToCartan() {
 }
 
 // Function to create a mutation matrix of type X (possibly affine) and size n
-function createQuasiCartan(type, rank) {
-	let QuasiCartan = [];
+function createDynkinExchangeMatrix(type, rank) {
+	let DynkinExchangeMatrix = [];
 	let n = rank;
 	if (type == "A") {
 		for (let i = 0; i < n; i++) {
 			for (let j =0; j < n; j++) {
 				if (i==j) {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 				else if (i == j+1){
-					QuasiCartan[i*n+j] = 1;
+					DynkinExchangeMatrix[i*n+j] = 1;
 				} 
 				else if (i == j-1) {
-					QuasiCartan[i*n+j] = -1;
+					DynkinExchangeMatrix[i*n+j] = -1;
 				}
 				else {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 			}
 		}
 		if (affine_Dynkin) {
-			QuasiCartan[(n-1)*n] += 1;
-			QuasiCartan[n-1] += -1;
+			DynkinExchangeMatrix[(n-1)*n] += 1;
+			DynkinExchangeMatrix[n-1] += -1;
 		}
 	}
 	else if (type == "C") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 				else if (i == j+1){
-					QuasiCartan[i*n+j] = 1;
+					DynkinExchangeMatrix[i*n+j] = 1;
 				}
 				else if (i == j-1 && j != n-1) {
-					QuasiCartan[i*n+j] = -1;
+					DynkinExchangeMatrix[i*n+j] = -1;
 				}
 				else if (i == n-2 && j == n-1) {
-					QuasiCartan[i*n+j] = -2;
+					DynkinExchangeMatrix[i*n+j] = -2;
 				}
 				else {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 			}
 		}
 		if (affine_Dynkin) {
-			QuasiCartan[1] = -2;
+			DynkinExchangeMatrix[1] = -2;
 		}
 	}
 	else if (type == "B") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 				else if (i == j+1 && i != n-1){
-					QuasiCartan[i*n+j] = 1;
+					DynkinExchangeMatrix[i*n+j] = 1;
 				} 
 				else if (i == j-1) {
-					QuasiCartan[i*n+j] = -1;
+					DynkinExchangeMatrix[i*n+j] = -1;
 				}
 				else if (i == n-1 && j == n-2) {
-					QuasiCartan[i*n+j] = 2;
+					DynkinExchangeMatrix[i*n+j] = 2;
 				}
 				else {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 			}
 		}
 		if (affine_Dynkin) {
-			QuasiCartan[1] = QuasiCartan[n] = 0;
-			QuasiCartan[2] = -1;
-			QuasiCartan[2*n] = 1;
+			DynkinExchangeMatrix[1] = DynkinExchangeMatrix[n] = 0;
+			DynkinExchangeMatrix[2] = -1;
+			DynkinExchangeMatrix[2*n] = 1;
 		}
 	}
 	else if (type == "D") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 				else if (i == j+1 && i != n-1) {
-					QuasiCartan[i*n+j] = 1;
+					DynkinExchangeMatrix[i*n+j] = 1;
 				} 
 				else if  (i == j-1 && j != n-1) {
-					QuasiCartan[i*n+j] = -1;
+					DynkinExchangeMatrix[i*n+j] = -1;
 				}
 				else if (i == n-3 && j == n-1) {
-					QuasiCartan[i*n+j] = -1;
+					DynkinExchangeMatrix[i*n+j] = -1;
 				}
 				else if (i == n-1 && j == n-3) {
-					QuasiCartan[i*n+j] = 1;
+					DynkinExchangeMatrix[i*n+j] = 1;
 				}
 				else {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 			}
 		}
 		if (affine_Dynkin) {
-			QuasiCartan[1] = QuasiCartan[n] = 0;
-			QuasiCartan[2] = -1;
-			QuasiCartan[2*n] = 1;
+			DynkinExchangeMatrix[1] = DynkinExchangeMatrix[n] = 0;
+			DynkinExchangeMatrix[2] = -1;
+			DynkinExchangeMatrix[2*n] = 1;
 		}
 	}
 	else if (type == "E") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 				else if (i == j+1 && i != 1 && i != 2) {
-					QuasiCartan[i*n+j] = 1;
+					DynkinExchangeMatrix[i*n+j] = 1;
 				} 
 				else if (i == j-1 && j != 1 && j != 2) {
-					QuasiCartan[i*n+j] = -1;
+					DynkinExchangeMatrix[i*n+j] = -1;
 				}
 				else if (i == 2 && j == 0) {
-					QuasiCartan[i*n+j] = 1;
+					DynkinExchangeMatrix[i*n+j] = 1;
 				}
 				else if (i == 3 && j == 1) {
-					QuasiCartan[i*n+j] = 1;
+					DynkinExchangeMatrix[i*n+j] = 1;
 				}
 				else if (i == 0 && j == 2) {
-					QuasiCartan[i*n+j] = -1;
+					DynkinExchangeMatrix[i*n+j] = -1;
 				}
 				else if (i == 1 && j == 3) {
-					QuasiCartan[i*n+j] = -1;
+					DynkinExchangeMatrix[i*n+j] = -1;
 				}
 				else {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 			}
 		}
 		if (affine_Dynkin) {
 			if (n == 7 || n == 8) {
-				QuasiCartan[(n-1)*n + n-2] = QuasiCartan[(n-2)*n + n-1] = 0;
+				DynkinExchangeMatrix[(n-1)*n + n-2] = DynkinExchangeMatrix[(n-2)*n + n-1] = 0;
 			}
 			if (n == 7) {
-				QuasiCartan[(n-1)*n + 1] = -1;
-				QuasiCartan[n + n-1] = 1;
+				DynkinExchangeMatrix[(n-1)*n + 1] = -1;
+				DynkinExchangeMatrix[n + n-1] = 1;
 			}
 			if (n == 8) {
-				QuasiCartan[(n-1)*n] = -1;
-				QuasiCartan[n-1] = 1;
+				DynkinExchangeMatrix[(n-1)*n] = -1;
+				DynkinExchangeMatrix[n-1] = 1;
 			}
 		}
 	}
 	else if (type == "G") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
-				QuasiCartan[i*n+j] = 0;
+				DynkinExchangeMatrix[i*n+j] = 0;
 			}
 		}
-		QuasiCartan[1] = -3;
-		QuasiCartan[n] = 1;
+		DynkinExchangeMatrix[1] = -3;
+		DynkinExchangeMatrix[n] = 1;
 		if (affine_Dynkin) {
-			QuasiCartan[n+2] = -1;
-			QuasiCartan[2*n+1] = 1;
+			DynkinExchangeMatrix[n+2] = -1;
+			DynkinExchangeMatrix[2*n+1] = 1;
 		}
 	}
 	else if (type == "F") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 				else if (i == j+1) {
-					QuasiCartan[i*n+j] = 1;
+					DynkinExchangeMatrix[i*n+j] = 1;
 				} 
 				else if (i == j-1 && j != n-2) {
-					QuasiCartan[i*n+j] = -1;
+					DynkinExchangeMatrix[i*n+j] = -1;
 				}
 				else if (i == n-3 && j == n-2) {
-					QuasiCartan[i*n+j] = -2;
+					DynkinExchangeMatrix[i*n+j] = -2;
 				}
 				else {
-					QuasiCartan[i*n+j] = 0;
+					DynkinExchangeMatrix[i*n+j] = 0;
 				}
 			}
 		}
 	}
-	return QuasiCartan;
+	return DynkinExchangeMatrix;
 }
 
 // Function to create a Cartan matrix of type X and size n
@@ -1165,8 +1165,8 @@ function CartanToInitial() {
 	document.getElementById("outDashboard1").setAttribute("class","dashboard");
 	document.getElementById("outDashboard2").setAttribute("class","dashboard");
 
-	InitialMat = QuasiCartan;
-	PrinInitialMat = QuasiCartan;
+	InitialMat = DynkinExchangeMatrix;
+	PrinInitialMat = DynkinExchangeMatrix;
 	rownumInitialMat = rank;
 	colnumInitialMat = rank;
 
