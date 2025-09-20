@@ -1,4 +1,4 @@
-// Global functions recording the values of the latest mutation matrix
+// Global variables recording the values of the latest mutation matrix
 var InitialMat;
 var PrinInitialMat;
 var rownumInitialMat;
@@ -10,6 +10,7 @@ var yTropMaxInitial;
 
 let DynkinExchangeMatrix;
 let affine_Dynkin = false;
+let clusterVars = null;
 
 //window.MathJax = {
 //	loader: {load: ['[tex]/color']},
@@ -253,8 +254,8 @@ function createMutationMatrix() {
 	colnumInitialMat = InitialMat.length / rownumInitialMat;
 
 	PrinInitialMat = [];
-	for (i=0; i<colnumInitialMat; i++) {
-		for (j=0; j<colnumInitialMat; j++) {
+	for (let i=0; i<colnumInitialMat; i++) {
+		for (let j=0; j<colnumInitialMat; j++) {
 			PrinInitialMat[i*colnumInitialMat + j] = InitialMat[i*colnumInitialMat + j];
 		}
 	}
@@ -336,6 +337,7 @@ function createMutationMatrix() {
 		document.getElementById("iniYtropMaxHeader").style.visibility = "hidden";
 	}
 
+	initTrackingClusterVars();
 	mutButtons(rows.length);
 	quiver(array2Matrix(PrinInitialMat));
 	MathJax.typeset()
@@ -349,7 +351,7 @@ function mutateData(id) {
 
 	// Retrieve the mutation direction from the id of the mutation button
 	// Direction is an integer from 1 to colnumInitialMat
-	let direction = id.substring(0,1);
+	let direction = Number(id.substring(0,1));
 
 	// Mutate tropical points if any exists
 	if (document.getElementById("AtropMinCheckBox").checked == true) {
@@ -371,6 +373,28 @@ function mutateData(id) {
 		yTropMaxInitial = mutateYTrop(yTropMaxInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'max');
 		arrayToMatrix(yTropMaxInitial,1,'initialYTropMax',"clear");
 		//MathJax.typeset([initialYTropMax]);
+	}
+	if (clusterVars !== null) {
+		const incoming = [];
+		const outgoing = [];
+		for (let i = 0; i < rownumInitialMat; i++) {
+			const b = InitialMat[i*colnumInitialMat + direction-1];
+			for (let j = 0; j < b; j++) {
+				incoming.push(clusterVars[i]);
+			}
+			for (let j = b; j < 0; j++) {
+				outgoing.push(clusterVars[i]);
+			}
+		}
+		clusterVars[direction-1] = clusterVars[direction-1].mutation(incoming, outgoing);
+		const out = document.getElementById("clusterVarsOutput");
+		const div = document.createElement('div');
+		div.appendChild(document.createTextNode('' + direction + ': \\(' + clusterVars[direction-1].latex() + '\\)'));
+		out.appendChild(div);
+		out.appendChild(document.createElement('br'));
+		const did = 'cvout' + out.childElementCount;
+		div.setAttribute('id', did);
+		MathJax.typeset(['#' + did]);
 	}
 	// Create new matrix by mutating the latest
 	InitialMat = mutation(InitialMat,rownumInitialMat,colnumInitialMat,direction);
@@ -432,8 +456,8 @@ function mutation(matrix,rows,cols,direction) {
 	// Declare a new matrix (the RHS guarantees the copy is a deep copy)
 	let newMatrix = JSON.parse(JSON.stringify(matrix));
 	// Matrix mutation formulas:
-	for (i = 0; i < rows; i++) {
-		for (j = 0; j < cols; j++) {
+	for (let i = 0; i < rows; i++) {
+		for (let j = 0; j < cols; j++) {
 			if (i == (direction-1) || j == (direction-1)) {
 				newMatrix[i*cols + j] = (-1)*matrix[i*cols + j];
 			}
@@ -1177,6 +1201,7 @@ function CartanToInitial() {
 	arrayToMatrix(InitialMat, rank, "initialMatrix", "clear");
 	arrayToMatrix(InitialMat, rank, "initialPrincipalPart", "clear");
 	quiver(array2Matrix(InitialMat));
+	initTrackingClusterVars();
 	mutButtons(rank);
 	document.getElementById("mutationHistoryButton").style.display = "block";
 	// Create MathJax rendition of initial mutation matrix in the <div id="mutationHistory">
@@ -1188,4 +1213,38 @@ function CartanToInitial() {
 
 
 
+}
+
+function trackClusterVars() {
+	document.getElementById("stopTrackingClusterVarsButton").style.visibility = "visible";
+	const out = document.getElementById("clusterVarsOutput");
+	out.replaceChildren();
+	out.style.visibility = "visible";
+	const rows = rownumInitialMat;
+	const cols = InitialMat.length / rows;
+	clusterVars = [];
+	LaurentPolynomial.nvars = rows;
+	for (let i = 0; i < rows; i++) {
+		const x = LaurentPolynomial.x(i);
+		clusterVars.push(x);
+		if (i < cols) {
+			const div = document.createElement('div');
+			div.appendChild(document.createTextNode('' + (i+1) + ': \\(' + x.latex() + '\\)'));
+			out.appendChild(div);
+		}
+	}
+	out.appendChild(document.createElement('br'));
+	MathJax.typeset(['#clusterVarsOutput']);
+}
+
+function initTrackingClusterVars() {
+	document.getElementById("stopTrackingClusterVarsButton").style.visibility = "hidden";
+	document.getElementById("clusterVarsOutput").style.visibility = "hidden";
+	clusterVars = null;
+	if (InitialMat.every(x => Number.isInteger(Number(x)))) {
+		document.getElementById('trackClusterVarsButton').style.visibility = 'visible';
+	} else {
+		console.log('nope');
+		document.getElementById('trackClusterVarsButton').style.visibility = 'hidden';
+	}
 }
