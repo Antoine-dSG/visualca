@@ -634,14 +634,14 @@ function quiver(matrixData) {
 			links.push({
 			  source: i,
 			  target: j,
-			  weight: (M[i][j] == 1 && M[j][i] == -1 ? '' : '('+M[i][j]+','+(-M[j][i])+')')
+			  weight: (M[i][j] == 1 && M[j][i] == -1 ? '' : M[i][j] == -M[j][i] ? M[i][j] : '('+M[i][j]+','+(-M[j][i])+')')
 			});
 		  } else if (M[i][j] < 0) {
 			// Edge j -> i
 			links.push({
 			  source: j,
 			  target: i,
-			  weight: (M[i][j] == -1 && M[j][i] == 1 ? '' : '('+M[j][i]+','+(-M[i][j])+')')
+			  weight: (M[i][j] == -1 && M[j][i] == 1 ? '' : M[i][j] == -M[j][i] ? M[j][i] : '('+M[j][i]+','+(-M[i][j])+')')
 			});
 		  }
 		}
