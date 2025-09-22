@@ -2,6 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8" />
+	<title>Matrix mutation | Visual Cluster Algebras</title>
 	<link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="mutPattern.css">
 	<script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> 
@@ -35,7 +36,7 @@
 		<p>Matrix and cluster algebra mutation: <i><a href="https://projecteuclid.org/journals/duke-mathematical-journal/volume-126/issue-1/Cluster-algebras-III-Upper-bounds-and-double-Bruhat-cells/10.1215/S0012-7094-04-12611-9.short">Cluster algebras III: Upper bounds and double Bruhat cells</a></i></p>
 		<p>Matrix from double Bruhat cells: <i><a href="https://www.sciencedirect.com/science/article/pii/S0001870804002737">Quantum cluster algebras</a></i></p>
 		<p>Matrix from Grassmannians: <i><a href=""></a></i></p>
-		<p>Matrix of affine Dynkin type: <i><a href="https://arxiv.org/pdf/0906.2026">Frises</a></i></p>
+		<p>Matrix of affine Dynkin type: <i><a href="https://arxiv.org/pdf/0906.2026">Frises</a> (<a href="https://doi.org/10.1016/j.aim.2010.05.019">Friezes</a>)</i></p>
 		<p>\(\mathcal{A}\) and \(\mathcal{X}\)-tropical points: <i><a href="https://arxiv.org/abs/2311.17712v3">Tropical friezes and cluster-additive functions via Fock-Goncharov duality and a conjecture of Ringel</a></i></p>
 	</div>
 	<br>
@@ -389,9 +390,14 @@
 	<br>
 	<div>
 		<button id="trackClusterVarsButton" onclick="trackClusterVars()">Track cluster variables</button>
-		<button id="stopTrackingClusterVarsButton" onclick="initTrackingClusterVars()" style="visibility: hidden">Stop tracking</button>
+		<button id="stopTrackingClusterVarsButton" onclick="initTrackingClusterVars()" style="display: none;">Stop tracking</button>
 		<br>
-		<div id="clusterVarsOutput" style="visibility: hidden; border-style: dotted;"></div>
+		<div id="clusterVarsOutputPanel" style="display: none;">
+			<div id="clusterVarsOutput" style="border-style: dotted;"></div>
+			<br>
+			<button id="specialisationButton" onclick="toggleDiv(this.id, specialisation, 'specialisation')">Show specialisation<span style="display: none;"> specialization</span></button>
+			<div id="specialisation" style="display: none" onchange="displayClusterVarsHistory()"></div>
+		</div>
 	</div>
 </div>
 

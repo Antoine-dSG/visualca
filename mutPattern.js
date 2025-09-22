@@ -11,6 +11,7 @@ var yTropMaxInitial;
 let DynkinExchangeMatrix;
 let affine_Dynkin = false;
 let clusterVars = null;
+let clusterVarsHistory = [];
 
 //window.MathJax = {
 //	loader: {load: ['[tex]/color']},
@@ -209,7 +210,7 @@ function mutButtons (r) {
 		let button = document.createElement("button");
 		let mutationButtonNum = i + "mutButton";
 		button.setAttribute("id", mutationButtonNum);
-		button.setAttribute("onclick", "mutateData(this.id)");
+		button.setAttribute("onclick", "mutateData("+i+")");
 		button.innerHTML = "\\( \\mu_{" + i + "}\\)";
 		mutationButtons.appendChild(button);
 	}
@@ -344,14 +345,10 @@ function createMutationMatrix() {
 }
 
 
-function mutateData(id) {
+function mutateData(direction) { // The mutation direction is an integer from 1 to colnumInitialMat
 	// Hide the mutation history div
 	document.getElementById("mutationHistory").style.display = "none";
 	document.getElementById("mutationHistoryButton").innerHTML = "Show mutation history";
-
-	// Retrieve the mutation direction from the id of the mutation button
-	// Direction is an integer from 1 to colnumInitialMat
-	let direction = Number(id.substring(0,1));
 
 	// Mutate tropical points if any exists
 	if (document.getElementById("AtropMinCheckBox").checked == true) {
@@ -387,9 +384,9 @@ function mutateData(id) {
 			}
 		}
 		clusterVars[direction-1] = clusterVars[direction-1].mutation(incoming, outgoing);
+		clusterVarsHistory.push([direction, clusterVars[direction-1]]);
 		const out = document.getElementById("clusterVarsOutput");
-		const div = document.createElement('div');
-		div.appendChild(document.createTextNode('' + direction + ': \\(' + clusterVars[direction-1].latex() + '\\)'));
+		const div = divClusterVar(direction, clusterVars[direction-1], specialisedClusterVars());
 		out.appendChild(div);
 		out.appendChild(document.createElement('br'));
 		const did = 'cvout' + out.childElementCount;
@@ -1216,35 +1213,93 @@ function CartanToInitial() {
 }
 
 function trackClusterVars() {
-	document.getElementById("stopTrackingClusterVarsButton").style.visibility = "visible";
-	const out = document.getElementById("clusterVarsOutput");
-	out.replaceChildren();
-	out.style.visibility = "visible";
+	document.getElementById("stopTrackingClusterVarsButton").style.display = "inline";
+	document.getElementById("clusterVarsOutputPanel").style.display = "block";
 	const rows = rownumInitialMat;
 	const cols = InitialMat.length / rows;
 	clusterVars = [];
+	clusterVarsHistory = [];
+	const spec = document.getElementById("specialisation");
+	spec.replaceChildren();
 	LaurentPolynomial.nvars = rows;
 	for (let i = 0; i < rows; i++) {
 		const x = LaurentPolynomial.x(i);
 		clusterVars.push(x);
-		if (i < cols) {
-			const div = document.createElement('div');
-			div.appendChild(document.createTextNode('' + (i+1) + ': \\(' + x.latex() + '\\)'));
-			out.appendChild(div);
-		}
+		const ispec = document.createElement('div');
+		const spec_name = 'spec' + i;
+		ispec.appendChild(document.createTextNode('Specialise \\(x_{'+(i+1)+'}\\): '));
+		const spec_no_label = document.createElement('label');
+		const spec_no = document.createElement('input');
+		spec_no.setAttribute('type', 'radio');
+		spec_no.setAttribute('name', spec_name);
+		spec_no.setAttribute('id', spec_name + 'no');
+		spec_no.checked = true;
+		spec_no_label.appendChild(spec_no);
+		spec_no_label.appendChild(document.createTextNode(' no '));
+		ispec.appendChild(spec_no_label);
+		const spec_one_label = document.createElement('label');
+		const spec_one = document.createElement('input');
+		spec_one.setAttribute('type', 'radio');
+		spec_one.setAttribute('name', spec_name);
+		spec_one.setAttribute('id', spec_name + '+1');
+		spec_one_label.appendChild(spec_one);
+		spec_one_label.appendChild(document.createTextNode(' to 1 '));
+		ispec.appendChild(spec_one_label);
+		const spec_mone_label = document.createElement('label');
+		const spec_mone = document.createElement('input');
+		spec_mone.setAttribute('type', 'radio');
+		spec_mone.setAttribute('name', spec_name);
+		spec_mone.setAttribute('id', spec_name + '-1');
+		spec_mone_label.appendChild(spec_mone);
+		spec_mone_label.appendChild(document.createTextNode(' to −1 '));
+		ispec.appendChild(spec_mone_label);
+		spec.appendChild(ispec);
 	}
-	out.appendChild(document.createElement('br'));
-	MathJax.typeset(['#clusterVarsOutput']);
+	displayClusterVarsHistory();
 }
 
 function initTrackingClusterVars() {
-	document.getElementById("stopTrackingClusterVarsButton").style.visibility = "hidden";
-	document.getElementById("clusterVarsOutput").style.visibility = "hidden";
+	document.getElementById('stopTrackingClusterVarsButton').style.display = 'none';
+	document.getElementById('clusterVarsOutputPanel').style.display = 'none';
 	clusterVars = null;
 	if (InitialMat.every(x => Number.isInteger(Number(x)))) {
-		document.getElementById('trackClusterVarsButton').style.visibility = 'visible';
+		document.getElementById('trackClusterVarsButton').style.display = 'inline';
 	} else {
-		console.log('nope');
-		document.getElementById('trackClusterVarsButton').style.visibility = 'hidden';
+		document.getElementById('trackClusterVarsButton').style.display = 'none';
 	}
+}
+
+function displayClusterVarsHistory() {
+	const out = document.getElementById('clusterVarsOutput');
+	out.replaceChildren();
+	const vars = specialisedClusterVars();
+	for (let i = 0; i < rownumInitialMat; i++) {
+		out.appendChild(divClusterVar(i+1, LaurentPolynomial.x(i), vars));
+	}
+	out.appendChild(document.createElement('br'));
+	for (const dcv of clusterVarsHistory) {
+		const [direction, cv] = dcv;
+		out.appendChild(divClusterVar(direction, cv, vars));
+		out.appendChild(document.createElement('br'));
+	}
+	MathJax.typeset(['#clusterVarsOutputPanel']);
+}
+
+function divClusterVar(d, x, vars) {
+	const div = document.createElement('div');
+	div.appendChild(document.createTextNode('' + d + ': \\(' + x.evaluate_partially(vars).latex() + '\\)'));
+	return div;
+}
+
+function specialisedClusterVars() {
+	const vars = new Map();
+	for (let i = 0; i < rownumInitialMat; i++) {
+		const spec_name = 'spec' + i;
+		if (document.getElementById(spec_name + '+1').checked) {
+			vars.set(i, 1);
+		} else if (document.getElementById(spec_name + '-1').checked) {
+			vars.set(i, -1);
+		}
+	}
+	return vars;
 }
