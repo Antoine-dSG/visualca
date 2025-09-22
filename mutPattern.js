@@ -725,28 +725,31 @@ function quiver(matrixData) {
   
 	// Update positions each tick
 	function ticked() {
+	  xclamp = (x => Math.max(30, Math.min(width-30, x)));
+	  yclamp = (y => Math.max(30, Math.min(height-30, y)));
+	  
 	  // Update link positions
 	  link.attr("d", d => {
-		const sx = d.source.x;
-		const sy = d.source.y;
-		const tx = d.target.x;
-		const ty = d.target.y;
+		const sx = xclamp(d.source.x);
+		const sy = yclamp(d.source.y);
+		const tx = xclamp(d.target.x);
+		const ty = yclamp(d.target.y);
 		return `M${sx},${sy} L${tx},${ty}`;
 	  });
   
 	  // Update link labels (weight) positions
 	  linkLabels
-		.attr("x", d => (d.source.x + d.target.x) / 2)
-		.attr("y", d => (d.source.y + d.target.y) / 2);
+		.attr("x", d => (xclamp(d.source.x) + xclamp(d.target.x)) / 2)
+		.attr("y", d => (yclamp(d.source.y) + yclamp(d.target.y)) / 2);
   
 	  // Update node positions
-	  node.attr("cx", d => d.x)
-		  .attr("cy", d => d.y);
+	  node.attr("cx", d => xclamp(d.x))
+		  .attr("cy", d => yclamp(d.y));
   
 	  // Update node labels positions
 	  nodeLabels
-		.attr("x", d => d.x)
-		.attr("y", d => d.y);
+		.attr("x", d => xclamp(d.x))
+		.attr("y", d => yclamp(d.y));
 	}
   
 	// Drag behavior
