@@ -813,13 +813,29 @@ function rankToCartan() {
 	const ti = (affine_Dynkin ? "\\tilde " : "");
 	
 	if (rank >= 1) {
+		// For an affine Dynkin diagram of type A, there are non-mutation equivalent orientations.
+		// We create the corresponding buttons.
+		if (affine_Dynkin) {
+			for (let i = 1; i <= rank; i++) {
+				let button = document.createElement("button");
+				let buttonId = "A" + i + "," + (rank+1-i);
+				button.innerHTML = "\\( "+ti+"{\\text{A}}_{" + i +","+ (rank+1-i) + "}\\)";
+				button.setAttribute("id", buttonId);
+				button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+				CartanButtons.appendChild(button);
+			}
+
+		} 
 		// Create an An button
-		let button = document.createElement("button");
-		let buttonId = "A";
-		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
-		button.innerHTML = "\\( "+ti+"{\\text{A}}_{" + rank + "}\\)";
-		CartanButtons.appendChild(button);
+		else {
+			let button = document.createElement("button");
+			let buttonId = "A";
+			button.setAttribute("id", buttonId);
+			button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			button.innerHTML = "\\( {\\text{A}}_{" + rank + "}\\)";
+			CartanButtons.appendChild(button);
+		}
+		
 	}
 
 	// Create a Bn button if rank >= 2
@@ -886,6 +902,32 @@ function rankToCartan() {
 function createDynkinExchangeMatrix(type, rank) {
 	let DynkinExchangeMatrix = [];
 	let n = rank;
+	let affine_rank = n-1;
+	for (let i = 1; i <= n; i++) {
+		if (type == "A"+i+","+(affine_rank+1-i)) {
+			for (let j = 0; j < n; j++) {
+				for (let k = 0; k < n; k++) {
+					let sgn = 1;
+					sgn = (j<=i-1 && k<=i-1 ? -1 : 1)
+					console.log(sgn)
+					if (j==k) {
+						DynkinExchangeMatrix[j*n+k] = 0;
+					}
+					else if (j == k+1){
+						DynkinExchangeMatrix[j*n+k] = sgn*1;
+					} 
+					else if (j == k-1) {
+						DynkinExchangeMatrix[j*n+k] = -1*sgn;
+					}
+					else {
+						DynkinExchangeMatrix[j*n+k] = 0;
+					}
+				}
+			}
+		DynkinExchangeMatrix[(n-1)*n] += 1;
+		DynkinExchangeMatrix[n-1] += -1;
+		}
+	}
 	if (type == "A") {
 		for (let i = 0; i < n; i++) {
 			for (let j =0; j < n; j++) {
@@ -903,11 +945,9 @@ function createDynkinExchangeMatrix(type, rank) {
 				}
 			}
 		}
-		if (affine_Dynkin) {
-			DynkinExchangeMatrix[(n-1)*n] += 1;
-			DynkinExchangeMatrix[n-1] += -1;
-		}
 	}
+
+	
 	else if (type == "C") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
@@ -929,7 +969,7 @@ function createDynkinExchangeMatrix(type, rank) {
 			}
 		}
 		if (affine_Dynkin) {
-			DynkinExchangeMatrix[1] = -2;
+			DynkinExchangeMatrix[n] = 2;
 		}
 	}
 	else if (type == "B") {
@@ -953,9 +993,7 @@ function createDynkinExchangeMatrix(type, rank) {
 			}
 		}
 		if (affine_Dynkin) {
-			DynkinExchangeMatrix[1] = DynkinExchangeMatrix[n] = 0;
-			DynkinExchangeMatrix[2] = -1;
-			DynkinExchangeMatrix[2*n] = 1;
+			DynkinExchangeMatrix[1] = -2;
 		}
 	}
 	else if (type == "D") {
