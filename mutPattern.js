@@ -813,9 +813,25 @@ function rankToCartan() {
 	const ti = (affine_Dynkin ? "\\tilde " : "");
 	
 	if (rank >= 1) {
-		// For an affine Dynkin diagram of type A, there are non-mutation equivalent orientations.
+		// For an affine Dynkin diagram of type A and rank 1, there are two affine types: twisted and untwisted.
+		if (rank ==1 && affine_Dynkin) {
+			let button1 = document.createElement("button");
+			let buttonId1 = "TwistedA1";
+			button1.innerHTML = "\\( "+ti+"{\\text{A}}_{" + 11 +"}\\)";
+			button1.setAttribute("id", buttonId1);
+			button1.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			CartanButtons.appendChild(button1);
+
+			let button2 = document.createElement("button");	
+			let buttonId2 = "UntwistedA1";
+			button2.innerHTML = "\\( "+ti+"{\\text{A}}_{" + 12 +"}\\)";
+			button2.setAttribute("id", buttonId2);
+			button2.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			CartanButtons.appendChild(button2);
+		}
+		// For an affine Dynkin diagram of type A and rank >= 2, there are non-mutation equivalent orientations.
 		// We create the corresponding buttons.
-		if (affine_Dynkin) {
+		else if (affine_Dynkin && rank >= 2) {
 			for (let i = 1; i <= rank; i++) {
 				let button = document.createElement("button");
 				let buttonId = "A" + i + "," + (rank+1-i);
@@ -906,21 +922,56 @@ function rankToCartan() {
 	}
 
 	if (rank == 4 ) {
+		if (affine_Dynkin) {
+			let button1 = document.createElement("button");	
+			let buttonId1 = "F41";
+			button1.setAttribute("id", buttonId1);
+			button1.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			button1.innerHTML = "\\( \\tilde{\\text{F}}_{" + 41 + "}\\)";
+			CartanButtons.appendChild(button1);
+			
+			let button2 = document.createElement("button");	
+			let buttonId2 = "F42";
+			button2.setAttribute("id", buttonId2);
+			button2.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			button2.innerHTML = "\\( \\tilde{\\text{F}}_{" + 42 + "}\\)";
+			CartanButtons.appendChild(button2);
+		}
+		else {
 		let button = document.createElement("button");
 		let buttonId = "F";
 		button.setAttribute("id", buttonId);
 		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
-		button.innerHTML = "\\( "+ti+"{\\text{F}}_{" + rank + "}\\)";
+		button.innerHTML = "\\( {\\text{F}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
+	}
 	}
 
 	if (rank == 2 ) {
+		if (affine_Dynkin) {
+			let button1 = document.createElement("button");
+			let buttonId1 = "G21";
+			button1.setAttribute("id", buttonId1);
+			button1.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			button1.innerHTML = "\\( \\tilde{\\text{G}}_{" + 21 + "}\\)";
+			CartanButtons.appendChild(button1);
+
+			let button2 = document.createElement("button");
+			let buttonId2 = "G22";
+			button2.setAttribute("id", buttonId2);
+			button2.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			button2.innerHTML = "\\( \\tilde{\\text{G}}_{" + 22 + "}\\)";
+			CartanButtons.appendChild(button2);
+		}
+		else {
 		let button = document.createElement("button");
 		let buttonId = "G";
 		button.setAttribute("id", buttonId);
 		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
-		button.innerHTML = "\\( "+ti+"{\\text{G}}_{" + rank + "}\\)";
+		button.innerHTML = "\\( {\\text{G}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
+		}
+		
 
 	}
 	MathJax.typeset([CartanButtons]);
@@ -1182,10 +1233,28 @@ function createDynkinExchangeMatrix(type, rank) {
 		}
 		DynkinExchangeMatrix[1] = -3;
 		DynkinExchangeMatrix[n] = 1;
-		if (affine_Dynkin) {
-			DynkinExchangeMatrix[n+2] = -1;
-			DynkinExchangeMatrix[2*n+1] = 1;
+	}
+	else if (type == "G21") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				DynkinExchangeMatrix[i*n+j] = 0;
+			}
 		}
+		DynkinExchangeMatrix[1] = -1;
+		DynkinExchangeMatrix[3] = 1;
+		DynkinExchangeMatrix[5] = -3;
+		DynkinExchangeMatrix[7] = 1
+	}
+	else if (type == "G22") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				DynkinExchangeMatrix[i*n+j] = 0;
+			}
+		}
+		DynkinExchangeMatrix[1] = -1;
+		DynkinExchangeMatrix[3] = 1;
+		DynkinExchangeMatrix[5] = -1;
+		DynkinExchangeMatrix[7] = 3
 	}
 	else if (type == "F") {
 		for (let i = 0; i < n; i++) {
@@ -1207,6 +1276,62 @@ function createDynkinExchangeMatrix(type, rank) {
 				}
 			}
 		}
+	}
+	else if (type == "F41") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+				else if (i == j+1) {
+					DynkinExchangeMatrix[i*n+j] = 1;
+				} 
+				else if (i == j-1 && j != n-2) {
+					DynkinExchangeMatrix[i*n+j] = -1;
+				}
+				else if (i == n-3 && j == n-2) {
+					DynkinExchangeMatrix[i*n+j] = -2;
+				}
+				else {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	else if (type == "F42") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+				else if (i == n-2 && j == n-3) {
+					DynkinExchangeMatrix[i*n+j] = 2;
+				}
+				else if (i == j+1) {
+					DynkinExchangeMatrix[i*n+j] = 1;
+				} 
+				else if (i == j-1) {
+					DynkinExchangeMatrix[i*n+j] = -1;
+				}
+				
+				else {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+			}
+		}
+	}
+	// Affine cluster algebras of rank 2
+	else if (type == "TwistedA1") {
+		DynkinExchangeMatrix[0] = 0;
+		DynkinExchangeMatrix[1] = -4;
+		DynkinExchangeMatrix[2] = 1;
+		DynkinExchangeMatrix[3] = 0;
+	}
+	else if (type == "UntwistedA1") {
+		DynkinExchangeMatrix[0] = 0;
+		DynkinExchangeMatrix[1] = -2;
+		DynkinExchangeMatrix[2] = 2;
+		DynkinExchangeMatrix[3] = 0;
 	}
 	return DynkinExchangeMatrix;
 }
