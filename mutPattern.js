@@ -846,9 +846,19 @@ function rankToCartan() {
 		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
 		button.innerHTML = "\\( "+ti+"{\\text{B}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
+
+		// Create the \tilde{BC}_m affine button if the user has selected affine Dynkin diagrams
+		if (affine_Dynkin) {
+			let button = document.createElement("button");
+			let buttonId = "BC";
+			button.setAttribute("id", buttonId);
+			button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			button.innerHTML = "\\( \\tilde{\\text{BC}}_{" + rank + "}\\)";
+			CartanButtons.appendChild(button);
+		}
 	}
 	// Create a Cn button if rank >= 3
-	if (rank >= 3) {
+	if (rank >= 3 || (affine_Dynkin && rank == 2)) {
 		let button = document.createElement("button");
 		let buttonId = "C";
 		button.setAttribute("id", buttonId);
@@ -858,13 +868,31 @@ function rankToCartan() {
 	}
 
 	// Create a Dn button if rank >= 4
-	if (rank >= 4) {
+	if (rank >= 4 || (affine_Dynkin && rank == 3)) {
 		let button = document.createElement("button");
 		let buttonId = "D";
 		button.setAttribute("id", buttonId);
 		button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
 		button.innerHTML = "\\( "+ti+"{\\text{D}}_{" + rank + "}\\)";
 		CartanButtons.appendChild(button);
+
+		if (affine_Dynkin) {
+			// Add a BD button
+			let button = document.createElement("button");
+			let buttonId = "BD";
+			button.setAttribute("id", buttonId);
+			button.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			button.innerHTML = "\\( \\tilde{\\text{BD}}_{" + rank + "}\\)";
+			CartanButtons.appendChild(button);
+
+			// Add a CD button
+			let button2 = document.createElement("button");
+			let buttonId2 = "CD";
+			button2.setAttribute("id", buttonId2);
+			button2.setAttribute("onclick", "displayCartanShortcutAcyclic(this.id, parseInt(document.getElementById('userInputRankAcyclic').value), 'UserCartanDisplayAcyclic')");
+			button2.innerHTML = "\\( \\tilde{\\text{CD}}_{" + rank + "}\\)";
+			CartanButtons.appendChild(button2);
+		}
 	}
 
 	// Add exceptional types in suitable ranks
@@ -972,6 +1000,31 @@ function createDynkinExchangeMatrix(type, rank) {
 			DynkinExchangeMatrix[n] = 2;
 		}
 	}
+
+	else if (type == "BC") {
+			for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+				else if (i == j+1){
+					DynkinExchangeMatrix[i*n+j] = 1;
+				}
+				else if (i == j-1 && j != n-1) {
+					DynkinExchangeMatrix[i*n+j] = -1;
+				}
+				else if (i == n-2 && j == n-1) {
+					DynkinExchangeMatrix[i*n+j] = -2;
+				}
+				else {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+			}
+		}
+		DynkinExchangeMatrix[1] = -2;
+
+		
+	}
 	else if (type == "B") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
@@ -1025,6 +1078,59 @@ function createDynkinExchangeMatrix(type, rank) {
 			DynkinExchangeMatrix[2*n] = 1;
 		}
 	}
+
+	else if (type == "BD") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+				else if (i == j+1 && i != n-1) {
+					DynkinExchangeMatrix[i*n+j] = 1;
+				} 
+				else if  (i == j-1 && j != n-1) {
+					DynkinExchangeMatrix[i*n+j] = -1;
+				}
+				else if (i == n-3 && j == n-1) {
+					DynkinExchangeMatrix[i*n+j] = -1;
+				}
+				else if (i == n-1 && j == n-3) {
+					DynkinExchangeMatrix[i*n+j] = 1;
+				}
+				else {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+			}
+		}
+		DynkinExchangeMatrix[1] = -2;
+	}
+
+	else if (type == "CD") {
+		for (let i = 0; i < n; i++) {
+			for (let j = 0; j < n; j++) {
+				if (i == j) {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+				else if (i == j+1 && i != n-1) {
+					DynkinExchangeMatrix[i*n+j] = 1;
+				} 
+				else if  (i == j-1 && j != n-1) {
+					DynkinExchangeMatrix[i*n+j] = -1;
+				}
+				else if (i == n-3 && j == n-1) {
+					DynkinExchangeMatrix[i*n+j] = -1;
+				}
+				else if (i == n-1 && j == n-3) {
+					DynkinExchangeMatrix[i*n+j] = 1;
+				}
+				else {
+					DynkinExchangeMatrix[i*n+j] = 0;
+				}
+			}
+		}
+		DynkinExchangeMatrix[n] = 2;
+	}
+
 	else if (type == "E") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
