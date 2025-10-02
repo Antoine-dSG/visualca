@@ -1,4 +1,36 @@
 function initialToParameter() {
+  // Get and validate b and c values
+  var b = document.getElementById("bValue").value;
+  var c = document.getElementById("cValue").value;
+  
+  // Check if b and c are valid numbers
+  if (isNaN(b) || isNaN(c) || b === "" || c === "") {
+    alert("Error: The entries must be valid numbers.");
+    return;
+  }
+  
+  // Convert to numbers
+  b = Number(b);
+  c = Number(c);
+  
+  // Check if b and c are integers
+  if (!Number.isInteger(b) || !Number.isInteger(c)) {
+    alert("Error: the entries of the mutation matrix must be integers.");
+    return;
+  }
+  
+  // Check if b is strictly positive
+  if (b <= 0) {
+    alert("Error: The (1,2) entry must be strictly positive.");
+    return;
+  }
+  
+  // Check if c is strictly negative
+  if (c >= 0) {
+    alert("Error: The (2,1) entry must be strictly negative.");
+    return;
+  }
+  
   document.getElementById("dVecDashboard").setAttribute("class","dashboard");
   document.getElementById("outcomeDashboard").setAttribute("class","dashboard");
   document.getElementById("greedyElementOutput").innerHTML = "";
@@ -11,7 +43,7 @@ function displayMutMat() {
   var c = (-1)*document.getElementById("cValue").value;
 
   let mutMat = document.getElementById("userMutMat");
-  mutMat.innerHTML = "\\( B = \\begin{pmatrix} 0 &" + b + " \\\\ " + c + "& 0 \\end{pmatrix} \\)";
+  mutMat.innerHTML = "\\( B = \\begin{pmatrix} 0 &" + b + " \\\\ " + -c + "& 0 \\end{pmatrix} \\)";
   MathJax.typeset([userMutMat]);
 
 }
