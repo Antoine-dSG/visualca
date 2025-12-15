@@ -1,12 +1,12 @@
 // Global variables recording the values of the latest mutation matrix
 var InitialMat;
 var PrinInitialMat;
-var rownumInitialMat;
-var colnumInitialMat;
 var aTropMinInitial;
 var yTropMinInitial;
 var aTropMaxInitial;
 var yTropMaxInitial;
+
+var Cartan;
 
 let DynkinExchangeMatrix;
 let affine_Dynkin = false;
@@ -20,7 +20,7 @@ let clusterVarsHistory = [];
 
 // Dashboard0 to Dashboard1
 function dashZeroToOne() {
-	var choice = document.querySelector('input[name="inputMethod"]:checked').value;
+	const choice = document.querySelector('input[name="inputMethod"]:checked').value;
 	// Close all dashboards
 	document.getElementById("inDashboardManual1").className = "dashboardOff";
 	document.getElementById("inDashboardManual2").className = "dashboardOff";
@@ -53,8 +53,8 @@ function dashZeroToOne() {
 
 
 function closePopup() {
-	var popup = document.getElementById("mutation-matrix");
-		popup.style.display = "none";
+	const popup = document.getElementById("mutation-matrix");
+	popup.style.display = "none";
 }
 
 function createGrid() {
@@ -67,12 +67,12 @@ document.getElementById("mutation-matrix").style.display = "block";
 
 
 function hoverSelect(n) {
-	var rownum = Math.floor(n/8);
-	var colnum = n%8;
+	const rownum = Math.floor(n/8);
+	const colnum = n%8;
 	document.getElementById("tableHead").innerHTML = "Matrix of size " + (rownum+1) + "x" + (colnum+1);
 	for (let i=0; i<=rownum; i++) {
 		for (let j=0; j <= colnum; j++) {
-			var m = i*8+j;
+			const m = i*8+j;
 			cell = document.getElementById(m);
 			if (j <= i) cell.className = "cell-on";
 		}
@@ -80,11 +80,11 @@ function hoverSelect(n) {
 }
 
 function hoverOff(n) {
-	var rownum = Math.floor(n/8);
-	var colnum = n%8;
+	const rownum = Math.floor(n/8);
+	const colnum = n%8;
 	for (let i=0; i<8; i++) {
 		for (let j=0; j <= i; j++) {
-			var m = i*8+j;
+			const m = i*8+j;
 			cell = document.getElementById(m);
 			if (i < rownum && j >= colnum || i >= rownum){
 				cell.className = "cell";
@@ -96,16 +96,16 @@ function hoverOff(n) {
 
 function generateTable(n, m, tagId) {
 	closePopup();
-	var tableContainer = document.getElementById(tagId);
+	const tableContainer = document.getElementById(tagId);
 	tableContainer.innerHTML = "";
   // Create the table element
-	var table = document.createElement("table");
+	const table = document.createElement("table");
 
   // Create rows and cells
-  	for (var i = 0; i < n; i++) {
-    	var row = table.insertRow();
-	    for (var j = 0; j < m; j++) {
-	      var cell = row.insertCell();
+  	for (let i = 0; i < n; i++) {
+    	const row = table.insertRow();
+	    for (let j = 0; j < m; j++) {
+	      const cell = row.insertCell();
 	      cell.innerHTML = '<input type="text" maxlength="4" size="3"/>';
 	    }
   	}
@@ -123,9 +123,6 @@ function createEmptyMat(n) {
 	generateTable(rownum, colnum, "tableContainer").setAttribute("id", "mutMatrix");
 
 	document.getElementById("inDashboardManual2").setAttribute("class", "dashboard");
-
-	rownumInitialMat = rownum;
-	colnumInitialMat = colnum;
 
 	// Adjust the display of the grid's tropical points columns
 	if (document.getElementById("AtropMinCheckBox").checked == true) {
@@ -168,12 +165,17 @@ function createEmptyMat(n) {
 }
 
 
-function arrayToMatrix(array,rownum,tagById,renderType) {
-	let colnum = (array.length) / (rownum);
+function renderArray(array,tagById,renderType) {
+	renderMatrix([array],tagById,renderType);
+}
+
+function renderMatrix(matrix,tagById,renderType) {
+	let rownum = matrix.length;
+	let colnum = matrix[0].length;
 	let s = "\\( \\begin{pmatrix}";
 	for (let i = 0; i < rownum; i++) {
 		for (let j = 0; j < colnum; j++) {
-			s += array[i*colnum + j];
+			s += matrix[i][j];
 			if (j != colnum-1) {
 				s += "&";
 			}
@@ -198,17 +200,17 @@ function arrayToMatrix(array,rownum,tagById,renderType) {
 	el.appendChild(node);
 }
 
-function mutButtons (r) {
+function mutButtons () {
 	document.getElementById("mutationButtons").innerHTML = "";
 	document.getElementById("mutationHistory").innerHTML = "";
 	mutationButtons = document.getElementById("mutationButtons");
 	
 	// Create a mutation button for each column (if number of
 	// columns <= number of rows) or each row (if number of rows <= number of columns)
-	let n = min(r, (InitialMat.length)/(r));
+	const n = Math.min(InitialMat.length, InitialMat[0].length);
 	for (let i = 1; i <= n; i++) {
-		let button = document.createElement("button");
-		let mutationButtonNum = i + "mutButton";
+		const button = document.createElement("button");
+		const mutationButtonNum = i + "mutButton";
 		button.setAttribute("id", mutationButtonNum);
 		button.setAttribute("onclick", "mutateData("+i+")");
 		button.innerHTML = "\\( \\mu_{" + i + "}\\)";
@@ -216,6 +218,7 @@ function mutButtons (r) {
 	}
 	//MathJax.typeset([mutationButtons]);
 	MathJax.typeset();
+	initTrackingClusterVars();
 }
 
 
@@ -237,7 +240,7 @@ function createMutationMatrix() {
 	// Function to convert the user input of initial mutation matrix into an array
 	function callme(cc) {
 	  let result = Array.prototype.map.call(cc, function(e) {
-	    return e.value;
+	    return parseFloat(e.value);
 	  });
 	  return result;
 	}
@@ -246,19 +249,18 @@ function createMutationMatrix() {
 	// content of each cell of the mutation matrix
 	let cells = document.querySelectorAll('#tableContainer input');
 	let cellsArray = callme(cells);
-	InitialMat = cellsArray;
 	
 	
 	// Retrieve all the rows in tableContainer.
 	let rows = document.querySelectorAll('#tableContainer tr');
-	rownumInitialMat = rows.length;
-	colnumInitialMat = InitialMat.length / rownumInitialMat;
-
+	let rownumInitialMat = rows.length;
+	let colnumInitialMat = cellsArray.length / rownumInitialMat;
+	InitialMat = [];
 	PrinInitialMat = [];
-	for (let i=0; i<colnumInitialMat; i++) {
-		for (let j=0; j<colnumInitialMat; j++) {
-			PrinInitialMat[i*colnumInitialMat + j] = InitialMat[i*colnumInitialMat + j];
-		}
+	while (cellsArray.length) {
+		let row = cellsArray.splice(0, colnumInitialMat);
+		InitialMat.push(row.slice());
+		PrinInitialMat.push(row);
 	}
 
 	// Test whether the mutation matrix is sign-skew-symmetric
@@ -268,11 +270,11 @@ function createMutationMatrix() {
 	document.getElementById('ssStateCurrent').innerHTML = ssTest(PrinInitialMat);
 
 	// Create MathJax rendition of initial mutation matrix in the <div id="initialMatrix">
-	arrayToMatrix(cellsArray,rows.length,'initialMatrix', "clear");
+	renderMatrix(InitialMat,'initialMatrix', "clear");
 	// Ask MathJax to render the newly created code in LaTeX
 	//MathJax.typeset([initialMatrix]);
 
-	arrayToMatrix(PrinInitialMat,colnumInitialMat,'initialPrincipalPart', "clear");
+	renderMatrix(PrinInitialMat,'initialPrincipalPart', "clear");
 	//MathJax.typeset([initialPrincipalPart]);
 
 	// Reveal the "Show mutation history" button
@@ -280,7 +282,7 @@ function createMutationMatrix() {
 	// Create MathJax rendition of initial mutation matrix in the <div id="mutationHistory">
 	// Note the code in <div id="mutationHistory"> is not typeset until 
 	// the user presses the button "show mutation history"
-	arrayToMatrix(cellsArray,rows.length,'mutationHistory', "clear");
+	renderMatrix(InitialMat,'mutationHistory', "clear");
 
 	// Adjust the display of the grid's tropical points columns
 	if (document.getElementById("AtropMinCheckBox").checked == true) {
@@ -288,7 +290,7 @@ function createMutationMatrix() {
 		let aCells = document.querySelectorAll('#AtropMinContainer input');
 		let aCellsArray = callme(aCells);
 		aTropMinInitial = aCellsArray;
-		arrayToMatrix(aTropMinInitial,1,'initialATropMin',"clear");
+		renderArray(aTropMinInitial,'initialATropMin',"clear");
 		//MathJax.typeset([initialATropMin]);
 	}
 
@@ -302,7 +304,7 @@ function createMutationMatrix() {
 		let yCells = document.querySelectorAll('#YtropMinContainer input');
 		let yCellsArray = callme(yCells);
 		yTropMinInitial = yCellsArray;
-		arrayToMatrix(yTropMinInitial,1,'initialYTropMin',"clear");
+		renderArray(yTropMinInitial,'initialYTropMin',"clear");
 		//MathJax.typeset([initialYTropMin]);
 	}
 	else {
@@ -316,7 +318,7 @@ function createMutationMatrix() {
 		let aCells = document.querySelectorAll('#AtropMaxContainer input');
 		let aCellsArray = callme(aCells);
 		aTropMaxInitial = aCellsArray;
-		arrayToMatrix(aTropMaxInitial,1,'initialATropMax',"clear");
+		renderArray(aTropMaxInitial,'initialATropMax',"clear");
 		//MathJax.typeset([initialATropMax]);
 	}
 
@@ -330,7 +332,7 @@ function createMutationMatrix() {
 		let yCells = document.querySelectorAll('#YtropMaxContainer input');
 		let yCellsArray = callme(yCells);
 		yTropMaxInitial = yCellsArray;
-		arrayToMatrix(yTropMaxInitial,1,'initialYTropMax',"clear");
+		renderArray(yTropMaxInitial,'initialYTropMax',"clear");
 		//MathJax.typeset([initialYTropMax]);
 	}
 	else {
@@ -338,44 +340,43 @@ function createMutationMatrix() {
 		document.getElementById("iniYtropMaxHeader").style.visibility = "hidden";
 	}
 
-	initTrackingClusterVars();
-	mutButtons(rows.length);
-	quiver(array2Matrix(PrinInitialMat));
+	mutButtons();
+	quiver(PrinInitialMat);
 	MathJax.typeset()
 }
 
 
-function mutateData(direction) { // The mutation direction is an integer from 1 to colnumInitialMat
+function mutateData(direction) { // The mutation direction is an integer from 1 to the number of columns in InitialMat
 	// Hide the mutation history div
 	document.getElementById("mutationHistory").style.display = "none";
 	document.getElementById("mutationHistoryButton").innerHTML = "Show mutation history";
 
 	// Mutate tropical points if any exists
 	if (document.getElementById("AtropMinCheckBox").checked == true) {
-		aTropMinInitial = mutateATrop(aTropMinInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'min');
+		aTropMinInitial = mutateATrop(aTropMinInitial,InitialMat,direction,Math.min);
 		arrayToMatrix(aTropMinInitial,1,'initialATropMin',"clear");
 		//MathJax.typeset([initialATropMin]);
 	}
 	if (document.getElementById("YtropMinCheckBox").checked == true) {
-		yTropMinInitial = mutateYTrop(yTropMinInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'min');
+		yTropMinInitial = mutateYTrop(yTropMinInitial,InitialMat,direction,Math.min);
 		arrayToMatrix(yTropMinInitial,1,'initialYTropMin',"clear");
 		//MathJax.typeset([initialYTropMin]);
 	}
 	if (document.getElementById("AtropMaxCheckBox").checked == true) {
-		aTropMaxInitial = mutateATrop(aTropMaxInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'max');
+		aTropMaxInitial = mutateATrop(aTropMaxInitial,InitialMat,direction,Math.max);
 		arrayToMatrix(aTropMaxInitial,1,'initialATropMax',"clear");
 		//MathJax.typeset([initialATropMax]);
 	}
 	if (document.getElementById("YtropMaxCheckBox").checked == true) {
-		yTropMaxInitial = mutateYTrop(yTropMaxInitial,InitialMat,rownumInitialMat,colnumInitialMat,direction,'max');
+		yTropMaxInitial = mutateYTrop(yTropMaxInitial,InitialMat,direction,Math.max);
 		arrayToMatrix(yTropMaxInitial,1,'initialYTropMax',"clear");
 		//MathJax.typeset([initialYTropMax]);
 	}
 	if (clusterVars !== null) {
 		const incoming = [];
 		const outgoing = [];
-		for (let i = 0; i < rownumInitialMat; i++) {
-			const b = InitialMat[i*colnumInitialMat + direction-1];
+		for (let i = 0; i < InitialMat.length; i++) {
+			const b = InitialMat[i][direction-1];
 			for (let j = 0; j < b; j++) {
 				incoming.push(clusterVars[i]);
 			}
@@ -394,8 +395,8 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 		MathJax.typeset(['#' + did]);
 	}
 	// Create new matrix by mutating the latest
-	InitialMat = mutation(InitialMat,rownumInitialMat,colnumInitialMat,direction);
-	PrinInitialMat = mutation(PrinInitialMat,colnumInitialMat,colnumInitialMat,direction);
+	InitialMat = mutation(InitialMat,direction);
+	PrinInitialMat = mutation(PrinInitialMat,direction);
 	// Test whether the mutation matrix is sign-skew-symmetric
 	document.getElementById('sssStateCurrent').innerHTML = sssTest(InitialMat);
 
@@ -403,64 +404,36 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 	document.getElementById('ssStateCurrent').innerHTML = ssTest(InitialMat);
 
 	// Convert the latest mutation matrix to MathJax
-	arrayToMatrix(InitialMat,rownumInitialMat,'initialMatrix', "clear");
+	renderMatrix(InitialMat,'initialMatrix', "clear");
 	// Render the MathJax
 	//MathJax.typeset([initialMatrix]);
 
-	arrayToMatrix(PrinInitialMat,colnumInitialMat,'initialPrincipalPart', "clear");
+	renderMatrix(PrinInitialMat,'initialPrincipalPart', "clear");
 	//MathJax.typeset([initialPrincipalPart]);
 
 	// Add the mutation direction to mutation history div
 	document.getElementById("mutationHistory").innerHTML += "\\( \\xrightarrow{ \\mu_" + direction + "} \\) ";
 	// Add latest mutation matrix to <div id="mutationHistory">
-	arrayToMatrix(InitialMat,rownumInitialMat,'mutationHistory', "concat");
+	renderMatrix(InitialMat,'mutationHistory', "concat");
+	quiver(PrinInitialMat);
 	// Ask MathJax to render the newly created code in LaTeX
-	quiver(array2Matrix(PrinInitialMat));
-	MathJax.typeset(['#initialMatrix', '#initialPrincipalPart']);
+	MathJax.typeset(['#outDashboard1']);
 
 }
 
-
-function sgnPart(a,sgn) {
-	if (sgn == "max") {
-		if (a >0) {
-		return a;
-		}
-		else {
-			return 0;
-		}
-	}
-	else if (sgn == "min") {
-		if (a < 0) {
-			return a;
-		}
-		else {
-			return 0;
-		}
-	}	
-}
-
-function min(a,b) {
-	if (a <= b) {
-		return a;
-	}
-	else {
-		return b;
-	}
-}
-
-function mutation(matrix,rows,cols,direction) {
-	// Declare a new matrix (the RHS guarantees the copy is a deep copy)
-	let newMatrix = JSON.parse(JSON.stringify(matrix));
+function mutation(matrix,direction) {
+	const rows = matrix.length;
+	const cols = matrix[0].length;
+	// Declare a new matrix
+	let newMatrix = Array.from(Array(rows), () => new Array(cols));
 	// Matrix mutation formulas:
 	for (let i = 0; i < rows; i++) {
 		for (let j = 0; j < cols; j++) {
 			if (i == (direction-1) || j == (direction-1)) {
-				newMatrix[i*cols + j] = (-1)*matrix[i*cols + j];
+				newMatrix[i][j] = (-1)*matrix[i][j];
 			}
 			else {
-				newMatrix[i*cols + j] = parseFloat(matrix[i*cols + j]) + parseFloat(sgnPart(matrix[i*cols + (direction -1)],'max'))*parseFloat(sgnPart(matrix[(direction-1)*cols + j],'max')) - parseFloat(sgnPart(-matrix[i*cols + (direction -1)],'max'))*parseFloat(sgnPart(-matrix[(direction-1)*cols + j],'max'));
-
+				newMatrix[i][j] = matrix[i][j] + Math.max(matrix[i][direction-1],0)*Math.max(matrix[direction-1][j],0) - Math.max(-matrix[i][direction-1],0)*Math.max(-matrix[direction-1][j],0);
 			}
 		}
 	}
@@ -481,23 +454,19 @@ function toggleDiv(button, element, name) {
 
 }
 	
-function mutateATrop (trop,matrix,rownum,colnum,direction,sgn) {
+function mutateATrop (trop,matrix,direction,sgnFunc) {
+	const rownum = matrix.length;
+	const colnum = matrix[0].length;
 	let newTrop = [];
 	for (let i =0; i < rownum; i++) {
 		if (i == direction-1) {
 			let Tpos = 0;
 			let Tneg = 0;
 			for (let j=0; j < rownum; j++) {
-				Tpos += parseFloat(sgnPart(matrix[j*colnum + (direction-1)],'max'))*trop[j];
-				Tneg += parseFloat(sgnPart(-matrix[j*colnum + (direction-1)],'max'))*trop[j];
+				Tpos += Math.max(matrix[j][direction-1],0) * trop[j];
+				Tneg += Math.max(-matrix[j][direction-1],0) * trop[j];
 			}
-			if (sgn == 'max') {
-				newTrop[i] = -trop[i] + Math.max(Tpos,Tneg);
-			}
-			else if (sgn == 'min') {
-				newTrop[i] = -trop[i] + Math.min(Tpos,Tneg);
-			}
-			
+			newTrop[i] = -trop[i] + sgnFunc(Tpos,Tneg);
 		}
 		else {
 			newTrop[i] = trop[i];
@@ -506,83 +475,83 @@ function mutateATrop (trop,matrix,rownum,colnum,direction,sgn) {
 	return newTrop;
 }	
 
-function mutateYTrop (trop,matrix,rownum, colnum,direction,sgn) {
+function mutateYTrop (trop,matrix,direction,sgnFunc) {
+	const rownum = matrix.length;
+	const colnum = matrix[0].length;
 	let newTrop = [];
 	for (let i =0; i < colnum; i++) {
-	if (i != direction-1) {
-		let rhs = 0;
-		rhs += parseFloat(trop[i]);
-		rhs += parseFloat(sgnPart(matrix[colnum*(direction-1)+i],'max'))*parseFloat(trop[(direction-1)]);
-		rhs += (-1)*parseFloat(matrix[colnum*(direction-1)+i])*parseFloat(sgnPart(trop[(direction-1)],sgn));
-		newTrop[i] = rhs;
-	}
-	else {
-		newTrop[i] = -trop[i];
-	}
+		if (i != direction-1) {
+			let rhs = 0;
+			rhs += trop[i];
+			rhs += Math.max(matrix[direction-1][i],0) * trop[direction-1];
+			rhs += (-1)*matrix[direction-1][i] * sgnFunc(trop[direction-1],0);
+			newTrop[i] = rhs;
+		}
+		else {
+			newTrop[i] = -trop[i];
+		}
 	}
 	return newTrop;
 }
 
 // Test whether the principal part of a matrix is sign-skew-symmetric
 function sssTest (matrix) {
-	var p;
-	p = min(colnumInitialMat, rownumInitialMat);
-	for (var i = 0; i < p; i++) {
+	let p = Math.min(matrix.length, matrix[0].length);
+	for (let i = 0; i < p; i++) {
 		// Check whether the diagonal entry is zero
-		if (matrix[i*p + i] != 0) {
+		if (matrix[i][i] != 0) {
 			return 'No';
 		}
-		for (var j = i+1; j < p; j++) {
+		for (let j = i+1; j < p; j++) {
 			// The first two ifs are to check that bij = 0 if and only if bji = 0
 			// Note the simple formula for bij and bji
-			if (matrix[i*p+j] == 0 && matrix[j*p + i] != 0) {
+			if (matrix[i][j] == 0 && matrix[j][i] != 0) {
 				return 'No';
 			}
-			else if (matrix[i*p+j] != 0 && matrix[j*p + i] == 0) {
+			else if (matrix[i][j] != 0 && matrix[j][i] == 0) {
 				return 'No';
 			}
 			// This check is for the sign of non-zero entries bij and bji
-			else if (matrix[i*p+j]*matrix[j*p + i]>0) {
+			else if (matrix[i][j]*matrix[j][i]>0) {
 				return 'No';
 			}
 		}
 	}	
 	return 'Yes';
-	}
+}
 
 // Test whether the principal part of a matrix is skew-symmetrisable
 function ssTest (matrix) {
 	if (document.getElementById('sssStateCurrent').innerHTML == 'No') {
 		return 'No';
 	}
-	var p; 
-	p = min(colnumInitialMat, rownumInitialMat);
-	var	diag = Array(p*p).fill(0);
-	var index = Array.from(Array(p).keys());
+	let p = Math.min(matrix.length, matrix[0].length);
+	let	diag = Array(p*p).fill(0);
+	let index = Array.from(Array(p).keys());
 	while (index.length > 0) {
-		var i = index[0];
+		let i = index[0];
 		// Remove the first entry of index
 		index = index.slice(1);
 		if (diag[i*p+i] == 0) {
 			diag[i*p+i] = 1;
 		}
-		var cycle = JSON.parse(JSON.stringify(index));
-		for (var j of index) {
-			if (matrix[i*p+j] == 0) {
+		let cycle = index.slice();
+		for (const j of index) {
+			if (matrix[i][j] == 0) {
 				
 			}
 			else {
-				var pos = cycle.indexOf(j);
+				const pos = cycle.indexOf(j);
 				cycle.splice(pos, 1);
 				cycle.unshift(j);
 				if (diag[j*p+j] != 0) {
-					if (diag[j*p+j]*matrix[j*p+i] + diag[i*p+i]*matrix[i*p+j] != 0) {
+					if (diag[j*p+j]*matrix[j][i] + diag[i*p+i]*matrix[i][j] != 0) {
 						return 'No';
 					}
 
 				}
 				else {
-					diag[j*p+j] = (-1)*diag[i*p+i]*matrix[i*p+j]/matrix[j*p+i];
+					diag[j*p+j] = (-1)*diag[i*p+i]*matrix[i][j]/matrix[j][i];
 				}
 			}
 		}
@@ -591,25 +560,7 @@ function ssTest (matrix) {
 	return 'Yes';
 }
 
-function array2Matrix (array) {
-	let n = array.length;
-	let m = Math.sqrt(n);
-
-	let matrix = [];
-	for (let i = 0; i < m; i++) {
-		row = [];
-		for (let j = 0; j < m; j++) {
-			row.push(array[i*m + j]);
-		}
-		matrix.push(row);
-	}
-	return matrix;
-}
-
-
 function quiver(matrixData) {
-
-  
   /**
    * Build the graph data (nodes & links) from the skew-symmetric matrix.
    * Each node is simply labeled by its index (i).
@@ -782,21 +733,20 @@ function quiver(matrixData) {
 
 function displayCartanShortcut(type, rank,tagById) {
 	Cartan = createCartan(type, rank);
-	arrayToMatrix(Cartan, rank, tagById, "clear");
+	renderMatrix(Cartan, tagById, "clear");
 	MathJax.typeset();
 }
 
 function displayCartanShortcutAcyclic(type, rank,tagById) {
 	DynkinExchangeMatrix = createDynkinExchangeMatrix(type, rank);
-	arrayToMatrix(DynkinExchangeMatrix, rank, tagById, "clear");
+	renderMatrix(DynkinExchangeMatrix, tagById, "clear");
 	MathJax.typeset();
 }
 
 
 function rankToCartan() {
-	var rank = 0;
 	// Recover the rank inputted by the user
-	rank = parseInt(document.getElementById("userInputRankAcyclic").value);
+	let rank = parseInt(document.getElementById("userInputRankAcyclic").value);
 	if (affine_Dynkin) rank -= 1;
 
 	// Reveal the dashboard 2.
@@ -979,48 +929,47 @@ function rankToCartan() {
 
 // Function to create a mutation matrix of type X (possibly affine) and size n
 function createDynkinExchangeMatrix(type, rank) {
-	let DynkinExchangeMatrix = [];
 	let n = rank;
+	let DynkinExchangeMatrix = Array.from(Array(n), () => new Array(n));
 	let affine_rank = n-1;
 	for (let i = 1; i <= n; i++) {
 		if (type == "A"+i+","+(affine_rank+1-i)) {
 			for (let j = 0; j < n; j++) {
 				for (let k = 0; k < n; k++) {
 					let sgn = 1;
-					sgn = (j<=i-1 && k<=i-1 ? -1 : 1)
-					console.log(sgn)
+					sgn = (j<=i-1 && k<=i-1 ? -1 : 1);
 					if (j==k) {
-						DynkinExchangeMatrix[j*n+k] = 0;
+						DynkinExchangeMatrix[j][k] = 0;
 					}
 					else if (j == k+1){
-						DynkinExchangeMatrix[j*n+k] = sgn*1;
+						DynkinExchangeMatrix[j][k] = sgn*1;
 					} 
 					else if (j == k-1) {
-						DynkinExchangeMatrix[j*n+k] = -1*sgn;
+						DynkinExchangeMatrix[j][k] = -1*sgn;
 					}
 					else {
-						DynkinExchangeMatrix[j*n+k] = 0;
+						DynkinExchangeMatrix[j][k] = 0;
 					}
 				}
 			}
-		DynkinExchangeMatrix[(n-1)*n] += 1;
-		DynkinExchangeMatrix[n-1] += -1;
+		DynkinExchangeMatrix[n-1][0] += 1;
+		DynkinExchangeMatrix[0][n-1] += -1;
 		}
 	}
 	if (type == "A") {
 		for (let i = 0; i < n; i++) {
 			for (let j =0; j < n; j++) {
 				if (i==j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1){
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				} 
 				else if (i == j-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
@@ -1031,48 +980,48 @@ function createDynkinExchangeMatrix(type, rank) {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1){
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				}
 				else if (i == j-1 && j != n-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-2 && j == n-1) {
-					DynkinExchangeMatrix[i*n+j] = -2;
+					DynkinExchangeMatrix[i][j] = -2;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
 		if (affine_Dynkin) {
-			DynkinExchangeMatrix[n] = 2;
+			DynkinExchangeMatrix[1][0] = 2;
 		}
 	}
 
 	else if (type == "BC") {
-			for (let i = 0; i < n; i++) {
+		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1){
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				}
 				else if (i == j-1 && j != n-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-2 && j == n-1) {
-					DynkinExchangeMatrix[i*n+j] = -2;
+					DynkinExchangeMatrix[i][j] = -2;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
-		DynkinExchangeMatrix[1] = -2;
+		DynkinExchangeMatrix[0][1] = -2;
 
 		
 	}
@@ -1080,53 +1029,53 @@ function createDynkinExchangeMatrix(type, rank) {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1 && i != n-1){
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				} 
 				else if (i == j-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-1 && j == n-2) {
-					DynkinExchangeMatrix[i*n+j] = 2;
+					DynkinExchangeMatrix[i][j] = 2;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
 		if (affine_Dynkin) {
-			DynkinExchangeMatrix[1] = -2;
+			DynkinExchangeMatrix[0][1] = -2;
 		}
 	}
 	else if (type == "D") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1 && i != n-1) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				} 
 				else if  (i == j-1 && j != n-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-3 && j == n-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-1 && j == n-3) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
 		if (affine_Dynkin) {
-			DynkinExchangeMatrix[1] = DynkinExchangeMatrix[n] = 0;
-			DynkinExchangeMatrix[2] = -1;
-			DynkinExchangeMatrix[2*n] = 1;
+			DynkinExchangeMatrix[0][1] = DynkinExchangeMatrix[1][0] = 0;
+			DynkinExchangeMatrix[0][2] = -1;
+			DynkinExchangeMatrix[2][0] = 1;
 		}
 	}
 
@@ -1134,145 +1083,145 @@ function createDynkinExchangeMatrix(type, rank) {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1 && i != n-1) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				} 
 				else if  (i == j-1 && j != n-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-3 && j == n-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-1 && j == n-3) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
-		DynkinExchangeMatrix[1] = -2;
+		DynkinExchangeMatrix[0][1] = -2;
 	}
 
 	else if (type == "CD") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1 && i != n-1) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				} 
 				else if  (i == j-1 && j != n-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-3 && j == n-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-1 && j == n-3) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
-		DynkinExchangeMatrix[n] = 2;
+		DynkinExchangeMatrix[1][0] = 2;
 	}
 
 	else if (type == "E") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1 && i != 1 && i != 2) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				} 
 				else if (i == j-1 && j != 1 && j != 2) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == 2 && j == 0) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				}
 				else if (i == 3 && j == 1) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				}
 				else if (i == 0 && j == 2) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == 1 && j == 3) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
 		if (affine_Dynkin) {
 			if (n == 7 || n == 8) {
-				DynkinExchangeMatrix[(n-1)*n + n-2] = DynkinExchangeMatrix[(n-2)*n + n-1] = 0;
+				DynkinExchangeMatrix[n-1][n-2] = DynkinExchangeMatrix[n-2][n-1] = 0;
 			}
 			if (n == 7) {
-				DynkinExchangeMatrix[(n-1)*n + 1] = -1;
-				DynkinExchangeMatrix[n + n-1] = 1;
+				DynkinExchangeMatrix[n-1][1] = -1;
+				DynkinExchangeMatrix[1][n-1] = 1;
 			}
 			if (n == 8) {
-				DynkinExchangeMatrix[(n-1)*n] = -1;
-				DynkinExchangeMatrix[n-1] = 1;
+				DynkinExchangeMatrix[n-1][0] = -1;
+				DynkinExchangeMatrix[0][n-1] = 1;
 			}
 		}
 	}
 	else if (type == "G") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
-				DynkinExchangeMatrix[i*n+j] = 0;
+				DynkinExchangeMatrix[i][j] = 0;
 			}
 		}
-		DynkinExchangeMatrix[1] = -3;
-		DynkinExchangeMatrix[n] = 1;
+		DynkinExchangeMatrix[0][1] = -3;
+		DynkinExchangeMatrix[1][0] = 1;
 	}
 	else if (type == "G21") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
-				DynkinExchangeMatrix[i*n+j] = 0;
+				DynkinExchangeMatrix[i][j] = 0;
 			}
 		}
-		DynkinExchangeMatrix[1] = -1;
-		DynkinExchangeMatrix[3] = 1;
-		DynkinExchangeMatrix[5] = -3;
-		DynkinExchangeMatrix[7] = 1
+		DynkinExchangeMatrix[0][1] = -1;
+		DynkinExchangeMatrix[1][0] = 1;
+		DynkinExchangeMatrix[1][2] = -3;
+		DynkinExchangeMatrix[2][1] = 1;
 	}
 	else if (type == "G22") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
-				DynkinExchangeMatrix[i*n+j] = 0;
+				DynkinExchangeMatrix[i][j] = 0;
 			}
 		}
-		DynkinExchangeMatrix[1] = -1;
-		DynkinExchangeMatrix[3] = 1;
-		DynkinExchangeMatrix[5] = -1;
-		DynkinExchangeMatrix[7] = 3
+		DynkinExchangeMatrix[0][1] = -1;
+		DynkinExchangeMatrix[1][0] = 1;
+		DynkinExchangeMatrix[1][2] = -1;
+		DynkinExchangeMatrix[2][1] = 3;
 	}
 	else if (type == "F") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				} 
 				else if (i == j-1 && j != n-2) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-3 && j == n-2) {
-					DynkinExchangeMatrix[i*n+j] = -2;
+					DynkinExchangeMatrix[i][j] = -2;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
@@ -1281,19 +1230,19 @@ function createDynkinExchangeMatrix(type, rank) {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == j+1) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				} 
 				else if (i == j-1 && j != n-2) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				else if (i == n-3 && j == n-2) {
-					DynkinExchangeMatrix[i*n+j] = -2;
+					DynkinExchangeMatrix[i][j] = -2;
 				}
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
@@ -1302,36 +1251,30 @@ function createDynkinExchangeMatrix(type, rank) {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 				else if (i == n-2 && j == n-3) {
-					DynkinExchangeMatrix[i*n+j] = 2;
+					DynkinExchangeMatrix[i][j] = 2;
 				}
 				else if (i == j+1) {
-					DynkinExchangeMatrix[i*n+j] = 1;
+					DynkinExchangeMatrix[i][j] = 1;
 				} 
 				else if (i == j-1) {
-					DynkinExchangeMatrix[i*n+j] = -1;
+					DynkinExchangeMatrix[i][j] = -1;
 				}
 				
 				else {
-					DynkinExchangeMatrix[i*n+j] = 0;
+					DynkinExchangeMatrix[i][j] = 0;
 				}
 			}
 		}
 	}
 	// Affine cluster algebras of rank 2
 	else if (type == "TwistedA1") {
-		DynkinExchangeMatrix[0] = 0;
-		DynkinExchangeMatrix[1] = -4;
-		DynkinExchangeMatrix[2] = 1;
-		DynkinExchangeMatrix[3] = 0;
+		DynkinExchangeMatrix = [[0, -4], [1, 0]];
 	}
 	else if (type == "UntwistedA1") {
-		DynkinExchangeMatrix[0] = 0;
-		DynkinExchangeMatrix[1] = -2;
-		DynkinExchangeMatrix[2] = 2;
-		DynkinExchangeMatrix[3] = 0;
+		DynkinExchangeMatrix = [[0, -2], [2, 0]];
 	}
 	return DynkinExchangeMatrix;
 }
@@ -1339,19 +1282,19 @@ function createDynkinExchangeMatrix(type, rank) {
 // Function to create a Cartan matrix of type X and size n
 function createCartan(type, rank) {
 	// affine case not implemented
-	let Cartan = [];
 	let n = rank;
+	let Cartan = Array.from(Array(n), () => new Array(n));
 	if (type == "A") {
 		for (let i = 0; i < n; i++) {
 			for (let j =0; j < n; j++) {
 				if (i==j) {
-					Cartan[i*n+j] = 2;
+					Cartan[i][j] = 2;
 				}
 				else if (i == j+1 || i == j-1) {
-					Cartan[i*n+j] = -1;
+					Cartan[i][j] = -1;
 				}
 				else {
-					Cartan[i*n+j] = 0;
+					Cartan[i][j] = 0;
 				}
 			}
 		}
@@ -1360,16 +1303,16 @@ function createCartan(type, rank) {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					Cartan[i*n+j] = 2;
+					Cartan[i][j] = 2;
 				}
 				else if ((i == j+1) || (i == j-1 && j != n-1)) {
-					Cartan[i*n+j] = -1;
+					Cartan[i][j] = -1;
 				}
 				else if (i == n-2 && j == n-1) {
-					Cartan[i*n+j] = -2;
+					Cartan[i][j] = -2;
 				}
 				else {
-					Cartan[i*n+j] = 0;
+					Cartan[i][j] = 0;
 				}
 			}
 		}
@@ -1378,16 +1321,16 @@ function createCartan(type, rank) {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					Cartan[i*n+j] = 2;
+					Cartan[i][j] = 2;
 				}
 				else if ((i == j+1 && i != n-1) || (i == j-1)) {
-					Cartan[i*n+j] = -1;
+					Cartan[i][j] = -1;
 				}
 				else if (i == n-1 && j == n-2) {
-					Cartan[i*n+j] = -2;
+					Cartan[i][j] = -2;
 				}
 				else {
-					Cartan[i*n+j] = 0;
+					Cartan[i][j] = 0;
 				}
 			}
 		}
@@ -1396,14 +1339,14 @@ function createCartan(type, rank) {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					Cartan[i*n+j] = 2;
+					Cartan[i][j] = 2;
 				}
 				else if ((i == j+1 && i != n-1) || (i == j-1 && j != n-1)
 				|| (i == n-3 && j == n-1) || (i == n-1 && j == n-3)){
-					Cartan[i*n+j] = -1;
+					Cartan[i][j] = -1;
 				}
 				else {
-					Cartan[i*n+j] = 0;
+					Cartan[i][j] = 0;
 				}
 			}
 		}
@@ -1412,39 +1355,36 @@ function createCartan(type, rank) {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					Cartan[i*n+j] = 2;
+					Cartan[i][j] = 2;
 				}
 				else if ((i == j+1 && i != 1 && i != 2) || (i == j-1 && j != 1 && j != 2)
 				|| (i == 2 && j == 0) || (i == 3 && j == 1)
 				|| (i == 0 && j == 2) || (i == 1 && j == 3)){
-					Cartan[i*n+j] = -1;
+					Cartan[i][j] = -1;
 				}
 				else {
-					Cartan[i*n+j] = 0;
+					Cartan[i][j] = 0;
 				}
 			}
 		}
 	}
 	else if (type == "G") {
-		Cartan[0] = 2;
-		Cartan[1] = -3;
-		Cartan[2] = -1;
-		Cartan[3] = 2;
+		Cartan = [[2, -3], [-1, 2]];
 	}
 	else if (type == "F") {
 		for (let i = 0; i < n; i++) {
 			for (let j = 0; j < n; j++) {
 				if (i == j) {
-					Cartan[i*n+j] = 2;
+					Cartan[i][j] = 2;
 				}
 				else if ((i == j+1) || (i == j-1 && j != n-2)) {
-					Cartan[i*n+j] = -1;
+					Cartan[i][j] = -1;
 				}
 				else if (i == n-3 && j == n-2) {
-					Cartan[i*n+j] = -2;
+					Cartan[i][j] = -2;
 				}
 				else {
-					Cartan[i*n+j] = 0;
+					Cartan[i][j] = 0;
 				}
 			}
 		}
@@ -1463,32 +1403,26 @@ function CartanToInitial() {
 
 	InitialMat = DynkinExchangeMatrix;
 	PrinInitialMat = DynkinExchangeMatrix;
-	rownumInitialMat = rank;
-	colnumInitialMat = rank;
 
 	// Display Cartan matrix chosen by user
-	arrayToMatrix(InitialMat, rank, "initialMatrix", "clear");
-	arrayToMatrix(InitialMat, rank, "initialPrincipalPart", "clear");
-	quiver(array2Matrix(InitialMat));
-	initTrackingClusterVars();
-	mutButtons(rank);
+	renderMatrix(InitialMat, "initialMatrix", "clear");
+	renderMatrix(InitialMat, "initialPrincipalPart", "clear");
+	quiver(InitialMat);
+	mutButtons();
 	document.getElementById("mutationHistoryButton").style.display = "block";
 	// Create MathJax rendition of initial mutation matrix in the <div id="mutationHistory">
 	// Note the code in <div id="mutationHistory"> is not typeset until 
 	// the user presses the button "show mutation history"
-	arrayToMatrix(InitialMat,rank,'mutationHistory', "clear");
+	renderMatrix(InitialMat,'mutationHistory', "clear");
 
 	MathJax.typeset();
-
-
-
 }
 
 function trackClusterVars() {
 	document.getElementById("stopTrackingClusterVarsButton").style.display = "inline";
 	document.getElementById("clusterVarsOutputPanel").style.display = "block";
-	const rows = rownumInitialMat;
-	const cols = InitialMat.length / rows;
+	const rows = InitialMat.length;
+	const cols = InitialMat[0].length;
 	clusterVars = [];
 	clusterVarsHistory = [];
 	const spec = document.getElementById("specialisation");
@@ -1534,7 +1468,7 @@ function initTrackingClusterVars() {
 	document.getElementById('stopTrackingClusterVarsButton').style.display = 'none';
 	document.getElementById('clusterVarsOutputPanel').style.display = 'none';
 	clusterVars = null;
-	if (InitialMat.every(x => Number.isInteger(Number(x)))) {
+	if (InitialMat.every(row => row.every(x => Number.isInteger(Number(x))))) {
 		document.getElementById('trackClusterVarsButton').style.display = 'inline';
 	} else {
 		document.getElementById('trackClusterVarsButton').style.display = 'none';
@@ -1545,7 +1479,7 @@ function displayClusterVarsHistory() {
 	const out = document.getElementById('clusterVarsOutput');
 	out.replaceChildren();
 	const vars = specialisedClusterVars();
-	for (let i = 0; i < rownumInitialMat; i++) {
+	for (let i = 0; i < InitialMat.length; i++) {
 		out.appendChild(divClusterVar(i+1, LaurentPolynomial.x(i), vars));
 	}
 	out.appendChild(document.createElement('br'));
@@ -1565,7 +1499,7 @@ function divClusterVar(d, x, vars) {
 
 function specialisedClusterVars() {
 	const vars = new Map();
-	for (let i = 0; i < rownumInitialMat; i++) {
+	for (let i = 0; i < InitialMat.length; i++) {
 		const spec_name = 'spec' + i;
 		if (document.getElementById(spec_name + '+1').checked) {
 			vars.set(i, 1);

@@ -1,7 +1,6 @@
+var Cartan;
 var InitialMat;
 var PrinInitialMat;
-var rownumInitialMat;
-var colnumInitialMat;
 
 function rankToType() {
     let rank = document.getElementById("userInputRank").value;
@@ -33,7 +32,7 @@ function rankToType() {
 	let button = document.createElement("button");
 	let buttonId = "A";
 	button.setAttribute("id", buttonId);
-	button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
+	button.setAttribute("onclick", "displayCartanShortcut(this.id, parseInt(document.getElementById('userInputRank').value), 'UserCartanDisplay')");
 	//button.innerHTML = "\\( \\text{A}_{" + rank + "}\\)";
 	button.innerHTML = "A<sub>" + rank +" </sub>";
 	TypeButtons.appendChild(button);
@@ -44,7 +43,7 @@ function rankToType() {
 		let button = document.createElement("button");
 		let buttonId = "B";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
+		button.setAttribute("onclick", "displayCartanShortcut(this.id, parseInt(document.getElementById('userInputRank').value), 'UserCartanDisplay')");
 		//button.innerHTML = "\\( \\text{B}_{" + rank + "}\\)";
 		button.innerHTML = "B<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
@@ -54,7 +53,7 @@ function rankToType() {
 		let button = document.createElement("button");
 		let buttonId = "C";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
+		button.setAttribute("onclick", "displayCartanShortcut(this.id, parseInt(document.getElementById('userInputRank').value), 'UserCartanDisplay')");
 		//button.innerHTML = "\\( \\text{C}_{" + rank + "}\\)";
 		button.innerHTML = "C<sub>" + rank +"</sub>";
 		TypeButtons.appendChild(button);
@@ -65,7 +64,7 @@ function rankToType() {
 		let button = document.createElement("button");
 		let buttonId = "D";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
+		button.setAttribute("onclick", "displayCartanShortcut(this.id, parseInt(document.getElementById('userInputRank').value), 'UserCartanDisplay')");
 		//button.innerHTML = "\\( \\text{D}_{" + rank + "}\\)";
 		button.innerHTML = "D<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
@@ -76,7 +75,7 @@ function rankToType() {
 		let button = document.createElement("button");
 		let buttonId = "E";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
+		button.setAttribute("onclick", "displayCartanShortcut(this.id, parseInt(document.getElementById('userInputRank').value), 'UserCartanDisplay')");
 		//button.innerHTML = "\\( \\text{E}_{" + rank + "}\\)";
 		button.innerHTML = "E<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
@@ -86,7 +85,7 @@ function rankToType() {
 		let button = document.createElement("button");
 		let buttonId = "F";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
+		button.setAttribute("onclick", "displayCartanShortcut(this.id, parseInt(document.getElementById('userInputRank').value), 'UserCartanDisplay')");
 		//button.innerHTML = "\\( \\text{F}_{" + rank + "}\\)";
 		button.innerHTML = "F<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
@@ -96,7 +95,7 @@ function rankToType() {
 		let button = document.createElement("button");
 		let buttonId = "G";
 		button.setAttribute("id", buttonId);
-		button.setAttribute("onclick", "displayCartanShortcut(this.id, document.getElementById('userInputRank').value, 'UserCartanDisplay')");
+		button.setAttribute("onclick", "displayCartanShortcut(this.id, parseInt(document.getElementById('userInputRank').value), 'UserCartanDisplay')");
 		//button.innerHTML = "\\( \\text{G}_{" + rank + "}\\)";
 		button.innerHTML = "G<sub>" + rank +" </sub>";
 		TypeButtons.appendChild(button);
@@ -147,7 +146,7 @@ function doubleWord() {
 		signWord[i] = sign(word[i]);
 	}
 	
-	InitialMat = [];
+	InitialMat = Array.from(Array(height), () => new Array(width));
 
 	
 	for (p = 0; p < height; p++) {
@@ -156,52 +155,50 @@ function doubleWord() {
 		for (k = 0; k < height; k++) {
 			if (exchangePosition.includes(k)) {
 				if (p == wordMinus[k]) {
-					InitialMat[p*width+b] = -signWord[k];
+					InitialMat[p][b] = -signWord[k];
 				}
 				else if (p == wordPlus[k]) {
-					InitialMat[p*width+b] = signWord[p];
+					InitialMat[p][b] = signWord[p];
 				}
 				else if (p < k && k < wordPlus[p] && wordPlus[p]< wordPlus[k] && signWord[k] == signWord[wordPlus[p]]) {
-					InitialMat[p*width+b] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+					InitialMat[p][b] = -signWord[k]*Cartan[absWord[p]-1][absWord[k]-1];
 				}
 				else if (p < k && k < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[k] == -signWord[wordPlus[k]] ) {
-					InitialMat[p*width+b] = -signWord[k]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+					InitialMat[p][b] = -signWord[k]*Cartan[absWord[p]-1][absWord[k]-1];
 				}
 				else if (k < p && p < wordPlus[k] && wordPlus[k] < wordPlus[p] && signWord[p] == signWord[wordPlus[k]]) {
-					InitialMat[p*width+b] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+					InitialMat[p][b] = signWord[p]*Cartan[absWord[p]-1][absWord[k]-1];
 				}
 				else if (k < p && p < wordPlus[p] && wordPlus[p] < wordPlus[k] && signWord[p] == -signWord[wordPlus[p]]) {
-					InitialMat[p*width+b] = signWord[p]*Cartan[(absWord[p]-1)*rank+(absWord[k]-1)];
+					InitialMat[p][b] = signWord[p]*Cartan[absWord[p]-1][absWord[k]-1];
 				}
 				else {
-					InitialMat[p*width+b] = 0;
+					InitialMat[p][b] = 0;
 				}
 				b = b+1;
 			} 
 		}
 	}
 	
-	PrinInitialMat = [];
+	PrinInitialMat = Array.from(Array(width), () => new Array(width));
 	for (a = 0; a < width; a++) {
 		for (b = 0; b < width; b++) {
-			PrinInitialMat[a*width+b] = InitialMat[exchangePosition[a]*width+b];
+			PrinInitialMat[a][b] = InitialMat[exchangePosition[a]][b];
 		}
 	}
 
     // Display mutation matrix
-    arrayToMatrix(InitialMat,height,"initialMatrix","clear");
+    renderMatrix(InitialMat,"initialMatrix","clear");
 
-	arrayToMatrix(PrinInitialMat,width,"initialPrincipalPart","clear");
+	renderMatrix(PrinInitialMat,"initialPrincipalPart","clear");
     //MathJax.typeset();
 
-	quiver(array2Matrix(PrinInitialMat));
-	rownumInitialMat = height;
-	colnumInitialMat = width;
+	quiver(PrinInitialMat);
 	mutButtons(width);
 	MathJax.typeset();
 	
-document.getElementById("mutationHistoryButton").style.display = "block";
-	arrayToMatrix(InitialMat,height,'mutationHistory', "clear");
+	document.getElementById("mutationHistoryButton").style.display = "block";
+	renderMatrix(InitialMat,'mutationHistory', "clear");
     // Display the word in 4. Outcome
     //document.getElementById("WordContainer").innerHTML = word;
 
@@ -211,27 +208,6 @@ document.getElementById("mutationHistoryButton").style.display = "block";
 }
 
 
-
-
-
-function minOrMax(a,b,sgn) {
-	if (sgn == "max") {
-		if (a >b) {
-			return a;
-		}
-		else {
-			return b;
-		}
-	}
-	else if (sgn == "min") {
-		if (a < b) {
-			return a;
-		}
-		else {
-			return b;
-		}
-	}	
-}
 
 function sign(a) {
 	if (a > 0) {
@@ -262,12 +238,12 @@ function nextOccur(i,pos,list,max) {
 		IndexNeg = max;
 	}
 	
-	return minOrMax(IndexNeg,IndexPos,"min");
+	return Math.min(IndexNeg,IndexPos);
 }
 
 function prevOccur(i,pos,list) {
 	subList = list.slice(0,pos);
 	IndexPos = subList.lastIndexOf(i);	
 	IndexNeg = subList.lastIndexOf(-i);
-	return minOrMax(IndexNeg,IndexPos,"max");
+	return Math.max(IndexNeg,IndexPos);
 }

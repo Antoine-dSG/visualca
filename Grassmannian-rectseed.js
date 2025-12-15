@@ -1,7 +1,5 @@
 var InitialMat;
 var PrinInitialMat;
-var rownumInitialMat;
-var colnumInitialMat;
 
 
 function Grassrectseed() {
@@ -16,181 +14,183 @@ function Grassrectseed() {
     
 	let height = k*(n-k)+1;
 	let width = k*(n-k)+1;
-	//let width = (k-1)*(n-k-1);
-	rownumInitialMat = height;
-	
+	//let width = (k-1)*(n-k-1);	
 
 	
-	InitialMat = [];
+	InitialMat = Array.from(Array(height), () => new Array(width));
 	//Sets zeroth matrix row corresponding to empty rectangle cluster variable
 	{const i=0;
-	for (j=0; j<width+1; j++) {
+	for (let j=0; j<width+1; j++) {
 		if (j==1) {
-			InitialMat[i*width+j] = 1;
+			InitialMat[i][j] = 1;
 		}
 		else if (j==(k-1)*(n-k)+1  || j==n-k) {
-			InitialMat[i*width+j] = -1;
+			InitialMat[i][j] = -1;
 		}
 		else {
-			InitialMat[i*width+j] = 0;
+			InitialMat[i][j] = 0;
 		}
 	}}
 
 	//Sets matrix rows corresponding to first row of quiver
 	{const i=1;
-	for (j=0; j<width+1; j++) {
+	for (let j=0; j<width+1; j++) {
 		if (j==0 || j==n-k+2) {
-			InitialMat[i*width+j] = -1;
+			InitialMat[i][j] = -1;
 		}
 		else if (j==2 || j==n-k+1) {
-			InitialMat[i*width+j] = 1;
+			InitialMat[i][j] = 1;
 		}
 		else {
-			InitialMat[i*width+j] = 0;
+			InitialMat[i][j] = 0;
 		}
 	}}
 
-	for (i=2;i<n-k; i++) {
-		for (j=0; j<width; j++) {
+	for (let i=2;i<n-k; i++) {
+		for (let j=0; j<width; j++) {
 			if (j==i-1 || j==i+n-k+1) {
-				InitialMat[i*width+j] = -1;
+				InitialMat[i][j] = -1;
 			}
 			else if (j==i+1 || j==i+n-k) {
-				InitialMat[i*width+j] = 1;
+				InitialMat[i][j] = 1;
 			}
 			else {
-				InitialMat[i*width+j] = 0;
+				InitialMat[i][j] = 0;
 			}
 		}
 	}
 
 	{const i=n-k;
-	for (j=0; j<width; j++) {
+	for (let j=0; j<width; j++) {
 		if (j==n-k-1) {
-			InitialMat[i*width+j] = -1;
+			InitialMat[i][j] = -1;
 		}
 		else if (j==0 || j==2*(n-k)) {
-			InitialMat[i*width+j] = 1;
+			InitialMat[i][j] = 1;
 		}
 		else {
-			InitialMat[i*width+j] = 0;
+			InitialMat[i][j] = 0;
 		}
 	}}
 
 	//Sets matrix rows corresponding to intemediary rows of quiver
-	for (p=1; p<k-1; p++) {
+	for (let p=1; p<k-1; p++) {
 		{const i=p*(n-k)+1;
-		for (j=0; j<width; j++) {
+		for (let j=0; j<width; j++) {
 			if (j==i-(n-k) || j==i + n-k +1) {
-				InitialMat[i*width+j] = -1;
+				InitialMat[i][j] = -1;
 			}
 			else if (j==i+n-k || j==i+1) {
-				InitialMat[i*width+j] = 1;
+				InitialMat[i][j] = 1;
 			}
 			else {
-				InitialMat[i*width+j] = 0;
+				InitialMat[i][j] = 0;
 			}
 		}}
 
-		for (i=p*(n-k)+2;i<p*(n-k)+(n-k); i++) {
-			for (j=0; j<width; j++) {
+		for (let i=p*(n-k)+2;i<p*(n-k)+(n-k); i++) {
+			for (let j=0; j<width; j++) {
 				if (j== i-(n-k) || j==i-1 || j==i+n-k+1) {
-					InitialMat[i*width+j] = -1;
+					InitialMat[i][j] = -1;
 				}
 				else if (j==i-(n-k)-1 || j==i+1 || j==i+n-k) {
-					InitialMat[i*width+j] = 1;
+					InitialMat[i][j] = 1;
 				}
 				else {
-					InitialMat[i*width+j] = 0;
+					InitialMat[i][j] = 0;
 				}
 			}
 		}
 
 		{const i=p*(n-k)+(n-k);
-		for (j=0; j<width; j++) {
+		for (let j=0; j<width; j++) {
 			if (j==i-1 || j==i - (n-k)) {
-				InitialMat[i*width+j] = -1;
+				InitialMat[i][j] = -1;
 			}
 			else if (j==i-(n-k)-1 || j==i+n-k) {
-				InitialMat[i*width+j] = 1;
+				InitialMat[i][j] = 1;
 			}
 			else {
-				InitialMat[i*width+j] = 0;
+				InitialMat[i][j] = 0;
 			}
 		}}
 	}
 
 	//Sets matrix rows corresponding to last row of quiver
 	{const i=(k-1)*(n-k)+1;
-	for (j=0; j<width; j++) {
+	for (let j=0; j<width; j++) {
 		if (j==(k-2)*(n-k)+1) {
-			InitialMat[i*width+j] = -1;
+			InitialMat[i][j] = -1;
 		}
 		else if (j==0 || j==i+1) {
-			InitialMat[i*width+j] = 1;
+			InitialMat[i][j] = 1;
 		}
 		else {
-			InitialMat[i*width+j] = 0;
+			InitialMat[i][j] = 0;
 		}
 	}}
 
-	for (i=(k-1)*(n-k)+2;i<k*(n-k); i++) {
-		for (j=0; j<width; j++) {
+	for (let i=(k-1)*(n-k)+2;i<k*(n-k); i++) {
+		for (let j=0; j<width; j++) {
 			if (j==i-1 || j==i-(n-k)) {
-				InitialMat[i*width+j] = -1;
+				InitialMat[i][j] = -1;
 			}
 			else if (j==i+1 || j==i-(n-k)-1) {
-				InitialMat[i*width+j] = 1;
+				InitialMat[i][j] = 1;
 			}
 			else {
-				InitialMat[i*width+j] = 0;
+				InitialMat[i][j] = 0;
 			}
 		}
 	}
 
 	{const i=k*(n-k);
-	for (j=0; j<width; j++) {
+	for (let j=0; j<width; j++) {
 		if (j==i-1 || j==(k-1)*(n-k)) {
-			InitialMat[i*width+j] = -1;
+			InitialMat[i][j] = -1;
 		}
 		else if (j==(k-1)*(n-k)-1) {
-			InitialMat[i*width+j] = 1;
+			InitialMat[i][j] = 1;
 		}
 		else {
-			InitialMat[i*width+j] = 0;
+			InitialMat[i][j] = 0;
 		}
 	}}
 	
 
 	let mutwidth = (k-1)*(n-k-1); 
 	
-	PrinInitialMat = [];
-	for (a = 0; a < mutwidth; a++) {
-		for (b = 0; b < mutwidth; b++) {
-			PrinInitialMat[a*mutwidth+b] = InitialMat[(a+1 + Math.floor((a) / (n-k-1)))*width+(b+1 + Math.floor((b) / (n-k-1)))];
+	PrinInitialMat = Array.from(Array(mutwidth), () => new Array(mutwidth));
+	for (let a = 0; a < mutwidth; a++) {
+		for (let b = 0; b < mutwidth; b++) {
+			PrinInitialMat[a][b] = InitialMat[a+1 + Math.floor(a / (n-k-1))][b+1 + Math.floor(b / (n-k-1))];
 		}
 	}
 	mutindices = [];
-	for (a = 0; a < mutwidth; a++) {
-		mutindices[a] = (a+1 + Math.floor((a) / (n-k-1)))
+	for (let a = 0; a < mutwidth; a++) {
+		mutindices[a] = (a+1 + Math.floor(a / (n-k-1)))
 	}
-	colnumInitialMat = mutindices.length;
+//	colnumInitialMat = mutindices.length;
+	for (let i = 0; i < height; i++) {
+		InitialMat[i].splice(mutwidth);
+	}
 
     // Display mutation matrix
-    arrayToMatrix(InitialMat,height,"initialMatrix","clear");
+    renderMatrix(InitialMat,"initialMatrix","clear");
 
-	arrayToMatrix(PrinInitialMat,mutwidth,"initialPrincipalPart","clear");
+	renderMatrix(PrinInitialMat,"initialPrincipalPart","clear");
     //MathJax.typeset();
 	
 	//arrayToMatrix(mutindices,1,"mutableIndices","clear");
     //MathJax.typeset();
-	mutButtons(mutwidth);
-	quiver(array2Matrix(PrinInitialMat));
+	
+	mutButtons();
+	quiver(PrinInitialMat);
 	document.getElementById("mutationHistoryButton").style.display = "block";
 	// Create MathJax rendition of initial mutation matrix in the <div id="mutationHistory">
 	// Note the code in <div id="mutationHistory"> is not typeset until 
 	// the user presses the button "show mutation history"
-	arrayToMatrix(InitialMat,height,'mutationHistory', "clear");
+	renderMatrix(InitialMat,'mutationHistory', "clear");
 
     // Reveal the 4. Outcome dashboard
     document.getElementById("outDashboard1").setAttribute("class","dashboard");
