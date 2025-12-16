@@ -1,6 +1,6 @@
 var InitialMat;
 var PrinInitialMat;
-
+var mutindices;
 
 function Grassrectseed() {
 	document.getElementById("mutationHistory").innerHTML = "";
@@ -20,7 +20,7 @@ function Grassrectseed() {
 	InitialMat = Array.from(Array(height), () => new Array(width));
 	//Sets zeroth matrix row corresponding to empty rectangle cluster variable
 	{const i=0;
-	for (let j=0; j<width+1; j++) {
+	for (let j=0; j<width; j++) {
 		if (j==1) {
 			InitialMat[i][j] = 1;
 		}
@@ -34,7 +34,7 @@ function Grassrectseed() {
 
 	//Sets matrix rows corresponding to first row of quiver
 	{const i=1;
-	for (let j=0; j<width+1; j++) {
+	for (let j=0; j<width; j++) {
 		if (j==0 || j==n-k+2) {
 			InitialMat[i][j] = -1;
 		}
@@ -168,12 +168,9 @@ function Grassrectseed() {
 	}
 	mutindices = [];
 	for (let a = 0; a < mutwidth; a++) {
-		mutindices[a] = (a+1 + Math.floor(a / (n-k-1)))
+		mutindices[a] = (a+1 + Math.floor(a / (n-k-1)));
 	}
 //	colnumInitialMat = mutindices.length;
-	for (let i = 0; i < height; i++) {
-		InitialMat[i].splice(mutwidth);
-	}
 
     // Display mutation matrix
     renderMatrix(InitialMat,"initialMatrix","clear");

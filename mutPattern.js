@@ -5,6 +5,7 @@ var aTropMinInitial;
 var yTropMinInitial;
 var aTropMaxInitial;
 var yTropMaxInitial;
+var mutindices;
 
 var Cartan;
 
@@ -20,6 +21,7 @@ let clusterVarsHistory = [];
 
 // Dashboard0 to Dashboard1
 function dashZeroToOne() {
+	mutindices = null;
 	const choice = document.querySelector('input[name="inputMethod"]:checked').value;
 	// Close all dashboards
 	document.getElementById("inDashboardManual1").className = "dashboardOff";
@@ -171,9 +173,9 @@ function renderArray(array,tagById,renderType) {
 
 function renderMatrix(matrix,tagById,renderType) {
 	let rownum = matrix.length;
-	let colnum = matrix[0].length;
 	let s = "\\( \\begin{pmatrix}";
 	for (let i = 0; i < rownum; i++) {
+		let colnum = matrix[i].length;
 		for (let j = 0; j < colnum; j++) {
 			s += matrix[i][j];
 			if (j != colnum-1) {
@@ -207,7 +209,7 @@ function mutButtons () {
 	
 	// Create a mutation button for each column (if number of
 	// columns <= number of rows) or each row (if number of rows <= number of columns)
-	const n = Math.min(InitialMat.length, InitialMat[0].length);
+	const n = Math.min(PrinInitialMat.length, PrinInitialMat.length ? PrinInitialMat[0].length : 0);
 	for (let i = 1; i <= n; i++) {
 		const button = document.createElement("button");
 		const mutationButtonNum = i + "mutButton";
@@ -260,7 +262,9 @@ function createMutationMatrix() {
 	while (cellsArray.length) {
 		let row = cellsArray.splice(0, colnumInitialMat);
 		InitialMat.push(row.slice());
-		PrinInitialMat.push(row);
+		if (InitialMat.length <= colnumInitialMat) {
+			PrinInitialMat.push(row);
+		}
 	}
 
 	// Test whether the mutation matrix is sign-skew-symmetric
@@ -354,29 +358,30 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 	// Mutate tropical points if any exists
 	if (document.getElementById("AtropMinCheckBox").checked == true) {
 		aTropMinInitial = mutateATrop(aTropMinInitial,InitialMat,direction,Math.min);
-		arrayToMatrix(aTropMinInitial,1,'initialATropMin',"clear");
+		renderArray(aTropMinInitial,'initialATropMin',"clear");
 		//MathJax.typeset([initialATropMin]);
 	}
 	if (document.getElementById("YtropMinCheckBox").checked == true) {
 		yTropMinInitial = mutateYTrop(yTropMinInitial,InitialMat,direction,Math.min);
-		arrayToMatrix(yTropMinInitial,1,'initialYTropMin',"clear");
+		renderArray(yTropMinInitial,'initialYTropMin',"clear");
 		//MathJax.typeset([initialYTropMin]);
 	}
 	if (document.getElementById("AtropMaxCheckBox").checked == true) {
 		aTropMaxInitial = mutateATrop(aTropMaxInitial,InitialMat,direction,Math.max);
-		arrayToMatrix(aTropMaxInitial,1,'initialATropMax',"clear");
+		renderArray(aTropMaxInitial,'initialATropMax',"clear");
 		//MathJax.typeset([initialATropMax]);
 	}
 	if (document.getElementById("YtropMaxCheckBox").checked == true) {
 		yTropMaxInitial = mutateYTrop(yTropMaxInitial,InitialMat,direction,Math.max);
-		arrayToMatrix(yTropMaxInitial,1,'initialYTropMax',"clear");
+		renderArray(yTropMaxInitial,'initialYTropMax',"clear");
 		//MathJax.typeset([initialYTropMax]);
 	}
+	const d = (mutindices ? mutindices[direction-1] : direction);
 	if (clusterVars !== null) {
 		const incoming = [];
 		const outgoing = [];
 		for (let i = 0; i < InitialMat.length; i++) {
-			const b = InitialMat[i][direction-1];
+			const b = InitialMat[i][d-1];
 			for (let j = 0; j < b; j++) {
 				incoming.push(clusterVars[i]);
 			}
@@ -384,10 +389,10 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 				outgoing.push(clusterVars[i]);
 			}
 		}
-		clusterVars[direction-1] = clusterVars[direction-1].mutation(incoming, outgoing);
-		clusterVarsHistory.push([direction, clusterVars[direction-1]]);
+		clusterVars[d-1] = clusterVars[d-1].mutation(incoming, outgoing);
+		clusterVarsHistory.push([d, clusterVars[d-1]]);
 		const out = document.getElementById("clusterVarsOutput");
-		const div = divClusterVar(direction, clusterVars[direction-1], specialisedClusterVars());
+		const div = divClusterVar(d, clusterVars[d-1], specialisedClusterVars());
 		out.appendChild(div);
 		out.appendChild(document.createElement('br'));
 		const did = 'cvout' + out.childElementCount;
@@ -395,7 +400,7 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 		MathJax.typeset(['#' + did]);
 	}
 	// Create new matrix by mutating the latest
-	InitialMat = mutation(InitialMat,direction);
+	InitialMat = mutation(InitialMat, d);
 	PrinInitialMat = mutation(PrinInitialMat,direction);
 	// Test whether the mutation matrix is sign-skew-symmetric
 	document.getElementById('sssStateCurrent').innerHTML = sssTest(InitialMat);
@@ -423,7 +428,7 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 
 function mutation(matrix,direction) {
 	const rows = matrix.length;
-	const cols = matrix[0].length;
+	const cols = (rows ? matrix[0].length : 0);
 	// Declare a new matrix
 	let newMatrix = Array.from(Array(rows), () => new Array(cols));
 	// Matrix mutation formulas:
@@ -456,7 +461,6 @@ function toggleDiv(button, element, name) {
 	
 function mutateATrop (trop,matrix,direction,sgnFunc) {
 	const rownum = matrix.length;
-	const colnum = matrix[0].length;
 	let newTrop = [];
 	for (let i =0; i < rownum; i++) {
 		if (i == direction-1) {
@@ -476,8 +480,7 @@ function mutateATrop (trop,matrix,direction,sgnFunc) {
 }	
 
 function mutateYTrop (trop,matrix,direction,sgnFunc) {
-	const rownum = matrix.length;
-	const colnum = matrix[0].length;
+	const colnum = (matrix.length ? matrix[0].length : 0);
 	let newTrop = [];
 	for (let i =0; i < colnum; i++) {
 		if (i != direction-1) {
@@ -496,7 +499,7 @@ function mutateYTrop (trop,matrix,direction,sgnFunc) {
 
 // Test whether the principal part of a matrix is sign-skew-symmetric
 function sssTest (matrix) {
-	let p = Math.min(matrix.length, matrix[0].length);
+	let p = Math.min(matrix.length, matrix.length ? matrix[0].length : 0);
 	for (let i = 0; i < p; i++) {
 		// Check whether the diagonal entry is zero
 		if (matrix[i][i] != 0) {
@@ -525,7 +528,7 @@ function ssTest (matrix) {
 	if (document.getElementById('sssStateCurrent').innerHTML == 'No') {
 		return 'No';
 	}
-	let p = Math.min(matrix.length, matrix[0].length);
+	let p = Math.min(matrix.length, matrix.length ? matrix[0].length : 0);
 	let	diag = Array(p*p).fill(0);
 	let index = Array.from(Array(p).keys());
 	while (index.length > 0) {
@@ -1422,7 +1425,6 @@ function trackClusterVars() {
 	document.getElementById("stopTrackingClusterVarsButton").style.display = "inline";
 	document.getElementById("clusterVarsOutputPanel").style.display = "block";
 	const rows = InitialMat.length;
-	const cols = InitialMat[0].length;
 	clusterVars = [];
 	clusterVarsHistory = [];
 	const spec = document.getElementById("specialisation");
