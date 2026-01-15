@@ -3,8 +3,6 @@ var PrinInitialMat;
 var mutindices;
 
 function Grassrectseed() {
-	document.getElementById("mutationHistory").innerHTML = "";
-	document.getElementById("initialMatrix").innerHTML = "";
 	//This function constructs the mutation matrix associated to the rectangles seed for the Grassmannian.
 	//This will include arrows in between frozen variables as indicated by plabic graphs.
 	
@@ -170,27 +168,6 @@ function Grassrectseed() {
 	for (let a = 0; a < mutwidth; a++) {
 		mutindices[a] = (a+1 + Math.floor(a / (n-k-1)));
 	}
-//	colnumInitialMat = mutindices.length;
 
-    // Display mutation matrix
-    renderMatrix(InitialMat,"initialMatrix","clear");
-
-	renderMatrix(PrinInitialMat,"initialPrincipalPart","clear");
-    //MathJax.typeset();
-	
-	//arrayToMatrix(mutindices,1,"mutableIndices","clear");
-    //MathJax.typeset();
-	
-	mutButtons();
-	quiver(PrinInitialMat);
-	document.getElementById("mutationHistoryButton").style.display = "block";
-	// Create MathJax rendition of initial mutation matrix in the <div id="mutationHistory">
-	// Note the code in <div id="mutationHistory"> is not typeset until 
-	// the user presses the button "show mutation history"
-	renderMatrix(InitialMat,'mutationHistory', "clear");
-
-    // Reveal the 4. Outcome dashboard
-    document.getElementById("outDashboard1").setAttribute("class","dashboard");
-	document.getElementById("outDashboard2").setAttribute("class","dashboard");
-	MathJax.typeset();
+	initOutDashboards();
 }

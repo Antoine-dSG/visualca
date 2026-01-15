@@ -1,10 +1,7 @@
 // Global variables recording the values of the latest mutation matrix
 var InitialMat;
 var PrinInitialMat;
-var aTropMinInitial;
-var yTropMinInitial;
-var aTropMaxInitial;
-var yTropMaxInitial;
+var TropInitial = {};
 var mutindices;
 
 var Cartan;
@@ -127,43 +124,17 @@ function createEmptyMat(n) {
 	document.getElementById("inDashboardManual2").setAttribute("class", "dashboard");
 
 	// Adjust the display of the grid's tropical points columns
-	if (document.getElementById("AtropMinCheckBox").checked == true) {
-		generateTable(1,rownum,"AtropMinContainer").setAttribute("id", "AtropMinPoint");
-		document.getElementById("AtropMinHeader").style.visibility = "visible";
+	for (trop of ["ATropMin", "YTropMin", "ATropMax", "YTropMax"]) {
+		if (document.getElementById(trop+"CheckBox").checked) {
+			TropInitial[trop] = true;
+			generateTable(1,rownum,trop+"Container").setAttribute("id", trop+"Point");
+			document.getElementById(trop+"Header").style.visibility = "visible";
+		} else {
+			TropInitial[trop] = false;
+			document.getElementById(trop+"Container").innerHTML = "";
+			document.getElementById(trop+"Header").style.visibility = "hidden";
+		}
 	}
-
-	else {
-		document.getElementById("AtropMinContainer").innerHTML = "";
-		document.getElementById("AtropMinHeader").style.visibility = "hidden";
-	}
-
-	if (document.getElementById("YtropMinCheckBox").checked == true) {
-		generateTable(1,colnum,"YtropMinContainer").setAttribute("id", "YtropMinPoint");
-		document.getElementById("YtropMinHeader").style.visibility = "visible";
-	}
-	else {
-		document.getElementById("YtropMinContainer").innerHTML = "";
-		document.getElementById("YtropMinHeader").style.visibility = "hidden";
-	}
-
-	if (document.getElementById("AtropMaxCheckBox").checked == true) {
-		generateTable(1,rownum,"AtropMaxContainer").setAttribute("id", "AtropMaxPoint");
-		document.getElementById("AtropMaxHeader").style.visibility = "visible";
-	}
-
-	else {
-		document.getElementById("AtropMaxContainer").innerHTML = "";
-		document.getElementById("AtropMaxHeader").style.visibility = "hidden";
-	}
-	if (document.getElementById("YtropMaxCheckBox").checked == true) {
-		generateTable(1,colnum,"YtropMaxContainer").setAttribute("id", "YtropMaxPoint");
-		document.getElementById("YtropMaxHeader").style.visibility = "visible";
-	}
-	else {
-		document.getElementById("YtropMaxContainer").innerHTML = "";
-		document.getElementById("YtropMaxHeader").style.visibility = "hidden";
-	}
-
 }
 
 
@@ -224,29 +195,15 @@ function mutButtons () {
 }
 
 
+// Function to convert the user input of initial mutation matrix into an array
+function callme(cc) {
+  let result = Array.prototype.map.call(cc, function(e) {
+	return parseFloat(e.value);
+  });
+  return result;
+}
+
 function createMutationMatrix() {
-	// Clear any previous mutation matrix / mutation buttons
-	document.getElementById("initialMatrix").innerHTML = "";
-	document.getElementById("initialATropMin").innerHTML = "";
-	document.getElementById("initialYTropMin").innerHTML = "";
-	document.getElementById("initialATropMax").innerHTML = "";
-	document.getElementById("initialYTropMax").innerHTML = "";
-
-	document.getElementById("outDashboard1").setAttribute("class", "dashboard");
-	document.getElementById("outDashboard2").setAttribute("class", "dashboard");
-
-	document.getElementById("mutationHistory").innerHTML = "";
-
-	document.getElementById('iniMutMatHeader').style.visibility = "visible";
-
-	// Function to convert the user input of initial mutation matrix into an array
-	function callme(cc) {
-	  let result = Array.prototype.map.call(cc, function(e) {
-	    return parseFloat(e.value);
-	  });
-	  return result;
-	}
-
 	// Retrieve the content of each <input> in tableContainer, i.e. the 
 	// content of each cell of the mutation matrix
 	let cells = document.querySelectorAll('#tableContainer input');
@@ -266,6 +223,21 @@ function createMutationMatrix() {
 			PrinInitialMat.push(row);
 		}
 	}
+
+	initOutDashboards();
+}
+
+function initOutDashboards() {
+	// Clear any previous mutation matrix / mutation buttons
+	document.getElementById("initialMatrix").innerHTML = "";
+	document.getElementById("initialATropMin").innerHTML = "";
+	document.getElementById("initialYTropMin").innerHTML = "";
+	document.getElementById("initialATropMax").innerHTML = "";
+	document.getElementById("initialYTropMax").innerHTML = "";
+
+	document.getElementById("mutationHistory").innerHTML = "";
+
+	document.getElementById('iniMutMatHeader').style.visibility = "visible";
 
 	// Test whether the mutation matrix is sign-skew-symmetric
 	document.getElementById('sssStateCurrent').innerHTML = sssTest(PrinInitialMat);
@@ -289,91 +261,57 @@ function createMutationMatrix() {
 	renderMatrix(InitialMat,'mutationHistory', "clear");
 
 	// Adjust the display of the grid's tropical points columns
-	if (document.getElementById("AtropMinCheckBox").checked == true) {
-		document.getElementById("iniAtropMinHeader").style.visibility = "visible";
-		let aCells = document.querySelectorAll('#AtropMinContainer input');
-		let aCellsArray = callme(aCells);
-		aTropMinInitial = aCellsArray;
-		renderArray(aTropMinInitial,'initialATropMin',"clear");
-		//MathJax.typeset([initialATropMin]);
-	}
-
-	else {
-	//	document.getElementById("AtropMinContainer").innerHTML = "";
-		document.getElementById("iniAtropMinHeader").style.visibility = "hidden";
-	}
-
-	if (document.getElementById("YtropMinCheckBox").checked == true) {
-		document.getElementById("iniYtropMinHeader").style.visibility = "visible";
-		let yCells = document.querySelectorAll('#YtropMinContainer input');
-		let yCellsArray = callme(yCells);
-		yTropMinInitial = yCellsArray;
-		renderArray(yTropMinInitial,'initialYTropMin',"clear");
-		//MathJax.typeset([initialYTropMin]);
-	}
-	else {
-	//	document.getElementById("YtropMinContainer").innerHTML = "";
-		document.getElementById("iniYtropMinHeader").style.visibility = "hidden";
-	}
-
-	// Repeat for the tropical points associated to Zmax
-	if (document.getElementById("AtropMaxCheckBox").checked == true) {
-		document.getElementById("iniAtropMaxHeader").style.visibility = "visible";
-		let aCells = document.querySelectorAll('#AtropMaxContainer input');
-		let aCellsArray = callme(aCells);
-		aTropMaxInitial = aCellsArray;
-		renderArray(aTropMaxInitial,'initialATropMax',"clear");
-		//MathJax.typeset([initialATropMax]);
-	}
-
-	else {
-	//	document.getElementById("AtropMaxContainer").innerHTML = "";
-		document.getElementById("iniAtropMaxHeader").style.visibility = "hidden";
-	}
-
-	if (document.getElementById("YtropMaxCheckBox").checked == true) {
-		document.getElementById("iniYtropMaxHeader").style.visibility = "visible";
-		let yCells = document.querySelectorAll('#YtropMaxContainer input');
-		let yCellsArray = callme(yCells);
-		yTropMaxInitial = yCellsArray;
-		renderArray(yTropMaxInitial,'initialYTropMax',"clear");
-		//MathJax.typeset([initialYTropMax]);
-	}
-	else {
-	//	document.getElementById("YtropMinContainer").innerHTML = "";
-		document.getElementById("iniYtropMaxHeader").style.visibility = "hidden";
-	}
+	tropBoxes();
 
 	mutButtons();
 	quiver(PrinInitialMat);
-	MathJax.typeset()
+
+	document.getElementById("outDashboard1").setAttribute("class", "dashboard");
+	document.getElementById("outDashboard2").setAttribute("class", "dashboard");
+	MathJax.typeset();
+}
+
+function tropBoxes() {
+	for (trop of ["ATropMin", "YTropMin", "ATropMax", "YTropMax"]) {
+		const header = document.getElementById("ini"+trop+"Header");
+		if (TropInitial[trop]) {
+			header.style.visibility = "visible";
+			let cells = document.querySelectorAll('#'+trop+'Container input');
+			let cellsArray = callme(cells);
+			TropInitial[trop] = cellsArray;
+			renderArray(cellsArray,'initial'+trop,"clear");
+		}
+		else {
+			header.style.visibility = "hidden";
+		}
+	}
 }
 
 
-function mutateData(direction) { // The mutation direction is an integer from 1 to the number of columns in InitialMat
+function mutateData(direction) { // The mutation direction is an integer from 1 to the size of PrinInitialMat
 	// Hide the mutation history div
 	document.getElementById("mutationHistory").style.display = "none";
 	document.getElementById("mutationHistoryButton").innerHTML = "Show mutation history";
 
 	// Mutate tropical points if any exists
-	if (document.getElementById("AtropMinCheckBox").checked == true) {
-		aTropMinInitial = mutateATrop(aTropMinInitial,InitialMat,direction,Math.min);
-		renderArray(aTropMinInitial,'initialATropMin',"clear");
+	if (TropInitial["ATropMin"]) {
+		TropInitial["ATropMin"] = mutateATrop(TropInitial["ATropMin"],InitialMat,direction,Math.min);
+		renderArray(TropInitial["ATropMin"],'initialATropMin',"clear");
 		//MathJax.typeset([initialATropMin]);
 	}
-	if (document.getElementById("YtropMinCheckBox").checked == true) {
-		yTropMinInitial = mutateYTrop(yTropMinInitial,InitialMat,direction,Math.min);
-		renderArray(yTropMinInitial,'initialYTropMin',"clear");
+	if (TropInitial["YTropMin"]) {
+		TropInitial["YTropMin"] = mutateYTrop(TropInitial["YTropMin"],InitialMat,direction,Math.min);
+		renderArray(TropInitial["YTropMin"],'initialYTropMin',"clear");
 		//MathJax.typeset([initialYTropMin]);
 	}
-	if (document.getElementById("AtropMaxCheckBox").checked == true) {
-		aTropMaxInitial = mutateATrop(aTropMaxInitial,InitialMat,direction,Math.max);
-		renderArray(aTropMaxInitial,'initialATropMax',"clear");
+	if (TropInitial["ATropMax"]) {
+		TropInitial["ATropMax"] = mutateATrop(TropInitial["ATropMax"],InitialMat,direction,Math.max);
+		renderArray(TropInitial["ATropMax"],'initialATropMax',"clear");
 		//MathJax.typeset([initialATropMax]);
 	}
-	if (document.getElementById("YtropMaxCheckBox").checked == true) {
-		yTropMaxInitial = mutateYTrop(yTropMaxInitial,InitialMat,direction,Math.max);
-		renderArray(yTropMaxInitial,'initialYTropMax',"clear");
+	if (TropInitial["YTropMax"]) {
+		TropInitial["YTropMax"] = mutateYTrop(TropInitial["YTropMax"],InitialMat,direction,Math.max);
+		renderArray(TropInitial["YTropMax"],'initialYTropMax',"clear");
 		//MathJax.typeset([initialYTropMax]);
 	}
 	const d = (mutindices ? mutindices[direction-1] : direction);
@@ -1396,29 +1334,9 @@ function createCartan(type, rank) {
 }
 
 function CartanToInitial() {
-
-	// Recover the rank inputted by the user
-	let rank = parseInt(document.getElementById("userInputRankAcyclic").value);
-
-	// Reveal the dashboard 4.
-	document.getElementById("outDashboard1").setAttribute("class","dashboard");
-	document.getElementById("outDashboard2").setAttribute("class","dashboard");
-
 	InitialMat = DynkinExchangeMatrix;
 	PrinInitialMat = DynkinExchangeMatrix;
-
-	// Display Cartan matrix chosen by user
-	renderMatrix(InitialMat, "initialMatrix", "clear");
-	renderMatrix(InitialMat, "initialPrincipalPart", "clear");
-	quiver(InitialMat);
-	mutButtons();
-	document.getElementById("mutationHistoryButton").style.display = "block";
-	// Create MathJax rendition of initial mutation matrix in the <div id="mutationHistory">
-	// Note the code in <div id="mutationHistory"> is not typeset until 
-	// the user presses the button "show mutation history"
-	renderMatrix(InitialMat,'mutationHistory', "clear");
-
-	MathJax.typeset();
+	initOutDashboards();
 }
 
 function trackClusterVars() {

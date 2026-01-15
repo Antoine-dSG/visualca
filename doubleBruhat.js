@@ -186,25 +186,8 @@ function doubleWord() {
 			PrinInitialMat[a][b] = InitialMat[exchangePosition[a]][b];
 		}
 	}
-
-    // Display mutation matrix
-    renderMatrix(InitialMat,"initialMatrix","clear");
-
-	renderMatrix(PrinInitialMat,"initialPrincipalPart","clear");
-    //MathJax.typeset();
-
-	quiver(PrinInitialMat);
-	mutButtons(width);
-	MathJax.typeset();
 	
-	document.getElementById("mutationHistoryButton").style.display = "block";
-	renderMatrix(InitialMat,'mutationHistory', "clear");
-    // Display the word in 4. Outcome
-    //document.getElementById("WordContainer").innerHTML = word;
-
-    // Reveal the 4. Outcome dashboard
-    document.getElementById("outDashboard1").setAttribute("class","dashboard");
-	document.getElementById("outDashboard2").setAttribute("class","dashboard");
+	initOutDashboards();
 }
 
 

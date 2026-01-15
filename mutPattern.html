@@ -92,16 +92,16 @@
 		</tr>
 		<tr>
 		<td style="padding-right: 30px">
-			<input type="checkbox" id="AtropMinCheckBox">
-			<label for="AtropMinCheckBox">\(\mathcal{A}(\mathbb{Z}^{\rm min})\)-tropical point</label><br>
-			<input type="checkbox" id="YtropMinCheckBox">
-			<label for="YtropMinCheckBox">\(\mathcal{X}(\mathbb{Z}^{\rm min})\)-tropical point</label><br> 
+			<input type="checkbox" id="ATropMinCheckBox">
+			<label for="ATropMinCheckBox">\(\mathcal{A}(\mathbb{Z}^{\rm min})\)-tropical point</label><br>
+			<input type="checkbox" id="YTropMinCheckBox">
+			<label for="YTropMinCheckBox">\(\mathcal{X}(\mathbb{Z}^{\rm min})\)-tropical point</label><br> 
 		</td>
 		<td style="padding-right: 30px">
-			<input type="checkbox" id="AtropMaxCheckBox">
-			<label for="AtropMaxCheckBox">\(\mathcal{A}(\mathbb{Z}^{\rm max})\)-tropical point</label><br>
-			<input type="checkbox" id="YtropMaxCheckBox">
-			<label for="YtropMaxCheckBox">\(\mathcal{X}(\mathbb{Z}^{\rm max})\)-tropical point</label><br>
+			<input type="checkbox" id="ATropMaxCheckBox">
+			<label for="ATropMaxCheckBox">\(\mathcal{A}(\mathbb{Z}^{\rm max})\)-tropical point</label><br>
+			<input type="checkbox" id="YTropMaxCheckBox">
+			<label for="YTropMaxCheckBox">\(\mathcal{X}(\mathbb{Z}^{\rm max})\)-tropical point</label><br>
 		</td>
 		</tr>
 	</table><br>
@@ -248,22 +248,29 @@
 <!-- Manual dashboard 2 -->
 <form id="inDashboardManual2" class="dashboardOff">
 <div style="font-weight: bold;">3. Input mutation matrix</div>
-<table>
+<table style="display:inline-block;">
 	<thead>
 		<td id="mutMatHeader" style="visibility: hidden;">Mutation matrix</td>
-		<td id="AtropMinHeader" style="visibility: hidden;">\(\mathcal{A}(\mathbb{Z}^{\rm min})\)-tropical point</td>
-		<td id="YtropMinHeader" style="visibility: hidden;">\(\mathcal{X}(\mathbb{Z}^{\rm min})\)-tropical point</td>
-		<td id="AtropMaxHeader" style="visibility: hidden;">\(\mathcal{A}(\mathbb{Z}^{\rm max})\)-tropical point</td>
-		<td id="YtropMaxHeader" style="visibility: hidden;">\(\mathcal{X}(\mathbb{Z}^{\rm max})\)-tropical point</td>
 	</thead>
 	<tr>
 		<td><div style="display: flex; justify-content: center;" id="tableContainer"></div></td>
-		<td><div style="display: flex; justify-content: center;" id="AtropMinContainer"></div></td>
-		<td><div style="display: flex; justify-content: center;" id="YtropMinContainer"></div></td>
-		<td><div style="display: flex; justify-content: center;" id="AtropMaxContainer"></div></td>
-		<td><div style="display: flex; justify-content: center;" id="YtropMaxContainer"></div></td>
 	</tr>
-</table><br>
+</table>
+<table style="display:inline-block;">
+	<thead>
+		<td id="ATropMinHeader" style="visibility: hidden;">\(\mathcal{A}(\mathbb{Z}^{\rm min})\)-tropical point</td>
+		<td id="YTropMinHeader" style="visibility: hidden;">\(\mathcal{X}(\mathbb{Z}^{\rm min})\)-tropical point</td>
+		<td id="ATropMaxHeader" style="visibility: hidden;">\(\mathcal{A}(\mathbb{Z}^{\rm max})\)-tropical point</td>
+		<td id="YTropMaxHeader" style="visibility: hidden;">\(\mathcal{X}(\mathbb{Z}^{\rm max})\)-tropical point</td>
+	</thead>
+	<tr>
+		<td><div style="display: flex; justify-content: center;" id="ATropMinContainer"></div></td>
+		<td><div style="display: flex; justify-content: center;" id="YTropMinContainer"></div></td>
+		<td><div style="display: flex; justify-content: center;" id="ATropMaxContainer"></div></td>
+		<td><div style="display: flex; justify-content: center;" id="YTropMaxContainer"></div></td>
+	</tr>
+</table>
+<br>
 <input type="button" style="display: none;" id="createMutMatButton" onclick="createMutationMatrix()" value="Submit initial data">
 </form>
 <!-- END OF MANUAL DASHBOARDS -->
@@ -341,10 +348,10 @@
 		<td id="iniMutMatHeader" style="justify-content: center;">Mutation matrix</td>
 		<td id="initialPrincipalPartHead" style="justify-content: center;">Principal part</td>
 		<td id="graphHeader" style="justify-content: center;">Quiver</td>
-		<td id="iniAtropMinHeader" style="visibility: hidden;">\(\mathbb{A}(\mathbb{Z}^{\rm min})\)-tropical point</td>
-		<td id="iniYtropMinHeader" style="visibility: hidden;">\(\mathbb{Y}(\mathbb{Z}^{\rm min})\)-tropical point</td>
-		<td id="iniAtropMaxHeader" style="visibility: hidden;">\(\mathbb{A}(\mathbb{Z}^{\rm max})\)-tropical point</td>
-		<td id="iniYtropMaxHeader" style="visibility: hidden;">\(\mathbb{Y}(\mathbb{Z}^{\rm max})\)-tropical point</td>
+		<td id="iniATropMinHeader" style="visibility: hidden;">\(\mathbb{A}(\mathbb{Z}^{\rm min})\)-tropical point</td>
+		<td id="iniYTropMinHeader" style="visibility: hidden;">\(\mathbb{Y}(\mathbb{Z}^{\rm min})\)-tropical point</td>
+		<td id="iniATropMaxHeader" style="visibility: hidden;">\(\mathbb{A}(\mathbb{Z}^{\rm max})\)-tropical point</td>
+		<td id="iniYTropMaxHeader" style="visibility: hidden;">\(\mathbb{Y}(\mathbb{Z}^{\rm max})\)-tropical point</td>
 	</thead>
 	<tr>
 		<td><div style="display: flex; justify-content: center;" id="initialMatrix"></div></td>
