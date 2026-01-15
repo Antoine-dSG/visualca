@@ -127,7 +127,7 @@ function createEmptyMat(n) {
 	for (trop of ["ATropMin", "YTropMin", "ATropMax", "YTropMax"]) {
 		if (document.getElementById(trop+"CheckBox").checked) {
 			TropInitial[trop] = true;
-			generateTable(1,rownum,trop+"Container").setAttribute("id", trop+"Point");
+			generateTable(1, trop[0] == "A" ? rownum : colnum, trop+"Container").setAttribute("id", trop+"Point");
 			document.getElementById(trop+"Header").style.visibility = "visible";
 		} else {
 			TropInitial[trop] = false;
