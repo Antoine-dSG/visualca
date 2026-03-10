@@ -33,11 +33,11 @@
 <!-- DASHBOARD 0: References and notation -->
 	<button id="referencesButton" onclick="toggleDiv(this.id,references, 'references')">Show references and notation</button><br>
 	<div id="references" style="display: none;">
-		<p>Matrix and cluster algebra mutation: <i><a href="https://projecteuclid.org/journals/duke-mathematical-journal/volume-126/issue-1/Cluster-algebras-III-Upper-bounds-and-double-Bruhat-cells/10.1215/S0012-7094-04-12611-9.short">Cluster algebras III: Upper bounds and double Bruhat cells</a></i></p>
+		<p>Matrix and cluster algebra mutation: <i><a href="https://projecteuclid.org/journals/duke-mathematical-journal/volume-126/issue-1/Cluster-algebras-III-Upper-bounds-and-double-Bruhat-cells/10.1215/S0012-7094-04-12611-9.short">Cluster algebras III: Upper bounds and double Bruhat cells</a></i> (<a href="https://arxiv.org/abs/math/0305434">on arXiv</a>)</p>
 		<p>Matrix from double Bruhat cells: <i><a href="https://www.sciencedirect.com/science/article/pii/S0001870804002737">Quantum cluster algebras</a></i></p>
 		<p>Matrix from Grassmannians: <i><a href=""></a></i></p>
-		<p>Matrix of affine Dynkin type: <i><a href="https://arxiv.org/pdf/0906.2026">Frises</a> (<a href="https://doi.org/10.1016/j.aim.2010.05.019">Friezes</a>)</i></p>
-		<p>\(\mathcal{A}\) and \(\mathcal{X}\)-tropical points: <i><a href="https://arxiv.org/abs/2311.17712v3">Tropical friezes and cluster-additive functions via Fock-Goncharov duality and a conjecture of Ringel</a></i></p>
+		<p>Matrix of affine Dynkin type: <i><a href="https://arxiv.org/abs/0906.2026">Frises</a> (<a href="https://doi.org/10.1016/j.aim.2010.05.019">Friezes</a>)</i></p>
+		<p>\(\mathcal{A}\) and \(\mathcal{X}\)-tropical points: <i><a href="https://arxiv.org/abs/2311.17712">Tropical friezes and cluster-additive functions via Fock-Goncharov duality and a conjecture of Ringel</a></i></p>
 	</div>
 	<br>
 
@@ -319,7 +319,7 @@
 <!-- ACYCLIC DASHBOARDS -->
 <!-- Acyclic dashboard 1 -->
 <div class="dashboardOff" id="inDashboardAcyclic1" >
-	<div style="font-weight: bold;">1. Choose rank of cluster algebra</div>
+	<div style="font-weight: bold;">2. Choose rank of cluster algebra</div>
 	<p style="display: inline-block;">n = </p>
   	<input type="number" id="userInputRankAcyclic" min="1" step="1" value="4">
   	<button onclick="rankToCartan()">Submit</button>
@@ -327,7 +327,7 @@
 <br>
 <!-- Acyclic dashboard 2 -->
 <div id="inDashboardAcyclic2" class="dashboardOff">
-	<div style="font-weight: bold;">2. Choose Cartan-Killing type</div>
+	<div style="font-weight: bold;">3. Choose Cartan-Killing type</div>
 	<div style="display: inline-block;" id="CartanButtons">  </div>
 	<br>
 	<div id="UserCartanDisplayAcyclic"></div>
@@ -342,7 +342,7 @@
 <!-- OUTPUT DASHBOARDS -->
 <!-- Output Dashboard 1 -->
 <div id="outDashboard1" class="dashboardOff">
-	<div style="font-weight: bold;">Current data</div>
+	<div style="font-weight: bold;">4. Current data</div>
 	<table>
 	<thead>
 		<td id="iniMutMatHeader" style="justify-content: center;">Mutation matrix</td>
@@ -415,7 +415,7 @@
 
 </main>
 </body>
-<script src="https://cdn.jsdelivr.net/gh/sl2tilings/sl2tilings.github.io@2e7a01e6334899ae79d962f0dde4369f87acb498/polynomial.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/sl2tilings/sl2tilings.github.io@9c0374757dfb7bdae02e2491e863966aa9cc3f1f/polynomial.js"></script>
 <script type="text/javascript" src="mutPattern.js"></script>
 <script type="text/javascript" src="doubleBruhat.js"></script>
 <script type="text/javascript" src="Grassmannian-rectseed.js" ></script>
