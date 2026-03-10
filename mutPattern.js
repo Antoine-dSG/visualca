@@ -35,9 +35,11 @@ function dashZeroToOne() {
 		document.getElementById("inDashboardManual1").className = "dashboard";
 	}
 	else if (choice == "Bruhat") {
+		noTropPoints();
 		document.getElementById("inDashboardBruhat1").className = "dashboard";
 	}
 	else if (choice == "Grassmannian") {
+		noTropPoints();
 		document.getElementById("inDashboardGrassmannian1").className = "dashboard";
 	}
 	else if (choice == "Acyclic") {
@@ -120,23 +122,36 @@ function createEmptyMat(n) {
 	let rownum = Math.floor(n/8)+1;
 	let colnum = n%8+1;
 	generateTable(rownum, colnum, "tableContainer"); //.setAttribute("id", "mutMatrix");
+	
+	inputTropPoints("iniTropPointsManual", rownum, colnum);
 
 	document.getElementById("inDashboardManual2").setAttribute("class", "dashboard");
 
+}
+
+function inputTropPoints(divId, rownum, colnum) {
 	// Adjust the display of the grid's tropical points columns
 	for (trop of ["ATropMin", "YTropMin", "ATropMax", "YTropMax"]) {
 		if (document.getElementById(trop+"CheckBox").checked) {
 			TropInitial[trop] = true;
 			generateTable(1, trop[0] == "A" ? rownum : colnum, trop+"Container").setAttribute("id", trop+"Point");
-			document.getElementById("ini"+trop+"Header").style.visibility = "visible";
+			document.getElementById("ini"+trop+"Header").style.display = "";
+			document.getElementById("ini"+trop+"Cell").style.display = "";
 		} else {
 			TropInitial[trop] = false;
 			document.getElementById(trop+"Container").innerHTML = "";
-			document.getElementById("ini"+trop+"Header").style.visibility = "hidden";
+			document.getElementById("ini"+trop+"Header").style.display = "none";
+			document.getElementById("ini"+trop+"Cell").style.display = "none";
 		}
 	}
+	document.getElementById(divId).appendChild(document.getElementById("iniTropPoints"));
 }
 
+function noTropPoints() {
+	for (trop of ["ATropMin", "YTropMin", "ATropMax", "YTropMax"]) {
+		TropInitial[trop] = false;
+	}
+}
 
 function renderArray(array,tagById,renderType) {
 	renderMatrix([array],tagById,renderType);
@@ -236,8 +251,6 @@ function initOutDashboards() {
 
 	document.getElementById("mutationHistory").innerHTML = "";
 
-	document.getElementById('MutMatHeader').style.visibility = "visible";
-
 	// Test whether the mutation matrix is sign-skew-symmetric
 	document.getElementById('sssStateCurrent').innerHTML = sssTest(PrinInitialMat);
 
@@ -273,15 +286,18 @@ function initOutDashboards() {
 function tropBoxes() {
 	for (trop of ["ATropMin", "YTropMin", "ATropMax", "YTropMax"]) {
 		const header = document.getElementById(trop+"Header");
+		const cell = document.getElementById(trop+"Cell");
 		if (TropInitial[trop]) {
-			header.style.visibility = "visible";
+			header.style.display = "";
+			cell.style.display = "";
 			let cells = document.querySelectorAll('#'+trop+'Container input');
 			let cellsArray = callme(cells);
 			TropInitial[trop] = cellsArray;
 			renderArray(cellsArray,trop,"clear");
 		}
 		else {
-			header.style.visibility = "hidden";
+			header.style.display = "none";
+			cell.style.display = "none";
 		}
 	}
 }
@@ -687,6 +703,7 @@ function displayCartanShortcutAcyclic(type, rank,tagById) {
 function rankToCartan() {
 	// Recover the rank inputted by the user
 	let rank = parseInt(document.getElementById("userInputRankAcyclic").value);
+	inputTropPoints("iniTropPointsAcyclic", rank, rank);
 	if (affine_Dynkin) rank -= 1;
 
 	// Reveal the dashboard 2.
