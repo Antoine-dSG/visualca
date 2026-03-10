@@ -12,7 +12,7 @@ function rankToType() {
 
 	// Clear the computations on dashboards 4. and 5.
 	document.getElementById("mutationHistory").innerHTML = "";
-	document.getElementById("initialMatrix").innerHTML = "";
+	document.getElementById("MutMat").innerHTML = "";
 	//document.getElementById("initialCartanContainer").innerHTML = "";
 	//document.getElementById("initialContainer").innerHTML = "";
 

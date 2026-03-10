@@ -52,13 +52,13 @@ function dashZeroToOne() {
 
 
 function closePopup() {
-	const popup = document.getElementById("mutation-matrix");
+	const popup = document.getElementById("mutation-matrix-layout");
 	popup.style.display = "none";
 }
 
 function createGrid() {
 // Reveal popup grid for matrix size selection
-document.getElementById("mutation-matrix").style.display = "block";
+	document.getElementById("mutation-matrix-layout").style.display = "block";
 // Reveal "Submit initial data" button
 	document.getElementById("createMutMatButton").style.display = "inline";
 
@@ -119,7 +119,7 @@ function generateTable(n, m, tagId) {
 function createEmptyMat(n) {
 	let rownum = Math.floor(n/8)+1;
 	let colnum = n%8+1;
-	generateTable(rownum, colnum, "tableContainer").setAttribute("id", "mutMatrix");
+	generateTable(rownum, colnum, "tableContainer"); //.setAttribute("id", "mutMatrix");
 
 	document.getElementById("inDashboardManual2").setAttribute("class", "dashboard");
 
@@ -128,11 +128,11 @@ function createEmptyMat(n) {
 		if (document.getElementById(trop+"CheckBox").checked) {
 			TropInitial[trop] = true;
 			generateTable(1, trop[0] == "A" ? rownum : colnum, trop+"Container").setAttribute("id", trop+"Point");
-			document.getElementById(trop+"Header").style.visibility = "visible";
+			document.getElementById("ini"+trop+"Header").style.visibility = "visible";
 		} else {
 			TropInitial[trop] = false;
 			document.getElementById(trop+"Container").innerHTML = "";
-			document.getElementById(trop+"Header").style.visibility = "hidden";
+			document.getElementById("ini"+trop+"Header").style.visibility = "hidden";
 		}
 	}
 }
@@ -229,15 +229,14 @@ function createMutationMatrix() {
 
 function initOutDashboards() {
 	// Clear any previous mutation matrix / mutation buttons
-	document.getElementById("initialMatrix").innerHTML = "";
-	document.getElementById("initialATropMin").innerHTML = "";
-	document.getElementById("initialYTropMin").innerHTML = "";
-	document.getElementById("initialATropMax").innerHTML = "";
-	document.getElementById("initialYTropMax").innerHTML = "";
+	document.getElementById("MutMat").innerHTML = "";
+	for (trop of ["ATropMin", "YTropMin", "ATropMax", "YTropMax"]) {
+		document.getElementById(trop).innerHTML = "";
+	}
 
 	document.getElementById("mutationHistory").innerHTML = "";
 
-	document.getElementById('iniMutMatHeader').style.visibility = "visible";
+	document.getElementById('MutMatHeader').style.visibility = "visible";
 
 	// Test whether the mutation matrix is sign-skew-symmetric
 	document.getElementById('sssStateCurrent').innerHTML = sssTest(PrinInitialMat);
@@ -245,13 +244,13 @@ function initOutDashboards() {
 	// Test whether the mutation matrix is skew-symmetrisable
 	document.getElementById('ssStateCurrent').innerHTML = ssTest(PrinInitialMat);
 
-	// Create MathJax rendition of initial mutation matrix in the <div id="initialMatrix">
-	renderMatrix(InitialMat,'initialMatrix', "clear");
+	// Create MathJax rendition of initial mutation matrix in the <div id="MutMat">
+	renderMatrix(InitialMat,'MutMat', "clear");
 	// Ask MathJax to render the newly created code in LaTeX
-	//MathJax.typeset([initialMatrix]);
+	//MathJax.typeset([MutMat]);
 
-	renderMatrix(PrinInitialMat,'initialPrincipalPart', "clear");
-	//MathJax.typeset([initialPrincipalPart]);
+	renderMatrix(PrinInitialMat,'PrincipalPart', "clear");
+	//MathJax.typeset([PrincipalPart]);
 
 	// Reveal the "Show mutation history" button
 	document.getElementById("mutationHistoryButton").style.display = "block";
@@ -273,13 +272,13 @@ function initOutDashboards() {
 
 function tropBoxes() {
 	for (trop of ["ATropMin", "YTropMin", "ATropMax", "YTropMax"]) {
-		const header = document.getElementById("ini"+trop+"Header");
+		const header = document.getElementById(trop+"Header");
 		if (TropInitial[trop]) {
 			header.style.visibility = "visible";
 			let cells = document.querySelectorAll('#'+trop+'Container input');
 			let cellsArray = callme(cells);
 			TropInitial[trop] = cellsArray;
-			renderArray(cellsArray,'initial'+trop,"clear");
+			renderArray(cellsArray,trop,"clear");
 		}
 		else {
 			header.style.visibility = "hidden";
@@ -296,23 +295,23 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 	// Mutate tropical points if any exists
 	if (TropInitial["ATropMin"]) {
 		TropInitial["ATropMin"] = mutateATrop(TropInitial["ATropMin"],InitialMat,direction,Math.min);
-		renderArray(TropInitial["ATropMin"],'initialATropMin',"clear");
-		//MathJax.typeset([initialATropMin]);
+		renderArray(TropInitial["ATropMin"],'ATropMin',"clear");
+		//MathJax.typeset([ATropMin]);
 	}
 	if (TropInitial["YTropMin"]) {
 		TropInitial["YTropMin"] = mutateYTrop(TropInitial["YTropMin"],InitialMat,direction,Math.min);
-		renderArray(TropInitial["YTropMin"],'initialYTropMin',"clear");
-		//MathJax.typeset([initialYTropMin]);
+		renderArray(TropInitial["YTropMin"],'YTropMin',"clear");
+		//MathJax.typeset([YTropMin]);
 	}
 	if (TropInitial["ATropMax"]) {
 		TropInitial["ATropMax"] = mutateATrop(TropInitial["ATropMax"],InitialMat,direction,Math.max);
-		renderArray(TropInitial["ATropMax"],'initialATropMax',"clear");
-		//MathJax.typeset([initialATropMax]);
+		renderArray(TropInitial["ATropMax"],'ATropMax',"clear");
+		//MathJax.typeset([ATropMax]);
 	}
 	if (TropInitial["YTropMax"]) {
 		TropInitial["YTropMax"] = mutateYTrop(TropInitial["YTropMax"],InitialMat,direction,Math.max);
-		renderArray(TropInitial["YTropMax"],'initialYTropMax',"clear");
-		//MathJax.typeset([initialYTropMax]);
+		renderArray(TropInitial["YTropMax"],'YTropMax',"clear");
+		//MathJax.typeset([YTropMax]);
 	}
 	const d = (mutindices ? mutindices[direction-1] : direction);
 	if (clusterVars !== null) {
@@ -347,12 +346,12 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 	document.getElementById('ssStateCurrent').innerHTML = ssTest(InitialMat);
 
 	// Convert the latest mutation matrix to MathJax
-	renderMatrix(InitialMat,'initialMatrix', "clear");
+	renderMatrix(InitialMat,'MutMat', "clear");
 	// Render the MathJax
-	//MathJax.typeset([initialMatrix]);
+	//MathJax.typeset([MutMat]);
 
-	renderMatrix(PrinInitialMat,'initialPrincipalPart', "clear");
-	//MathJax.typeset([initialPrincipalPart]);
+	renderMatrix(PrinInitialMat,'PrincipalPart', "clear");
+	//MathJax.typeset([PrincipalPart]);
 
 	// Add the mutation direction to mutation history div
 	document.getElementById("mutationHistory").innerHTML += "\\( \\xrightarrow{ \\mu_" + direction + "} \\) ";

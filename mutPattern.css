@@ -1,4 +1,4 @@
-#mutation-matrix {
+#mutation-matrix-layout {
 position: relative;
 display: inline-block;
 padding: 5px;
@@ -8,21 +8,21 @@ background-color: #f2f2f2;
 
 
 
-#mutation-matrix .cell {
+#mutation-matrix-layout .cell {
 width: 20px;
 height: 20px;
 border: 1px solid grey;
 background-color: white;
 }
 
-#mutation-matrix .cell-inactive {
+#mutation-matrix-layout .cell-inactive {
 width: 20px;
 height: 20px;
 border: 1px solid grey;
 background-color: LightGrey;
 }
 
-#mutation-matrix .cell-on {
+#mutation-matrix-layout .cell-on {
 width: 20px;
 height: 20px;
 border: 1px solid grey;
