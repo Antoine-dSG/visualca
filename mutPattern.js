@@ -28,6 +28,7 @@ function dashZeroToOne() {
 	document.getElementById("inDashboardGrassmannian1").className = "dashboardOff";
 	document.getElementById("inDashboardAcyclic1").className = "dashboardOff";
 	document.getElementById("inDashboardAcyclic2").className = "dashboardOff";
+	document.getElementById("inDashboardLibrary").className = "dashboardOff";
 	document.getElementById("outDashboard1").className = "dashboardOff";
 	document.getElementById("outDashboard2").className = "dashboardOff";
 	// Reveal the next dashboard
@@ -49,6 +50,10 @@ function dashZeroToOne() {
 	else if (choice == "AffineDynkin") {
 		affine_Dynkin = true;
 		document.getElementById("inDashboardAcyclic1").className = "dashboard";
+	}
+	else if (choice == "Library") {
+		initLibrary();
+		document.getElementById("inDashboardLibrary").className = "dashboard";
 	}
 }
 
@@ -1353,6 +1358,46 @@ function CartanToInitial() {
 	InitialMat = DynkinExchangeMatrix;
 	PrinInitialMat = DynkinExchangeMatrix;
 	initOutDashboards();
+}
+
+function initLibrary() {
+	document.getElementById("submitLibraryMatrix").replaceChildren();
+	document.getElementById("DisplayLibraryMatrix").replaceChildren();
+	document.getElementById("DisplayLibraryMatrixComment").replaceChildren();
+	const buttons = document.getElementById("LibraryButtons");
+	buttons.replaceChildren();
+	for (const entry of matrixLibraryData) {
+		const matrix = document.createElement('input');
+		matrix.setAttribute('type', 'radio');
+		matrix.setAttribute('name', 'LibraryButtonsGroup');
+		matrix.setAttribute('id', 'lib_' + entry.label);
+		const matrix_label = document.createElement('label');
+		matrix_label.appendChild(matrix);
+		matrix_label.appendChild(document.createTextNode(entry.name));
+		const li = document.createElement('li');
+		li.appendChild(matrix_label);
+		buttons.appendChild(li);
+	}
+	MathJax.typeset();
+}
+
+function chooseLibraryMatrix() {
+	let entry;
+	for (entry of matrixLibraryData) {
+		if (document.getElementById("lib_" + entry.label).checked) break;
+	}
+	renderMatrix(entry.matrix, "DisplayLibraryMatrix", "clear");
+	document.getElementById("DisplayLibraryMatrixComment").innerHTML = entry.comment;
+	inputTropPoints("iniTropPointsLibrary", entry.matrix.length, entry.matrix[0].length);
+	const submitButton = document.createElement("button");
+	submitButton.appendChild(document.createTextNode("Submit"));
+	submitButton.addEventListener("click", function () {
+		InitialMat = entry.matrix;
+		PrinInitialMat = entry.matrix;
+		initOutDashboards();
+	});
+	document.getElementById("submitLibraryMatrix").replaceChildren(submitButton);
+	MathJax.typeset();
 }
 
 function trackClusterVars() {

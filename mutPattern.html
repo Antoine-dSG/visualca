@@ -70,20 +70,25 @@
 		</tr>
 		<tr>
 		<td style="padding-right: 30px">
-			<p>
 			<label class="checkedBox" >
 			<input type="radio" name="inputMethod" value="Acyclic" checked>
 			Matrix of Dynkin type
 			<span class="checkedBoxSpan"></span>
 			</label>
-			</p>
-			<p>
+		</td>
+		<td style="padding-right: 30px">
 			<label class="checkedBox" >
 			<input type="radio" name="inputMethod" value="AffineDynkin">
 			Matrix of affine Dynkin type
 			<span class="checkedBoxSpan"></span>
 			</label>
-			</p>
+		</td>	
+		<td style="padding-right: 30px">
+			<label class="checkedBox" >
+			<input type="radio" name="inputMethod" value="Library">
+			From a library of other remarkable matrices
+			<span class="checkedBoxSpan"></span>
+			</label>
 		</td>	
 		</tr>
 		<!-- Options -->
@@ -338,6 +343,24 @@
 	
 </div>
 <!-- END OF ACYCLIC DASHBOARDS -->
+
+
+<!-- LIBRARY DASHBOARD -->
+<div id="inDashboardLibrary" class="dashboardOff">
+	<div style="font-weight: bold;">2. Choose a matrix from the list</div>
+	<ul id="LibraryButtons" onchange="chooseLibraryMatrix()"></ul>
+	<br>
+	<div id="DisplayLibraryMatrix"></div>
+	<br>
+	<div id="DisplayLibraryMatrixComment"></div>
+	<br>
+	<div style="display:inline-block;" id="iniTropPointsLibrary"></div>
+	<br>
+	<div id="submitLibraryMatrix"></div>
+	<br>
+</div>
+<!-- END OF LIBRARY DASHBOARD -->
+
 <br>
 
 <!-- OUTPUT DASHBOARDS -->
@@ -417,6 +440,7 @@
 </main>
 </body>
 <script src="https://cdn.jsdelivr.net/gh/sl2tilings/sl2tilings.github.io@9c0374757dfb7bdae02e2491e863966aa9cc3f1f/polynomial.js"></script>
+<script type="text/javascript" src="mutMatricesLibrary.js"></script>
 <script type="text/javascript" src="mutPattern.js"></script>
 <script type="text/javascript" src="doubleBruhat.js"></script>
 <script type="text/javascript" src="Grassmannian-rectseed.js" ></script>
