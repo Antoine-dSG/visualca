@@ -11,6 +11,8 @@ let affine_Dynkin = false;
 let clusterVars = null;
 let clusterVarsHistory = [];
 
+let quiver_svg, simulation;
+
 //window.MathJax = {
 //	loader: {load: ['[tex]/color']},
 //	tex: {packages: {'[+]': ['color']}}
@@ -378,7 +380,7 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 	document.getElementById("mutationHistory").innerHTML += "\\( \\xrightarrow{ \\mu_" + direction + "} \\) ";
 	// Add latest mutation matrix to <div id="mutationHistory">
 	renderMatrix(InitialMat,'mutationHistory', "concat");
-	quiver(PrinInitialMat);
+	quiverUpdateLinks(PrinInitialMat);
 	// Ask MathJax to render the newly created code in LaTeX
 	MathJax.typeset(['#outDashboard1']);
 
@@ -521,13 +523,12 @@ function ssTest (matrix) {
 	return 'Yes';
 }
 
-function quiver(matrixData) {
   /**
    * Build the graph data (nodes & links) from the skew-symmetric matrix.
    * Each node is simply labeled by its index (i).
    * Each link has {source, target, weight}.
    */
-  function buildGraphFromMatrix(M) {
+function buildGraphFromMatrix(M) {
 	const n = M.length;
 	// Create node objects
 	const nodes = Array.from({ length: n }, (_, i) => ({ id: i }));
@@ -558,26 +559,50 @@ function quiver(matrixData) {
 	}
   
 	return { nodes, links };
-  }
-  
+}
+
+function linksForSimulation(links) {
+	return d3.forceLink(links).distance(100).strength(1).id(d => d.id);
+}
+
+function linksForSvg(links) {
+	quiver_svg.append("g")
+	  .attr("class", "links")
+	  .selectAll("path")
+	  .data(links)
+	  .enter().append("path")
+		.attr("class", "link")
+		.attr("marker-end", "url(#arrow)")
+		.style("stroke", "#666");
+	// Create link labels for weights
+	quiver_svg.append("g")
+	  .selectAll(".weight-label")
+	  .data(links)
+	  .enter().append("text")
+		.attr("class", "weight-label")
+		.attr("dy", -5)
+		.text(d => d.weight);
+}
+
+function quiver(matrixData) {
   /**
    * Draws an oriented graph (directed) with D3's force simulation.
    * Users can drag the nodes to rearrange them.
    */
   function drawOrientedGraph({ nodes, links }, svgSelector) {
-	const svg = d3.select(svgSelector);
-	const width = +svg.attr("width");
-	const height = +svg.attr("height");
+	quiver_svg = d3.select(svgSelector);
+	const width = +quiver_svg.attr("width");
+	const height = +quiver_svg.attr("height");
   
 	// Define a force simulation
-	const simulation = d3.forceSimulation(nodes)
-	  .force("link", d3.forceLink(links).distance(100).strength(1).id(d => d.id))
+	simulation = d3.forceSimulation(nodes)
+	  .force("link", linksForSimulation(links))
 	  .force("charge", d3.forceManyBody().strength(-300))
 	  .force("center", d3.forceCenter(width / 2, height / 2))
 	  .on("tick", ticked);
   
 	// Define arrow markers for directed edges
-	svg.append("defs").selectAll("marker")
+	quiver_svg.append("defs").selectAll("marker")
 	  .data(["arrow"])
 	  .enter()
 	  .append("marker")
@@ -593,26 +618,10 @@ function quiver(matrixData) {
 		.attr("d", "M0,-5 L10,0 L0,5");
   
 	// Create links (lines)
-	const link = svg.append("g")
-	  .attr("class", "links")
-	  .selectAll("path")
-	  .data(links)
-	  .enter().append("path")
-		.attr("class", "link")
-		.attr("marker-end", "url(#arrow)")
-		.style("stroke", "#666");
-  
-	// Create link labels for weights
-	const linkLabels = svg.append("g")
-	  .selectAll(".weight-label")
-	  .data(links)
-	  .enter().append("text")
-		.attr("class", "weight-label")
-		.attr("dy", -5)
-		.text(d => d.weight);
-  
+	linksForSvg(links);
+    
 	// Create nodes (circles)
-	const node = svg.append("g")
+	const node = quiver_svg.append("g")
 	  .attr("class", "nodes")
 	  .selectAll("circle")
 	  .data(nodes)
@@ -626,7 +635,7 @@ function quiver(matrixData) {
 		  .on("end", dragEnded));
   
 	// Create node labels
-	const nodeLabels = svg.append("g")
+	const nodeLabels = quiver_svg.append("g")
 	  .selectAll(".node-label")
 	  .data(nodes)
 	  .enter().append("text")
@@ -641,7 +650,7 @@ function quiver(matrixData) {
 	  yclamp = (y => Math.max(30, Math.min(height-30, y)));
 	  
 	  // Update link positions
-	  link.attr("d", d => {
+	  quiver_svg.selectAll(".link").attr("d", d => {
 		const sx = xclamp(d.source.x);
 		const sy = yclamp(d.source.y);
 		const tx = xclamp(d.target.x);
@@ -650,7 +659,7 @@ function quiver(matrixData) {
 	  });
   
 	  // Update link labels (weight) positions
-	  linkLabels
+	  quiver_svg.selectAll(".weight-label")
 		.attr("x", d => (xclamp(d.source.x) + xclamp(d.target.x)) / 2)
 		.attr("y", d => (yclamp(d.source.y) + yclamp(d.target.y)) / 2);
   
@@ -689,6 +698,18 @@ function quiver(matrixData) {
   document.getElementById("graph").innerHTML = "";
   // Draw the oriented graph in the SVG with id="graph"
   drawOrientedGraph(graphData, "#graph");
+}
+
+function quiverUpdateLinks(matrixData) {
+	const linksData = buildGraphFromMatrix(matrixData).links;
+	simulation.force("link", linksForSimulation(linksData));
+	const link = quiver_svg.selectAll(".link").data(linksData, d => d.id);
+	link.exit().remove();
+	quiver_svg.selectAll(".links").remove();
+	quiver_svg.selectAll(".weight-label").remove();
+	linksForSvg(linksData);
+	quiver_svg.selectAll(".links").lower();
+    simulation.alpha(1).restart();
 }
   
 
