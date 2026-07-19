@@ -1,76 +1,354 @@
-  .top_container {
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-bottom: 20px;
-  margin-top: 20px;
-  background-color: #e9ecef;
-  padding-bottom: 8px;
-	  
-  border-left-style: solid;
-  border-left-width: 20px;
-  }
+#rank-two-dvector-lab {
+  --vca-page: #f2f1f1;
+  --vca-ink: #101010;
+  --vca-chrome: #d3d3d3;
+  --vca-parameter: rgb(0 0 0 / 30%);
+  --vca-field: #fff;
+  --background: #f2f1f1;
+  --muted-foreground: rgb(16 16 16 / 62%);
+  --destructive: #a6291f;
+  --border: rgb(16 16 16 / 16%);
+  --ring: #2563a6;
+  --font-size-base: 14px;
+  --viz-series-1: #1976c9;
+  --viz-series-2: #d66c22;
+  --viz-series-3: #2f944a;
+  --viz-series-4: #c34c88;
+  --viz-series-5: #7553c6;
+  --viz-series-6: #198f87;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  color: var(--vca-ink);
+  background: var(--vca-page);
+  font-family: "Baskerville Old Face", Baskerville, "Palatino Linotype", Georgia, serif;
+  font-weight: 400;
+  line-height: 20px;
+}
 
-.container-fluid
-  {
-  padding-top: 20px;  
-  padding-left: 5%; 
-  padding-right: 5%;  
-  }
+#rank-two-dvector-lab * {
+  box-sizing: border-box;
+}
 
-#parameters {
-  background: rgba(0,0,0,0.3);
-  border-style: solid;
-  width: 18%;
+#rank-two-dvector-lab .text-small {
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
 
-  padding-top: 8px;  
-  padding-left: 8px; 
-  padding-right: 8px;
-  padding-bottom: 8px; 
+#rank-two-dvector-lab .visualca-workspace {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) clamp(220px, 20vw, 300px);
+  grid-template-areas: "plot parameters";
+  align-items: start;
+  gap: clamp(12px, 2vw, 24px);
+}
 
+#rank-two-dvector-lab .plot-panel {
+  grid-area: plot;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+}
+
+#rank-two-dvector-lab .parameters {
+  grid-area: parameters;
+  padding: 8px;
+  color: var(--vca-ink);
+  background: var(--vca-parameter);
+  border: 2px solid var(--vca-ink);
+  box-shadow: rgba(50, 50, 93, 0.25) 0 2px 5px -1px,
+    rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
+}
+
+#rank-two-dvector-lab .parameters-heading {
+  margin: 0 0 12px;
+  padding: 5px;
+  text-align: center;
+  font-weight: 500;
+  border: 2px solid var(--vca-ink);
+}
+
+#rank-two-dvector-lab .parameter-field {
+  display: block;
+  margin: 0 0 10px;
+}
+
+#rank-two-dvector-lab .parameter-field input,
+#rank-two-dvector-lab .parameter-field select {
+  display: block;
+  width: 100%;
+  min-height: 30px;
+  margin-top: 3px;
+  padding: 3px 5px;
+  color: var(--vca-ink);
+  background: var(--vca-field);
+  border: 1px solid var(--vca-ink);
+  border-radius: 0;
+  font: inherit;
+}
+
+#rank-two-dvector-lab .parameter-field input[type="range"] {
+  padding: 0;
+  border: 0;
+  accent-color: var(--viz-series-1);
+}
+
+#rank-two-dvector-lab .parameter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+#rank-two-dvector-lab button {
+  min-height: 30px;
+  padding: 3px 9px;
+  color: var(--vca-ink);
+  background: var(--vca-field);
+  border: 1px solid var(--vca-ink);
+  border-radius: 2px;
+  font: inherit;
+  cursor: pointer;
+}
+
+#rank-two-dvector-lab button:hover {
+  background: var(--vca-chrome);
+}
+
+#rank-two-dvector-lab button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+#rank-two-dvector-lab button:focus-visible,
+#rank-two-dvector-lab input:focus-visible,
+#rank-two-dvector-lab select:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+#rank-two-dvector-lab .field-note,
+#rank-two-dvector-lab .hint,
+#rank-two-dvector-lab .zoom-status {
+  color: var(--muted-foreground);
+}
+
+#rank-two-dvector-lab .field-note {
+  display: block;
+  margin: 5px 0 8px;
+}
+
+#rank-two-dvector-lab .error {
+  min-height: 1.2em;
+  color: var(--destructive);
+}
+
+#rank-two-dvector-lab .series-list {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+  margin: 8px 0 12px;
+}
+
+#rank-two-dvector-lab .series-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+#rank-two-dvector-lab .series-item > span:nth-child(2) {
+  flex: 1;
+}
+
+#rank-two-dvector-lab .dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  background: var(--series);
+}
+
+#rank-two-dvector-lab .shape-circle {
+  border-radius: 50%;
+}
+
+#rank-two-dvector-lab .shape-diamond {
+  transform: rotate(45deg);
+}
+
+#rank-two-dvector-lab .shape-triangle {
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+#rank-two-dvector-lab .shape-hexagon {
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+}
+
+#rank-two-dvector-lab .s1 { --series: var(--viz-series-1); }
+#rank-two-dvector-lab .s2 { --series: var(--viz-series-2); }
+#rank-two-dvector-lab .s3 { --series: var(--viz-series-3); }
+#rank-two-dvector-lab .s4 { --series: var(--viz-series-4); }
+#rank-two-dvector-lab .s5 { --series: var(--viz-series-5); }
+#rank-two-dvector-lab .s6 { --series: var(--viz-series-6); }
+
+#rank-two-dvector-lab #dvector-lab-svg {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  overflow: hidden;
+  background: var(--vca-field);
+  border: 1px solid rgb(16 16 16 / 28%);
+  cursor: grab;
+  touch-action: none;
+}
+
+#rank-two-dvector-lab #dvector-lab-svg.is-dragging {
+  cursor: grabbing;
+}
+
+#rank-two-dvector-lab .axis,
+#rank-two-dvector-lab .circle-guide {
+  stroke: var(--border);
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+#rank-two-dvector-lab .axis {
+  stroke-width: 1.2;
+}
+
+#rank-two-dvector-lab .circle-guide {
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+
+#rank-two-dvector-lab .axis-label,
+#rank-two-dvector-lab .origin-label {
+  fill: var(--muted-foreground);
+  font: 400 var(--font-size-base) "Baskerville Old Face", Baskerville, Georgia, serif;
+}
+
+#rank-two-dvector-lab .ray {
+  fill: none;
+  stroke: var(--series);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.8;
+}
+
+#rank-two-dvector-lab .mark {
+  fill: var(--series);
+  stroke: var(--background);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+#rank-two-dvector-lab .ray-group:hover .ray {
+  stroke-width: 4;
+  opacity: 1;
+}
+
+#rank-two-dvector-lab .ray-group.is-selected .ray {
+  stroke-width: 3.6;
+  opacity: 1;
+}
+
+#rank-two-dvector-lab .ray-group.is-selected .mark {
+  stroke: var(--vca-ink);
+  stroke-width: 2.2;
+}
+
+#rank-two-dvector-lab .hint {
+  margin-top: 3px;
+}
+
+#rank-two-dvector-lab .detail {
+  min-height: 1.7em;
+  margin-top: 4px;
+  text-align: center;
+  color: var(--vca-ink);
+}
+
+#rank-two-dvector-lab .detail .muted {
+  color: var(--muted-foreground);
+}
+
+#rank-two-dvector-lab .greedy-popover {
   position: absolute;
+  z-index: 20;
+  width: max-content;
+  max-width: min(520px, calc(100% - 16px));
+  padding: 8px;
+  color: var(--vca-ink);
+  background: var(--vca-field);
+  border: 1px solid rgb(16 16 16 / 32%);
+  box-shadow: rgba(50, 50, 93, 0.24) 0 5px 12px -4px,
+    rgba(0, 0, 0, 0.24) 0 2px 5px -2px;
+}
+
+#rank-two-dvector-lab .greedy-popover[hidden] {
+  display: none;
+}
+
+#rank-two-dvector-lab .greedy-popover-selection {
+  margin-bottom: 6px;
+  color: var(--muted-foreground);
+}
+
+#rank-two-dvector-lab .greedy-output {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding-top: 8px;
+  overflow-wrap: anywhere;
+  color: var(--vca-ink);
+  border-top: 1px solid rgb(16 16 16 / 18%);
+  line-height: 1.8;
+}
+
+#rank-two-dvector-lab .greedy-output[hidden] {
+  display: none;
+}
+
+#rank-two-dvector-lab .greedy-output .math-expression {
+  font-family: "Baskerville Old Face", Baskerville, "Palatino Linotype", Georgia, serif;
+  font-style: normal;
+}
+
+#rank-two-dvector-lab .greedy-output mjx-container[jax="CHTML"][display="true"] {
+  max-width: 100%;
+  margin: 0.2em 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: left !important;
+}
+
+#rank-two-dvector-lab .greedy-output .greedy-message {
+  color: var(--muted-foreground);
+}
+
+#rank-two-dvector-lab .greedy-output .greedy-error {
+  color: var(--destructive);
+}
+
+@media (max-width: 1000px) {
+  #rank-two-dvector-lab .visualca-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "parameters" "plot";
   }
-
-
-
-
-
-
-/* slider CSS */
-.slidecontainer {
-  width: 100%; /* Width of the outside container */
 }
 
-/* The slider itself */
-.slider {
-  -webkit-appearance: none;  /* Override default CSS styles */
-  appearance: none;
-  width: 75%;
-  height: 25px; /* Specified height */
-  background: #d3d3d3; /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-  transition: opacity .2s;
-}
-
-/* Mouse-over effects */
-.slider:hover {
-  opacity: 1; /* Fully shown on mouse-over */
-}
-
-/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */ 
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
-  appearance: none;
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #04AA6D; /* Green background */
-  cursor: pointer; /* Cursor on hover */
-}
-
-.slider::-moz-range-thumb {
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #04AA6D; /* Green background */
-  cursor: pointer; /* Cursor on hover */
+@media (max-width: 600px) {
+  #rank-two-dvector-lab .parameter-actions button {
+    flex: 1 1 auto;
+  }
 }

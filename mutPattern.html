@@ -5,6 +5,7 @@
 	<title>Matrix mutation | Visual Cluster Algebras</title>
 	<link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="mutPattern.css">
+	<script src="header.js" defer></script>
 	<script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> 
 	<script src="https://d3js.org/d3.v7.min.js"></script>
 
@@ -19,7 +20,13 @@
 	<nav>
 		<ul>
 		<li ><a href="mutPattern.html">Matrix mutation</a></li>
-		<li ><a href="greedy.html">Rank 2</a></li>
+			<li class="dropdown">
+			  <button type="button" class="dropbtn" aria-haspopup="true" aria-expanded="false" onclick="toggleRank2Dropdown(event)">Rank 2</button>
+			  <div class="dropdown-content" id="rank2-dropdown">
+			    <a href="greedy.html">Greedy elements</a>
+			    <a href="dVectorFan.html">d-vector fan</a>
+			  </div>
+			</li>
 		<li><a href="acyclic.html">Frieze patterns</a></li>
 		<li><a href="triangulated.html">Triangulations and friezes</a></li>
 		<li><a href="about.html">Contact Us</a></li>

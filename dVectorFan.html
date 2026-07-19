@@ -2,14 +2,13 @@
 <html lang="en-GB">
 
 <head>
-<div>
-	<link rel="stylesheet" type="text/css" href="dVectorFan.css" />
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Rank 2 d-vector fans — Visual Cluster Algebras</title>
 	<link rel="stylesheet" type="text/css" href="style.css" />
-	
-	<!-- Import LaTeX writing (called MathJax) -->
-	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> 
-</div>
-
+	<link rel="stylesheet" type="text/css" href="dVectorFan.css" />
+	<script src="header.js" defer></script>
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
 </head>
 
 
@@ -21,7 +20,13 @@
 		<nav>
 		  <ul>
 		  <li ><a href="mutPattern.html">Matrix mutation</a></li>
-		  <li ><a href="greedy.html">Rank 2</a></li>
+		  <li class="dropdown">
+		    <button type="button" class="dropbtn" aria-haspopup="true" aria-expanded="false" onclick="toggleRank2Dropdown(event)">Rank 2</button>
+		    <div class="dropdown-content" id="rank2-dropdown">
+		      <a href="greedy.html">Greedy elements</a>
+		      <a href="dVectorFan.html">d-vector fan</a>
+		    </div>
+		  </li>
 		  <li><a href="acyclic.html">Frieze patterns</a></li>
 		  <li><a href="triangulated.html">Triangulations and friezes</a></li>
 		  <li><a href="about.html">Contact Us</a></li>
@@ -30,92 +35,68 @@
 	  </header>
 
 <main>
-	<div style="display: table">
-		<div style="display: table-row">
-			<div style="display: table-cell; max-height: 100%;">
-				<canvas id="canvas"></canvas>
-			</div>
-			<div style="display: table-cell; padding-top: 100px;">
-				<div id="parameters">
-	  				<!-- Header of the parameters box -->
-					<h4 id="parametersHeader" style="text-align: center; border-style: solid">Parameters</h4>
-					<div class="slidecontainer">Choose value for b
-				  		<input onmouseup="draw_fan()" type="range" min="1" max="20" value="2" class="slider" id="constant-b"><div id="slider-value-cste-b" value="2"></div>
-					</div>
-					<div class="slidecontainer">Choose value for c
-				  		<input onmouseup="draw_fan()" type="range" min="1" max="20" value="2" class="slider" id="constant-c"><div id="slider-value-cste-c" value="2"></div>
-					</div>
-				    <div>Show d-vector rays
-				    	<input type="checkbox" onclick="draw_fan()" id="d-vecCheckbox" checked>
-				    </div>
-				    <div id="dvecScaleBox" class="slidecontainer">Choose value for m
-				    	<div style="display: table-row">
-				  			<button style="display: table-cell" onclick="decrease()">-</button>
-				  			<input onmouseup="draw_fan()" type="range" min="0" max="100" value="0" class="slider" id="denominatorCount" style="display: table-cell">
-				  			<button style="display: table-cell" onclick="increase()">+</button>
-				    	</div>
-				    	<div id="slider-value-denom-count" value="2"></div>
-				  		
-					</div>
-				    <div id="exRayBox">Show extremal rays
-				    	<form>
-				    		<input type="checkbox" onclick="draw_fan()" id="extremal-ray-checkbox" checked>
-				    	</form>
-					</div>
-					<div >Show grid
-				    	<form>
-				    		<input type="checkbox" onclick="draw_fan()" id="grid-checkbox" checked>
-				    	</form>
-					</div>
-					<div id="gridScaleBox" class="slidecontainer">Choose grid scale:
-				  		<div>
-				  			<input onmouseup="draw_fan()" type="range" min="10" max="100" value="40" class="slider" id="fan_scale">
-				  			
-				  		</div>
-				  		<div id="slider-value" value="40"></div>
-					</div>
-					<div>
-						<button onclick="clear_canvas()">Clear</button>
-					</div>
-					<div>
-						<button onclick="downloadCanvas()">Screenshot</button>
-					</div>
+	<div id="rank-two-dvector-lab">
+		<div class="visualca-workspace">
+			<section class="plot-panel" aria-label="D-vector fan plot">
+				<svg id="dvector-lab-svg" viewBox="0 0 680 570" role="img" aria-labelledby="dvector-lab-title dvector-lab-desc">
+					<title id="dvector-lab-title">Interactive rank-two denominator-vector fan</title>
+					<desc id="dvector-lab-desc">Superimposed rank-two denominator-vector rays. Add computations with independent m, n, and index depth. Duplicate geometric rays within each computation are shown once.</desc>
+					<circle class="circle-guide" cx="340" cy="285" r="245"></circle>
+					<line class="axis" x1="65" y1="285" x2="615" y2="285"></line>
+					<line class="axis" x1="340" y1="555" x2="340" y2="20"></line>
+					<text class="axis-label" x="665" y="290" text-anchor="end">d₁</text>
+					<text class="axis-label" x="347" y="24">d₂</text>
+					<text class="origin-label" x="348" y="302">0</text>
+					<g id="dvector-lab-rays"></g>
+				</svg>
+				<div id="greedy-popover" class="greedy-popover" role="dialog" aria-label="Greedy element action" hidden>
+					<div id="greedy-selection" class="greedy-popover-selection text-small"></div>
+					<button id="greedy-compute" type="button">Compute greedy element</button>
+					<output id="greedy-output" class="greedy-output" aria-live="polite" hidden></output>
 				</div>
-			</div>
+				<div class="hint text-small">Scroll over the plot to zoom and drag to pan. Click a ray to open its greedy-element action and centre the angular lens; the lens magnifies tiny angular separations and intentionally distorts angles above 1×.</div>
+				<div id="dvector-lab-detail" class="detail text-small" aria-live="polite"></div>
+			</section>
+
+			<aside class="parameters" aria-label="Parameters">
+				<h4 class="parameters-heading">Parameters</h4>
+				<div id="dvector-add-form">
+					<label class="parameter-field" for="dvector-m">Choose value for <i>m</i>
+						<input id="dvector-m" type="number" min="1" max="20" step="1" value="3" required>
+					</label>
+					<label class="parameter-field" for="dvector-n">Choose value for <i>n</i>
+						<input id="dvector-n" type="number" min="1" max="20" step="1" value="3" required>
+					</label>
+					<label class="parameter-field" for="dvector-count">Number of d-vectors <i>N</i>
+						<input id="dvector-count" type="number" min="1" max="40" step="1" value="20" required>
+					</label>
+					<label class="parameter-field" for="dvector-range">Index range
+						<select id="dvector-range">
+							<option value="both">Two-sided</option>
+							<option value="forward">Forward</option>
+							<option value="backward">Backward</option>
+						</select>
+					</label>
+					<button id="dvector-superimpose" type="button">Superimpose</button>
+					<span class="field-note text-small">Two-sided uses d<sub>−N</sub>,…,d<sub>−1</sub> and d<sub>0</sub>,…,d<sub>N−1</sub>.</span>
+				</div>
+				<div id="dvector-error" class="error text-small" aria-live="polite"></div>
+				<div id="dvector-series-list" class="series-list text-small" aria-label="Displayed computations"></div>
+				<label class="parameter-field" for="dvector-angle-lens">
+					Angular lens <span id="dvector-angle-status">1×</span>
+					<input id="dvector-angle-lens" type="range" min="0" max="18" step="1" value="0">
+				</label>
+				<div class="parameter-actions" aria-label="Plot controls">
+					<button id="dvector-zoom-in" type="button">Zoom in</button>
+					<button id="dvector-zoom-out" type="button">Zoom out</button>
+					<button id="dvector-reset" type="button">Reset view</button>
+				</div>
+				<span id="dvector-zoom-status" class="zoom-status text-small" aria-live="polite">Zoom 1×</span>
+			</aside>
 		</div>
 	</div>
-	<h4 style="padding: 10px">Setup</h4>
-	<div style="padding: 10px">
-		We follow the setup in <a href="https://link.springer.com/article/10.1007/s00029-012-0115-1">Lee-Li-Zelevinsky</a>. For any integer matrix \[ B =  \begin{pmatrix} 0 &b \\ -c &0 \end{pmatrix}, \] let \( \Sigma = ((x_1,x_2),B)\) be a seed in \(\mathbb{Q}(x_1,x_2)\). Define \(x_n\) for 
-		\(n \in \mathbb{Z}\) recursively by the relations 
-		\[
-			x_{n-1} x_{n+1} = \begin{cases} x_n^b+1, \quad \text{ for n odd }; \\ x_n^c+1, \quad \text{ for n even.}\end{cases}
-		\]  The <i>cluster algebra with trivial coefficients</i> \( \mathcal{A} = \mathcal{A}(\Sigma)\) is the \(\mathbb{Z}\)-subalgebra of \(\mathbb{Q}(x_1,x_2)\) generated by the set 
-		\(\{x_n \mid n \in \mathbb{Z}\}\). The elements \(x_n\) are called <i>cluster variables</i>, and 
-		the pairs \((x_n, x_{n+1})\) are called <i>clusters</i>. Each cluster variable \(x = x_n\) is parameterised by an integer vector \(d = d_n\), called the <i>d-vector</i> of x with respect to the initial cluster \((x_1,x_2)\).	Each d-vector \(d_n\) gives rise to a ray \( r_n = \mathbb{R}_{\geq 0} \cdot d_n\) in \(\mathbb{R}^2\). <br/>
-		When \(bc \geq 4\), the elements \(\dots ,d_{-1}, d_0, d_1, d_2, d_3, \dots\) are all distinct. Consider the infinite sequence \((r_n \mid n = 1, 2, ...)\) (respectively the infinite sequence \((r_n \mid n = 0, -1, ...)\)). This sequence converges to a ray denoted \(r_{\infty}\) (resp. converges to a ray denoted \(r_{-\infty}\)). We call these rays "extremal rays".
-	<h4 style="padding: 10px" >Parameter notations</h4>
-		1) The integers \(b\) and \(c\) denote the entries of the mutation matrix \(B\). <br>
-		2) Given \(m \in \mathbb{Z}_{\geq 0}\), the software computes the rays 
-		\[
-			r_{-m}, \dots ,  r_0 , r_1 , r_2 , r_3 , \dots , r_{m+3},
-		\]
-		which appears as black lines on the plane. Note that for any choice of \((b,c)\), we have that \(d_0, d_1, d_2\) and \(d_3\) are respectively \(\begin{pmatrix} 0\\1 \end{pmatrix}, \begin{pmatrix} -1\\0 \end{pmatrix}, \begin{pmatrix} 0\\-1 \end{pmatrix}\) and \(\begin{pmatrix} 1\\0 \end{pmatrix}\); thus the corresponding rays overlap with the
-		standard coordinate axes of the plane. The remaining \(2m\) rays all appear in the first quadrant.
-		<br>
-		3) The extremal rays (when \(bc>3\)) are drawn in red.
-		</div>
-
-    		
 </main>
 
-</body>
-
-<div>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-	<script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>	
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>	
 	<script type="text/javascript" src="dVectorFan.js"></script>
-</div>
+</body>
 </html>
