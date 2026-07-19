@@ -52,4 +52,123 @@ background-color: grey;
 	display: none;
 }
 
+#functionTable {
+	overflow-x: auto;
+}
 
+#functionTable .frieze-pattern {
+	--frieze-cell-width: 2.25rem;
+	margin: 0 auto;
+	display: inline-flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+#functionTable .frieze-row {
+	display: flex;
+	align-items: center;
+	white-space: nowrap;
+}
+
+#functionTable .frieze-cell {
+	width: var(--frieze-cell-width);
+	flex: 0 0 var(--frieze-cell-width);
+	text-align: center;
+	padding: 0 0.35rem;
+	box-sizing: border-box;
+}
+
+#functionTable .frieze-boundary {
+	color: red;
+}
+
+#numberColumnsContainer {
+	display: none;
+}
+
+#UserCartanDisplay {
+	margin-top: 0.85rem;
+	overflow-x: auto;
+}
+
+.cartan-preview-grid {
+	display: grid;
+	width: min(100%, 64rem);
+	grid-template-columns: minmax(12rem, 0.85fr) minmax(17rem, 1.15fr);
+	align-items: start;
+	gap: clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.cartan-preview-column {
+	min-width: 0;
+	margin: 0;
+}
+
+.cartan-preview-heading {
+	margin: 0 0 0.65rem;
+	font-size: 1rem;
+	font-weight: 400;
+	text-align: center;
+}
+
+.cartan-preview-content {
+	display: flex;
+	min-height: 6.75rem;
+	align-items: center;
+	justify-content: center;
+}
+
+.cartan-matrix-preview mjx-container {
+	margin: 0 !important;
+}
+
+.dynkin-diagram {
+	display: block;
+	width: auto;
+	max-width: 100%;
+	height: auto;
+	margin: 0 auto;
+	overflow: visible;
+	color: #202020;
+}
+
+.dynkin-edge {
+	stroke: currentColor;
+	stroke-width: 1.6;
+	stroke-linecap: round;
+	vector-effect: non-scaling-stroke;
+}
+
+.dynkin-arrow-backplate {
+	fill: #d3d3d3;
+}
+
+.dynkin-arrow-symbol {
+	fill: currentColor;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 20px;
+	font-weight: 600;
+	text-anchor: middle;
+	dominant-baseline: central;
+}
+
+.dynkin-node circle {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.7;
+	vector-effect: non-scaling-stroke;
+}
+
+.dynkin-node text {
+	fill: currentColor;
+	font-family: inherit;
+	font-size: 12px;
+	text-anchor: middle;
+}
+
+@media only screen and (max-width: 700px) {
+	.cartan-preview-grid {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.25rem;
+	}
+}

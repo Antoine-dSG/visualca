@@ -131,6 +131,8 @@ function CartanToInitial() {
 
 	// Recover the rank inputted by the user
 	let rank = document.getElementById("userInputRank").value;
+	let isFiniteType = math.det(listToMathMat(Cartan,rank)) > 0;
+	let friezeLike = document.getElementById("friezePatCheckBox").checked == true || document.getElementById("YfriezePatCheckBox").checked == true || document.getElementById("tropFriezeCheckBox").checked == true;
 
 	// Reveal the dashboard 4.
 	document.getElementById("InitialDashboard").setAttribute("class","dashboard");
@@ -148,6 +150,13 @@ function CartanToInitial() {
 
 	// Clear the Cartan preview in dashboard 2.
 	document.getElementById("UserCartanDisplay").innerHTML = "";
+
+	let numberColumnsContainer = document.getElementById("numberColumnsContainer");
+	if (friezeLike == true && isFiniteType == false) {
+		numberColumnsContainer.style.display = "flex";
+	} else {
+		numberColumnsContainer.style.display = "none";
+	}
 
 	// Code to be read if the user has selected to compute frieze patterns
 	if (document.getElementById("friezePatCheckBox").checked == true) {
@@ -196,16 +205,32 @@ function initialDataToOutcome() {
 	// Determine the "size" of the fundamental domain for the (tropical) functions
 	let h = [];
 	[omega, c] = rootSystemSetup(A,rank);
+	let isFiniteType = math.det(A) > 0;
+	let friezeLike = document.getElementById("friezePatCheckBox").checked == true || document.getElementById("YfriezePatCheckBox").checked == true || document.getElementById("tropFriezeCheckBox").checked == true;
+	let finiteTypeBoundaryShift = friezeLike == true && isFiniteType == true;
+	let numberOfColumns = parseInt(document.getElementById("numberOfColumns").value);
+	let periodText = "";
+	let finiteTypeInfo = inferFiniteTypeInfo(A, rank);
+	if (isFiniteType == true && finiteTypeInfo.period != null) {
+		periodText = "Period = " + finiteTypeInfo.period;
+	}
+	document.getElementById("outcomeProperties").innerHTML = periodText == "" ? "More properties: &nbsp" : "More properties: &nbsp" + periodText;
 	// Need to check whether matrix is finite type before computing the hiA's.
-	if (math.det(A) >0) {
+	if (isFiniteType == true) {
 		for (let i = 0; i<n; i++) {
 			h[i] = hiA(A,i, omega[i], c,n);
+			if (friezeLike == true) {
+				h[i] = h[i] + 1;
+			}
 		}
 	}
 	// Here we put an arbitrary bound on the number of columns computed
 	else {
+		if (isNaN(numberOfColumns) || numberOfColumns < 1) {
+			numberOfColumns = 12;
+		}
 		for (let i = 0; i<n; i++) {
-			h[i] = 8;
+			h[i] = friezeLike == true ? numberOfColumns - 1 : 8;
 		}
 	}
 
@@ -218,7 +243,7 @@ function initialDataToOutcome() {
 		let F = [];
 		if (math.min(slice) >0 ) {
 			F = frieze_pattern(slice,A, h, slice.length);
-			mathMatToTableLatex(F,n,h,"functionTable","clear");
+			mathMatToTableLatex(F,n,h,"functionTable","clear", isFiniteType, 0, finiteTypeBoundaryShift);
 			MathJax.typeset([functionTable]);
 		}
 		else {
@@ -236,7 +261,7 @@ function initialDataToOutcome() {
 		let K = [];
 		if (math.min(slice) >0 ) {
 			K = Yfrieze_pattern(slice,A, h, slice.length);
-			mathMatToTableLatex(K,n,h,"functionTable","clear");
+			mathMatToTableLatex(K,n,h,"functionTable","clear", isFiniteType, 0, finiteTypeBoundaryShift);
 			MathJax.typeset([functionTable]);
 		}
 		else {
@@ -254,7 +279,7 @@ function initialDataToOutcome() {
 		let F = [];
 		F = trop_frieze(slice,A, h, slice.length);
 		// Print the array into the website
-		mathMatToTableLatex(F,n,h,"functionTable","clear");
+		mathMatToTableLatex(F,n,h,"functionTable","clear", isFiniteType, 0, finiteTypeBoundaryShift);
 		MathJax.typeset([functionTable]);
 	}
 
@@ -267,7 +292,7 @@ function initialDataToOutcome() {
 		let K = [];
 		K = cluster_additive(slice,A, h, slice.length);
 		// Print the array into the website
-		mathMatToTableLatex(K,n,h,"functionTable","clear");
+		mathMatToTableLatex(K,n,h,"functionTable","clear", isFiniteType);
 		MathJax.typeset([functionTable]);
 	}
 
@@ -290,7 +315,7 @@ function initialDataToOutcome() {
 		let K = [];
 		K = cluster_additive(slice,A, h, slice.length);
 		// Print the array into the website
-		mathMatToTableLatex(K,n,h,"functionTable","clear");
+		mathMatToTableLatex(K,n,h,"functionTable","clear", isFiniteType);
 		MathJax.typeset([functionTable]);
 
 		// Only display corresponding global monomial if A is of finite type
@@ -310,7 +335,7 @@ function initialDataToOutcome() {
 		let F = [];
 		F = trop_frieze(slice,A, h, slice.length);
 		// Print the array into the website
-		mathMatToTableLatex(F,n,h,"functionTable","clear");
+		mathMatToTableLatex(F,n,h,"functionTable","clear", isFiniteType);
 		MathJax.typeset([functionTable]);
 
 	}
@@ -446,6 +471,91 @@ function createCartan(type, rank) {
 	return Cartan;
 }
 
+function matricesEqual(A, B) {
+	if (math.size(A).toArray().join() !== math.size(B).toArray().join()) {
+		return false;
+	}
+	let size = math.size(A).toArray();
+	for (let i = 0; i < size[0]; i++) {
+		for (let j = 0; j < size[1]; j++) {
+			if (A.subset(math.index(i, j)) != B.subset(math.index(i, j))) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+function inferFiniteTypeInfo(A, rank) {
+	let n = parseInt(rank);
+	let types = [];
+	if (n >= 1) {
+		types.push({type: "A", rank: n});
+	}
+	if (n >= 2) {
+		types.push({type: "B", rank: n});
+	}
+	if (n >= 3) {
+		types.push({type: "C", rank: n});
+	}
+	if (n >= 4) {
+		types.push({type: "D", rank: n});
+	}
+	if (n == 6 || n == 7 || n == 8) {
+		types.push({type: "E", rank: n});
+	}
+	if (n == 4) {
+		types.push({type: "F", rank: n});
+	}
+	if (n == 2) {
+		types.push({type: "G", rank: n});
+	}
+	for (let i = 0; i < types.length; i++) {
+		let candidate = listToMathMat(createCartan(types[i].type, types[i].rank), types[i].rank);
+		if (matricesEqual(A, candidate)) {
+			return {type: types[i].type, period: finiteTypePeriod(types[i].type, types[i].rank)};
+		}
+	}
+	if (Cartan_type != null) {
+		return {type: Cartan_type, period: finiteTypePeriod(Cartan_type, n)};
+	}
+	return {type: null, period: null};
+}
+
+function finiteTypePeriod(type, rank) {
+	let n = parseInt(rank);
+	if (type == "A") {
+		return n + 3;
+	}
+	if (type == "B" || type == "C") {
+		return n + 1;
+	}
+	if (type == "D") {
+		if (n % 2 == 0) {
+			return n;
+		}
+		return 2 * n;
+	}
+	if (type == "E") {
+		if (n == 6) {
+			return 14;
+		}
+		if (n == 7) {
+			return 10;
+		}
+		if (n == 8) {
+			return 16;
+		}
+	}
+	if (type == "F") {
+		return 7;
+	}
+	if (type == "G") {
+		return 4;
+	}
+	return null;
+}
+
 // function to convert a JS array to latex.
 function arrayToMatrix(array,rownum,tagById,renderType) {
 	// renderType determines whether the tagById div needs to be clear before constructing
@@ -475,10 +585,20 @@ function arrayToMatrix(array,rownum,tagById,renderType) {
 	div.innerHTML += "\\end{pmatrix}\\)";
 }
 
-function mathMatToTableLatex(array,rownum, h,tagById,renderType) {
+function mathMatToTableLatex(array,rownum, h,tagById,renderType, highlightBoundaries, extraDisplayColumns, shiftBoundaryLeft) {
+	if (highlightBoundaries === undefined) {
+		highlightBoundaries = true;
+	}
+	if (extraDisplayColumns === undefined) {
+		extraDisplayColumns = 0;
+	}
+	if (shiftBoundaryLeft === undefined) {
+		shiftBoundaryLeft = false;
+	}
 	// Determine the number of columns from the array h of hiA's
-	let colnum = math.add(1,math.max(h));
+	let colnum = math.add(1,math.max(h)) + extraDisplayColumns;
 	let div = document.getElementById(tagById);
+	let staggeredLayout = document.getElementById("friezePatCheckBox").checked == true || document.getElementById("YfriezePatCheckBox").checked == true || document.getElementById("tropFriezeCheckBox").checked == true;
 	// renderType determines whether the tagById div needs to be cleared before constructing
 	// the new matrix
 	if (renderType == "clear") {
@@ -487,6 +607,38 @@ function mathMatToTableLatex(array,rownum, h,tagById,renderType) {
 	}
 	else if (renderType == "concat") {
 
+	}
+	if (staggeredLayout == true) {
+		let table = document.createElement("div");
+		table.className = "frieze-pattern";
+		let measureCanvas = document.createElement("canvas");
+		let measureContext = measureCanvas.getContext("2d");
+		let bodyStyle = window.getComputedStyle(document.body);
+		measureContext.font = bodyStyle.font;
+		let widestCell = 0;
+		for (var i = 0; i < rownum; i++) {
+			var row = document.createElement("div");
+			row.className = "frieze-row";
+			row.style.paddingLeft = "calc(var(--frieze-cell-width) * " + i + " / 2)";
+			for (var m = 0; m <= colnum+1; m++) {
+				var cell = document.createElement("div");
+				cell.className = "frieze-cell";
+				var entry = String(array.subset(math.index(i,m)));
+				widestCell = Math.max(widestCell, measureContext.measureText(entry).width);
+				let boundaryColumn = shiftBoundaryLeft == true ? h[i] : h[i] + 1;
+				if (highlightBoundaries == true && (m == boundaryColumn || m == 0)) {
+					cell.innerHTML = "<span class='frieze-boundary'>" + entry + "</span>";
+				}
+				else {
+					cell.textContent = entry;
+				}
+				row.appendChild(cell);
+			}
+			table.appendChild(row);
+		}
+		table.style.setProperty("--frieze-cell-width", Math.ceil(widestCell + 24) + "px");
+		div.appendChild(table);
+		return;
 	}
 	div.innerHTML += "\\( \\begin{matrix}";
 	for (var i = 0;i < rownum; i++) {
@@ -608,8 +760,237 @@ function generateCartanTable(n, m, tagId) {
 function displayCartanShortcut(type, rank,tagById) {
 	Cartan_type = type;
 	Cartan = createCartan(type, rank);
-	arrayToMatrix(Cartan, rank, tagById, "clear");
-	MathJax.typeset();
+	let container = document.getElementById(tagById);
+	let matrixHeadingId = tagById + "-matrix-heading";
+	let diagramHeadingId = tagById + "-diagram-heading";
+	container.innerHTML =
+		"<div class='cartan-preview-grid'>" +
+			"<section class='cartan-preview-column' aria-labelledby='" + matrixHeadingId + "'>" +
+				"<h4 class='cartan-preview-heading' id='" + matrixHeadingId + "'>Cartan matrix</h4>" +
+				"<div class='cartan-preview-content cartan-matrix-preview' id='" + tagById + "-matrix'></div>" +
+			"</section>" +
+			"<section class='cartan-preview-column' aria-labelledby='" + diagramHeadingId + "'>" +
+				"<h4 class='cartan-preview-heading' id='" + diagramHeadingId + "'>Dynkin diagram</h4>" +
+				"<div class='cartan-preview-content dynkin-preview' id='" + tagById + "-diagram'></div>" +
+			"</section>" +
+		"</div>";
+	arrayToMatrix(Cartan, rank, tagById + "-matrix", "clear");
+	renderDynkinDiagram(type, parseInt(rank), tagById + "-diagram");
+	MathJax.typeset([document.getElementById(tagById + "-matrix")]);
+}
+
+function renderDynkinDiagram(type, rank, tagById) {
+	let container = document.getElementById(tagById);
+	if (!container) {
+		return;
+	}
+
+	let layout = dynkinDiagramLayout(type, rank);
+	if (layout == null) {
+		container.innerHTML = "";
+		return;
+	}
+
+	let matrix = createCartan(type, rank);
+	let edges = dynkinEdgesFromCartan(matrix, rank);
+	let svg =
+		"<svg class='dynkin-diagram' width='" + layout.width + "' height='" + layout.height +
+		"' viewBox='0 0 " + layout.width + " " + layout.height +
+		"' preserveAspectRatio='xMidYMid meet' role='img' aria-labelledby='" + tagById + "-title'>" +
+		"<title id='" + tagById + "-title'>Dynkin diagram of type " + type + rank + "</title>";
+
+	for (let i = 0; i < edges.length; i++) {
+		let edge = edges[i];
+		let firstNode = layout.nodes[edge.i];
+		let secondNode = layout.nodes[edge.j];
+		let offsets = dynkinParallelOffsets(edge.multiplicity);
+		for (let j = 0; j < offsets.length; j++) {
+			let segment = dynkinClippedSegment(firstNode, secondNode, offsets[j]);
+			svg +=
+				"<line class='dynkin-edge' x1='" + dynkinSvgNumber(segment.x1) +
+				"' y1='" + dynkinSvgNumber(segment.y1) +
+				"' x2='" + dynkinSvgNumber(segment.x2) +
+				"' y2='" + dynkinSvgNumber(segment.y2) + "' />";
+		}
+		if (edge.arrowFrom != null) {
+			svg += dynkinArrowSymbol(
+				layout.nodes[edge.arrowFrom],
+				layout.nodes[edge.arrowTo]
+			);
+		}
+	}
+
+	for (let i = 0; i < layout.nodes.length; i++) {
+		let node = layout.nodes[i];
+		let labelY = node.labelSide == "above"
+			? node.y - node.r - 9
+			: node.y + node.r + 12;
+		svg +=
+			"<g class='dynkin-node'>" +
+				"<circle cx='" + node.x + "' cy='" + node.y + "' r='" + node.r + "'></circle>" +
+				"<text x='" + node.x + "' y='" + labelY + "'>" + (i + 1) + "</text>" +
+			"</g>";
+	}
+
+	svg += "</svg>";
+	container.innerHTML = svg;
+}
+
+function dynkinEdgesFromCartan(matrix, rank) {
+	let n = parseInt(rank);
+	let edges = [];
+	for (let i = 0; i < n; i++) {
+		for (let j = i + 1; j < n; j++) {
+			let aij = Math.abs(Number(matrix[i * n + j]));
+			let aji = Math.abs(Number(matrix[j * n + i]));
+			if (aij == 0 && aji == 0) {
+				continue;
+			}
+			let edge = {
+				i: i,
+				j: j,
+				multiplicity: Math.max(aij, aji),
+				arrowFrom: null,
+				arrowTo: null
+			};
+			if (aij < aji) {
+				edge.arrowFrom = i;
+				edge.arrowTo = j;
+			}
+			else if (aji < aij) {
+				edge.arrowFrom = j;
+				edge.arrowTo = i;
+			}
+			edges.push(edge);
+		}
+	}
+	return edges;
+}
+
+function dynkinParallelOffsets(multiplicity) {
+	if (multiplicity == 2) {
+		return [-2.6, 2.6];
+	}
+	if (multiplicity == 3) {
+		return [-4.5, 0, 4.5];
+	}
+	return [0];
+}
+
+function dynkinClippedSegment(firstNode, secondNode, offset) {
+	let dx = secondNode.x - firstNode.x;
+	let dy = secondNode.y - firstNode.y;
+	let length = Math.hypot(dx, dy);
+	let ux = dx / length;
+	let uy = dy / length;
+	let nx = -uy;
+	let ny = ux;
+	let firstClearance = firstNode.r + 1;
+	let secondClearance = secondNode.r + 1;
+	return {
+		x1: firstNode.x + ux * firstClearance + nx * offset,
+		y1: firstNode.y + uy * firstClearance + ny * offset,
+		x2: secondNode.x - ux * secondClearance + nx * offset,
+		y2: secondNode.y - uy * secondClearance + ny * offset
+	};
+}
+
+function dynkinArrowSymbol(fromNode, toNode) {
+	let dx = toNode.x - fromNode.x;
+	let dy = toNode.y - fromNode.y;
+	let middleX = (fromNode.x + toNode.x) / 2;
+	let middleY = (fromNode.y + toNode.y) / 2;
+	let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+	return (
+		"<g class='dynkin-arrow' aria-hidden='true'>" +
+			"<circle class='dynkin-arrow-backplate' cx='" + dynkinSvgNumber(middleX) +
+			"' cy='" + dynkinSvgNumber(middleY) + "' r='10' />" +
+			"<text class='dynkin-arrow-symbol' " +
+			"x='" + dynkinSvgNumber(middleX) + "' y='" + dynkinSvgNumber(middleY) + "' " +
+			"transform='rotate(" + dynkinSvgNumber(angle) + " " +
+				dynkinSvgNumber(middleX) + " " + dynkinSvgNumber(middleY) + ")'>&gt;</text>" +
+		"</g>"
+	);
+}
+
+function dynkinSvgNumber(value) {
+	return Math.round(value * 100) / 100;
+}
+
+function dynkinDiagramLayout(type, rank) {
+	let n = parseInt(rank);
+	let nodeRadius = 7;
+	let spacing = 48;
+	let horizontalMargin = 24;
+
+	if (type == "A" || type == "B" || type == "C" || type == "F" || type == "G") {
+		let width = Math.max(88, horizontalMargin * 2 + spacing * (n - 1));
+		let startX = (width - spacing * (n - 1)) / 2;
+		let nodes = [];
+		for (let i = 0; i < n; i++) {
+			nodes.push({
+				x: startX + i * spacing,
+				y: 32,
+				r: nodeRadius,
+				labelSide: "below"
+			});
+		}
+		return {width: width, height: 68, nodes: nodes};
+	}
+
+	if (type == "D" && n >= 4) {
+		let width = horizontalMargin * 2 + spacing * (n - 2);
+		let nodes = new Array(n);
+		let centralY = 51;
+		for (let i = 0; i <= n - 3; i++) {
+			nodes[i] = {
+				x: horizontalMargin + i * spacing,
+				y: centralY,
+				r: nodeRadius,
+				labelSide: "below"
+			};
+		}
+		let branchX = horizontalMargin + (n - 2) * spacing;
+		nodes[n - 2] = {
+			x: branchX,
+			y: centralY - 24,
+			r: nodeRadius,
+			labelSide: "above"
+		};
+		nodes[n - 1] = {
+			x: branchX,
+			y: centralY + 24,
+			r: nodeRadius,
+			labelSide: "below"
+		};
+		return {width: width, height: 104, nodes: nodes};
+	}
+
+	if (type == "E" && (n == 6 || n == 7 || n == 8)) {
+		let spineOrder = [0, 2, 3];
+		for (let i = 4; i < n; i++) {
+			spineOrder.push(i);
+		}
+		let width = horizontalMargin * 2 + spacing * (spineOrder.length - 1);
+		let nodes = new Array(n);
+		for (let i = 0; i < spineOrder.length; i++) {
+			nodes[spineOrder[i]] = {
+				x: horizontalMargin + i * spacing,
+				y: 57,
+				r: nodeRadius,
+				labelSide: "below"
+			};
+		}
+		nodes[1] = {
+			x: horizontalMargin + 2 * spacing,
+			y: 23,
+			r: nodeRadius,
+			labelSide: "above"
+		};
+		return {width: width, height: 108, nodes: nodes};
+	}
+
+	return null;
 }
 
 // Function to convert a list to a matrix
