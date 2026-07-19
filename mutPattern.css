@@ -59,6 +59,12 @@ background-color: grey;
 	display: none;
 }
 
+.mutation-input-error {
+	min-height: 1.25em;
+	margin: 0 0 0.5rem;
+	color: #8a1f17;
+}
+
 
 .help-button {
   position: fixed;

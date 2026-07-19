@@ -1,6 +1,7 @@
 // Global variables
 var Cartan;
 let Cartan_type = null;
+let Cartan_analysis = null;
 
 // Replace the existing window.MathJax assignment with:
 
@@ -19,7 +20,15 @@ window.MathJax = {
 function rankToCartan() {
 	var rank = 0;
 	// Recover the rank inputted by the user
-	rank = document.getElementById("userInputRank").value;
+	rank = Number(document.getElementById("userInputRank").value);
+	if (!Number.isInteger(rank) || rank < 1) {
+		setCartanError("The rank must be a positive integer.");
+		return;
+	}
+	Cartan = undefined;
+	Cartan_type = null;
+	Cartan_analysis = null;
+	setCartanError("");
 
 	// Reveal the dashboards 2. and 3.
 	document.getElementById("CartanDashboard").setAttribute("class","dashboard");
@@ -119,7 +128,17 @@ function customCartanSubmit() {
 	Cartan_type = null;
 	let rank = document.getElementById("userInputRank").value;
 	let matrix = document.querySelectorAll('#customCartanContainer input');
-	Cartan = callme(matrix);
+	let candidate = callme(matrix).map(Number);
+	let analysis = analyseGeneralizedCartan(candidate, rank);
+	if (!analysis.valid) {
+		Cartan = undefined;
+		Cartan_analysis = null;
+		setCartanError(analysis.message);
+		return;
+	}
+	Cartan = candidate;
+	Cartan_analysis = analysis;
+	setCartanError("");
 	arrayToMatrix(Cartan, rank, "UserCartanDisplay", "clear");
 	MathJax.typeset();
 
@@ -131,7 +150,14 @@ function CartanToInitial() {
 
 	// Recover the rank inputted by the user
 	let rank = document.getElementById("userInputRank").value;
-	let isFiniteType = math.det(listToMathMat(Cartan,rank)) > 0;
+	let analysis = analyseGeneralizedCartan(Cartan, rank);
+	if (!analysis.valid) {
+		setCartanError(analysis.message);
+		return;
+	}
+	Cartan_analysis = analysis;
+	setCartanError("");
+	let isFiniteType = analysis.isFiniteType;
 	let friezeLike = document.getElementById("friezePatCheckBox").checked == true || document.getElementById("YfriezePatCheckBox").checked == true || document.getElementById("tropFriezeCheckBox").checked == true;
 
 	// Reveal the dashboard 4.
@@ -205,7 +231,13 @@ function initialDataToOutcome() {
 	// Determine the "size" of the fundamental domain for the (tropical) functions
 	let h = [];
 	[omega, c] = rootSystemSetup(A,rank);
-	let isFiniteType = math.det(A) > 0;
+	let analysis = analyseGeneralizedCartan(Cartan, rank);
+	if (!analysis.valid) {
+		setCartanError(analysis.message);
+		return;
+	}
+	Cartan_analysis = analysis;
+	let isFiniteType = analysis.isFiniteType;
 	let friezeLike = document.getElementById("friezePatCheckBox").checked == true || document.getElementById("YfriezePatCheckBox").checked == true || document.getElementById("tropFriezeCheckBox").checked == true;
 	let finiteTypeBoundaryShift = friezeLike == true && isFiniteType == true;
 	let numberOfColumns = parseInt(document.getElementById("numberOfColumns").value);
@@ -319,7 +351,7 @@ function initialDataToOutcome() {
 		MathJax.typeset([functionTable]);
 
 		// Only display corresponding global monomial if A is of finite type
-		if (math.det(A) >0) {
+		if (isFiniteType) {
 			functionToClusterMono(K,n,"globalMonomial", "clear");
 			MathJax.typeset([globalMonomial]);
 		}
@@ -354,6 +386,182 @@ function callme(cc) {
     return e.value;
   });
   return result;
+}
+
+function setCartanError(message) {
+	let error = document.getElementById("cartanError");
+	if (error) {
+		error.textContent = message;
+	}
+}
+
+function bigintAbs(value) {
+	return value < 0n ? -value : value;
+}
+
+function bigintGcd(a, b) {
+	a = bigintAbs(a);
+	b = bigintAbs(b);
+	while (b != 0n) {
+		let remainder = a % b;
+		a = b;
+		b = remainder;
+	}
+	return a == 0n ? 1n : a;
+}
+
+function bigintLcm(a, b) {
+	return bigintAbs(a / bigintGcd(a, b) * b);
+}
+
+function normalizedFraction(numerator, denominator) {
+	if (denominator < 0n) {
+		numerator = -numerator;
+		denominator = -denominator;
+	}
+	let divisor = bigintGcd(numerator, denominator);
+	return {num: numerator / divisor, den: denominator / divisor};
+}
+
+function equalFractions(left, right) {
+	return left.num * right.den == right.num * left.den;
+}
+
+function bareissDeterminant(matrix) {
+	let n = matrix.length;
+	if (n == 0) {
+		return 1n;
+	}
+	if (n == 1) {
+		return matrix[0][0];
+	}
+	let work = matrix.map(row => row.slice());
+	let previousPivot = 1n;
+	let sign = 1n;
+	for (let pivotIndex = 0; pivotIndex < n - 1; pivotIndex++) {
+		if (work[pivotIndex][pivotIndex] == 0n) {
+			let swapIndex = pivotIndex + 1;
+			while (swapIndex < n && work[swapIndex][pivotIndex] == 0n) {
+				swapIndex++;
+			}
+			if (swapIndex == n) {
+				return 0n;
+			}
+			let temporary = work[pivotIndex];
+			work[pivotIndex] = work[swapIndex];
+			work[swapIndex] = temporary;
+			sign = -sign;
+		}
+		let pivot = work[pivotIndex][pivotIndex];
+		for (let i = pivotIndex + 1; i < n; i++) {
+			for (let j = pivotIndex + 1; j < n; j++) {
+				work[i][j] = (
+					work[i][j] * pivot - work[i][pivotIndex] * work[pivotIndex][j]
+				) / previousPivot;
+			}
+		}
+		previousPivot = pivot;
+	}
+	return sign * work[n - 1][n - 1];
+}
+
+function analyseGeneralizedCartan(flatMatrix, rank) {
+	let n = Number(rank);
+	if (!Number.isInteger(n) || n < 1) {
+		return {valid: false, isFiniteType: false, message: "The rank must be a positive integer."};
+	}
+	if (!Array.isArray(flatMatrix) || flatMatrix.length != n * n) {
+		return {valid: false, isFiniteType: false, message: "Choose a Cartan matrix before continuing."};
+	}
+	let entries = flatMatrix.map(Number);
+	if (!entries.every(Number.isInteger)) {
+		return {valid: false, isFiniteType: false, message: "Every Cartan-matrix entry must be an integer."};
+	}
+	for (let i = 0; i < n; i++) {
+		if (entries[i * n + i] != 2) {
+			return {valid: false, isFiniteType: false, message: "Every diagonal Cartan-matrix entry must equal 2."};
+		}
+		for (let j = i + 1; j < n; j++) {
+			let aij = entries[i * n + j];
+			let aji = entries[j * n + i];
+			if (aij > 0 || aji > 0) {
+				return {valid: false, isFiniteType: false, message: "Off-diagonal Cartan-matrix entries must be non-positive."};
+			}
+			if ((aij == 0) != (aji == 0)) {
+				return {valid: false, isFiniteType: false, message: "The entries a_ij and a_ji must vanish simultaneously."};
+			}
+		}
+	}
+
+	let symmetrizer = new Array(n).fill(null);
+	for (let componentStart = 0; componentStart < n; componentStart++) {
+		if (symmetrizer[componentStart] != null) {
+			continue;
+		}
+		symmetrizer[componentStart] = {num: 1n, den: 1n};
+		let queue = [componentStart];
+		while (queue.length > 0) {
+			let i = queue.shift();
+			for (let j = 0; j < n; j++) {
+				let aij = entries[i * n + j];
+				if (i == j || aij == 0) {
+					continue;
+				}
+				let aji = entries[j * n + i];
+				let candidate = normalizedFraction(
+					symmetrizer[i].num * BigInt(-aij),
+					symmetrizer[i].den * BigInt(-aji)
+				);
+				if (symmetrizer[j] == null) {
+					symmetrizer[j] = candidate;
+					queue.push(j);
+				}
+				else if (!equalFractions(symmetrizer[j], candidate)) {
+					return {valid: false, isFiniteType: false, message: "The Cartan matrix is not symmetrisable."};
+				}
+			}
+		}
+	}
+
+	let commonDenominator = 1n;
+	for (let i = 0; i < n; i++) {
+		commonDenominator = bigintLcm(commonDenominator, symmetrizer[i].den);
+	}
+	let integerSymmetrizer = symmetrizer.map(value => value.num * (commonDenominator / value.den));
+	let symmetricMatrix = [];
+	for (let i = 0; i < n; i++) {
+		let row = [];
+		for (let j = 0; j < n; j++) {
+			row.push(integerSymmetrizer[i] * BigInt(entries[i * n + j]));
+		}
+		symmetricMatrix.push(row);
+	}
+	for (let i = 0; i < n; i++) {
+		for (let j = i + 1; j < n; j++) {
+			if (symmetricMatrix[i][j] != symmetricMatrix[j][i]) {
+				return {valid: false, isFiniteType: false, message: "The Cartan matrix is not symmetrisable."};
+			}
+		}
+	}
+
+	let leadingPrincipalMinors = [];
+	let isFiniteType = true;
+	for (let size = 1; size <= n; size++) {
+		let leadingBlock = symmetricMatrix.slice(0, size).map(row => row.slice(0, size));
+		let determinant = bareissDeterminant(leadingBlock);
+		leadingPrincipalMinors.push(determinant);
+		if (determinant <= 0n) {
+			isFiniteType = false;
+			break;
+		}
+	}
+	return {
+		valid: true,
+		isFiniteType: isFiniteType,
+		message: "",
+		symmetrizer: integerSymmetrizer,
+		leadingPrincipalMinors: leadingPrincipalMinors
+	};
 }
 
 // Function to create a Cartan matrix of type X and rank n
@@ -760,6 +968,8 @@ function generateCartanTable(n, m, tagId) {
 function displayCartanShortcut(type, rank,tagById) {
 	Cartan_type = type;
 	Cartan = createCartan(type, rank);
+	Cartan_analysis = analyseGeneralizedCartan(Cartan, rank);
+	setCartanError("");
 	let container = document.getElementById(tagById);
 	let matrixHeadingId = tagById + "-matrix-heading";
 	let diagramHeadingId = tagById + "-diagram-heading";

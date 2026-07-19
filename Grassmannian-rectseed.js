@@ -1,14 +1,22 @@
 var InitialMat;
 var PrinInitialMat;
 var mutindices;
+var mutcolindices;
 
 function Grassrectseed() {
 	//This function constructs the mutation matrix associated to the rectangles seed for the Grassmannian.
 	//This will include arrows in between frozen variables as indicated by plabic graphs.
-	
-
+	setMutationInputError("");
 	let k = Number(document.getElementById("userInputk").value);
-    let n = Number(document.getElementById("userInputn").value);
+	let n = Number(document.getElementById("userInputn").value);
+	if (!Number.isInteger(k) || !Number.isInteger(n)) {
+		setMutationInputError("The Grassmannian parameters k and n must be integers.");
+		return;
+	}
+	if (n < 4 || k < 2 || k > n - 2) {
+		setMutationInputError("This rectangles-seed applet requires 2 ≤ k ≤ n−2 (and hence n ≥ 4).");
+		return;
+	}
     
 	let height = k*(n-k)+1;
 	let width = k*(n-k)+1;
@@ -165,8 +173,11 @@ function Grassrectseed() {
 		}
 	}
 	mutindices = [];
+	mutcolindices = [];
 	for (let a = 0; a < mutwidth; a++) {
-		mutindices[a] = (a+1 + Math.floor(a / (n-k-1)));
+		// mutation() uses one-based directions, while the array row above is zero-based.
+		mutindices[a] = a + 2 + Math.floor(a / (n-k-1));
+		mutcolindices[a] = mutindices[a];
 	}
 
 	initOutDashboards();

@@ -3,6 +3,7 @@ var InitialMat;
 var PrinInitialMat;
 var TropInitial = {};
 var mutindices;
+var mutcolindices;
 
 var Cartan;
 
@@ -13,6 +14,13 @@ let clusterVarsHistory = [];
 
 let quiver_svg, simulation;
 
+function setMutationInputError(message) {
+	const error = document.getElementById("mutationInputError");
+	if (error) {
+		error.textContent = message;
+	}
+}
+
 //window.MathJax = {
 //	loader: {load: ['[tex]/color']},
 //	tex: {packages: {'[+]': ['color']}}
@@ -21,6 +29,8 @@ let quiver_svg, simulation;
 // Dashboard0 to Dashboard1
 function dashZeroToOne() {
 	mutindices = null;
+	mutcolindices = null;
+	setMutationInputError("");
 	const choice = document.querySelector('input[name="inputMethod"]:checked').value;
 	// Close all dashboards
 	document.getElementById("inDashboardManual1").className = "dashboardOff";
@@ -197,7 +207,6 @@ function renderMatrix(matrix,tagById,renderType) {
 
 function mutButtons () {
 	document.getElementById("mutationButtons").innerHTML = "";
-	document.getElementById("mutationHistory").innerHTML = "";
 	mutationButtons = document.getElementById("mutationButtons");
 	
 	// Create a mutation button for each column (if number of
@@ -314,34 +323,37 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 	// Hide the mutation history div
 	document.getElementById("mutationHistory").style.display = "none";
 	document.getElementById("mutationHistoryButton").innerHTML = "Show mutation history";
+	// Extended exchange matrices label columns locally but may place the
+	// corresponding mutable rows elsewhere among frozen rows.
+	const mutableRowDirection = mutindices ? mutindices[direction-1] : direction;
+	const mutableColumnDirection = mutcolindices ? mutcolindices[direction-1] : direction;
 
 	// Mutate tropical points if any exists
 	if (TropInitial["ATropMin"]) {
-		TropInitial["ATropMin"] = mutateATrop(TropInitial["ATropMin"],InitialMat,direction,Math.min);
+		TropInitial["ATropMin"] = mutateATrop(TropInitial["ATropMin"],InitialMat,mutableColumnDirection,Math.min,mutableRowDirection);
 		renderArray(TropInitial["ATropMin"],'ATropMin',"clear");
 		//MathJax.typeset([ATropMin]);
 	}
 	if (TropInitial["YTropMin"]) {
-		TropInitial["YTropMin"] = mutateYTrop(TropInitial["YTropMin"],InitialMat,direction,Math.min);
+		TropInitial["YTropMin"] = mutateYTrop(TropInitial["YTropMin"],InitialMat,mutableColumnDirection,Math.min,mutableRowDirection);
 		renderArray(TropInitial["YTropMin"],'YTropMin',"clear");
 		//MathJax.typeset([YTropMin]);
 	}
 	if (TropInitial["ATropMax"]) {
-		TropInitial["ATropMax"] = mutateATrop(TropInitial["ATropMax"],InitialMat,direction,Math.max);
+		TropInitial["ATropMax"] = mutateATrop(TropInitial["ATropMax"],InitialMat,mutableColumnDirection,Math.max,mutableRowDirection);
 		renderArray(TropInitial["ATropMax"],'ATropMax',"clear");
 		//MathJax.typeset([ATropMax]);
 	}
 	if (TropInitial["YTropMax"]) {
-		TropInitial["YTropMax"] = mutateYTrop(TropInitial["YTropMax"],InitialMat,direction,Math.max);
+		TropInitial["YTropMax"] = mutateYTrop(TropInitial["YTropMax"],InitialMat,mutableColumnDirection,Math.max,mutableRowDirection);
 		renderArray(TropInitial["YTropMax"],'YTropMax',"clear");
 		//MathJax.typeset([YTropMax]);
 	}
-	const d = (mutindices ? mutindices[direction-1] : direction);
 	if (clusterVars !== null) {
 		const incoming = [];
 		const outgoing = [];
 		for (let i = 0; i < InitialMat.length; i++) {
-			const b = InitialMat[i][d-1];
+			const b = InitialMat[i][mutableColumnDirection-1];
 			for (let j = 0; j < b; j++) {
 				incoming.push(clusterVars[i]);
 			}
@@ -349,10 +361,10 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 				outgoing.push(clusterVars[i]);
 			}
 		}
-		clusterVars[d-1] = clusterVars[d-1].mutation(incoming, outgoing);
-		clusterVarsHistory.push([d, clusterVars[d-1]]);
+		clusterVars[mutableRowDirection-1] = clusterVars[mutableRowDirection-1].mutation(incoming, outgoing);
+		clusterVarsHistory.push([mutableRowDirection, clusterVars[mutableRowDirection-1]]);
 		const out = document.getElementById("clusterVarsOutput");
-		const div = divClusterVar(d, clusterVars[d-1], specialisedClusterVars());
+		const div = divClusterVar(mutableRowDirection, clusterVars[mutableRowDirection-1], specialisedClusterVars());
 		out.appendChild(div);
 		out.appendChild(document.createElement('br'));
 		const did = 'cvout' + out.childElementCount;
@@ -360,13 +372,13 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 		MathJax.typeset(['#' + did]);
 	}
 	// Create new matrix by mutating the latest
-	InitialMat = mutation(InitialMat, d);
+	InitialMat = mutation(InitialMat, mutableColumnDirection, mutableRowDirection);
 	PrinInitialMat = mutation(PrinInitialMat,direction);
 	// Test whether the mutation matrix is sign-skew-symmetric
-	document.getElementById('sssStateCurrent').innerHTML = sssTest(InitialMat);
+	document.getElementById('sssStateCurrent').innerHTML = sssTest(PrinInitialMat);
 
 	// Test whether the mutation matrix is skew-symmetrisable
-	document.getElementById('ssStateCurrent').innerHTML = ssTest(InitialMat);
+	document.getElementById('ssStateCurrent').innerHTML = ssTest(PrinInitialMat);
 
 	// Convert the latest mutation matrix to MathJax
 	renderMatrix(InitialMat,'MutMat', "clear");
@@ -386,19 +398,21 @@ function mutateData(direction) { // The mutation direction is an integer from 1 
 
 }
 
-function mutation(matrix,direction) {
+function mutation(matrix,direction,mutableRowDirection) {
 	const rows = matrix.length;
 	const cols = (rows ? matrix[0].length : 0);
+	const columnIndex = direction - 1;
+	const rowIndex = (mutableRowDirection === undefined ? direction : mutableRowDirection) - 1;
 	// Declare a new matrix
 	let newMatrix = Array.from(Array(rows), () => new Array(cols));
 	// Matrix mutation formulas:
 	for (let i = 0; i < rows; i++) {
 		for (let j = 0; j < cols; j++) {
-			if (i == (direction-1) || j == (direction-1)) {
+			if (i == rowIndex || j == columnIndex) {
 				newMatrix[i][j] = (-1)*matrix[i][j];
 			}
 			else {
-				newMatrix[i][j] = matrix[i][j] + Math.max(matrix[i][direction-1],0)*Math.max(matrix[direction-1][j],0) - Math.max(-matrix[i][direction-1],0)*Math.max(-matrix[direction-1][j],0);
+				newMatrix[i][j] = matrix[i][j] + Math.max(matrix[i][columnIndex],0)*Math.max(matrix[rowIndex][j],0) - Math.max(-matrix[i][columnIndex],0)*Math.max(-matrix[rowIndex][j],0);
 			}
 		}
 	}
@@ -419,16 +433,18 @@ function toggleDiv(button, element, name) {
 
 }
 	
-function mutateATrop (trop,matrix,direction,sgnFunc) {
+function mutateATrop (trop,matrix,direction,sgnFunc,mutableRowDirection) {
 	const rownum = matrix.length;
+	const columnIndex = direction - 1;
+	const rowIndex = (mutableRowDirection === undefined ? direction : mutableRowDirection) - 1;
 	let newTrop = [];
 	for (let i =0; i < rownum; i++) {
-		if (i == direction-1) {
+		if (i == rowIndex) {
 			let Tpos = 0;
 			let Tneg = 0;
 			for (let j=0; j < rownum; j++) {
-				Tpos += Math.max(matrix[j][direction-1],0) * trop[j];
-				Tneg += Math.max(-matrix[j][direction-1],0) * trop[j];
+				Tpos += Math.max(matrix[j][columnIndex],0) * trop[j];
+				Tneg += Math.max(-matrix[j][columnIndex],0) * trop[j];
 			}
 			newTrop[i] = -trop[i] + sgnFunc(Tpos,Tneg);
 		}
@@ -439,15 +455,17 @@ function mutateATrop (trop,matrix,direction,sgnFunc) {
 	return newTrop;
 }	
 
-function mutateYTrop (trop,matrix,direction,sgnFunc) {
+function mutateYTrop (trop,matrix,direction,sgnFunc,mutableRowDirection) {
 	const colnum = (matrix.length ? matrix[0].length : 0);
+	const columnIndex = direction - 1;
+	const rowIndex = (mutableRowDirection === undefined ? direction : mutableRowDirection) - 1;
 	let newTrop = [];
 	for (let i =0; i < colnum; i++) {
-		if (i != direction-1) {
+		if (i != columnIndex) {
 			let rhs = 0;
 			rhs += trop[i];
-			rhs += Math.max(matrix[direction-1][i],0) * trop[direction-1];
-			rhs += (-1)*matrix[direction-1][i] * sgnFunc(trop[direction-1],0);
+			rhs += Math.max(matrix[rowIndex][i],0) * trop[columnIndex];
+			rhs += (-1)*matrix[rowIndex][i] * sgnFunc(trop[columnIndex],0);
 			newTrop[i] = rhs;
 		}
 		else {
@@ -714,12 +732,14 @@ function quiverUpdateLinks(matrixData) {
   
 
 function displayCartanShortcut(type, rank,tagById) {
+	setMutationInputError("");
 	Cartan = createCartan(type, rank);
 	renderMatrix(Cartan, tagById, "clear");
 	MathJax.typeset();
 }
 
 function displayCartanShortcutAcyclic(type, rank,tagById) {
+	setMutationInputError("");
 	DynkinExchangeMatrix = createDynkinExchangeMatrix(type, rank);
 	renderMatrix(DynkinExchangeMatrix, tagById, "clear");
 	MathJax.typeset();
